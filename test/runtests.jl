@@ -2,16 +2,7 @@
 using ITensorMPS: ITensorMPS
 using ITensorTDVP: ITensorTDVP
 using ITensors: ITensors
-include(
-  joinpath(
-    pkgdir(ITensors),
-    "test",
-    "base",
-    "utils",
-    "TestITensorsExportedNames",
-    "TestITensorsExportedNames.jl",
-  ),
-)
+include("utils/TestITensorMPSExportedNames.jl")
 using Test: @test, @testset
 @testset "ITensorMPS.jl" begin
   @testset "exports" begin
@@ -29,8 +20,8 @@ using Test: @test, @testset
           :tdvp,
           :to_vec,
         ]
-        # ITensors.ITensorMPS reexports
-        TestITensorsExportedNames.ITENSORMPS_EXPORTED_NAMES
+        # ITensors and ITensors.ITensorMPS reexports
+        TestITensorMPSExportedNames.ITENSORMPS_EXPORTED_NAMES
       ],
     )
   end
