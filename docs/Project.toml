@@ -1,0 +1,3 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+ITensorMPS = "10ea5e1e-0ede-47d2-81e8-27a421adbc4d"
