@@ -1,6 +1,22 @@
-using ITensorMPS
-using Test
-
+@eval module $(gensym())
+using ITensorMPS: ITensorMPS
+using Test: @test, @testset
 @testset "ITensorMPS.jl" begin
-    # Write your tests here.
+  @testset "exports" begin
+    @test issetequal(
+      names(ITensorMPS),
+      [
+        :ITensorMPS,
+        # ITensorMPS reexports
+        :dmrg,
+        # ITensorTDVP reexports
+        :TimeDependentSum,
+        :dmrg_x,
+        :linsolve,
+        :tdvp,
+        :to_vec,
+      ],
+    )
+  end
+end
 end
