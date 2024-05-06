@@ -51,6 +51,7 @@ const ITENSORMPS_EXPORTED_NAMES = [
   :coefficient,
   :common_siteind,
   :common_siteinds,
+  :convert_leaf_eltype, # remove export
   :correlation_matrix,
   :cutoff,
   :cutoff!, # deprecate

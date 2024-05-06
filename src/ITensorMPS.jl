@@ -54,6 +54,7 @@ const alternating_update_dmrg = ITensorTDVP.dmrg
   coefficient,
   common_siteind,
   common_siteinds,
+  convert_leaf_eltype, # remove export
   correlation_matrix,
   cutoff,
   cutoff!, # deprecate
