@@ -41,6 +41,7 @@ const alternating_update_dmrg = ITensorTDVP.dmrg
   StateName,
   Sum,
   Sweeps,
+  TagType, # deprecate
   Trotter,
   ValName,
   add,

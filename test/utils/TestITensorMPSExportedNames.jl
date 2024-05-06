@@ -37,6 +37,7 @@ const ITENSORMPS_EXPORTED_NAMES = [
   :Spectrum,
   :StateName,
   :Sum,
+  :TagType, # deprecate
   :Sweeps,
   :Trotter,
   :ValName,
