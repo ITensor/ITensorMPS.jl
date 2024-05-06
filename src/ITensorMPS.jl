@@ -2,7 +2,7 @@ module ITensorMPS
 using ITensorTDVP: TimeDependentSum, dmrg_x, linsolve, tdvp, to_vec
 export TimeDependentSum, dmrg_x, linsolve, tdvp, to_vec
 using ITensorTDVP: ITensorTDVP
-alternating_update_dmrg(args...; kwargs...) = ITensorTDVP.dmrg(args...; kwargs...)
+const alternating_update_dmrg = ITensorTDVP.dmrg
 using ITensors.ITensorMPS: dmrg
 export dmrg
 end

@@ -1,5 +1,6 @@
 @eval module $(gensym())
 using ITensorMPS: ITensorMPS
+using ITensorTDVP: ITensorTDVP
 using Test: @test, @testset
 @testset "ITensorMPS.jl" begin
   @testset "exports" begin
@@ -17,6 +18,9 @@ using Test: @test, @testset
         :to_vec,
       ],
     )
+  end
+  @testset "aliases" begin
+    @test ITensorMPS.alternating_update_dmrg === ITensorTDVP.dmrg
   end
 end
 end
