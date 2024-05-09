@@ -3,6 +3,8 @@ using Reexport: @reexport
 @reexport using ITensorTDVP: TimeDependentSum, dmrg_x, linsolve, tdvp, to_vec
 using ITensorTDVP: ITensorTDVP
 const alternating_update_dmrg = ITensorTDVP.dmrg
+# Not re-exported, but accessible as `ITensorMPS.sortmergeterms`.
+using ITensors.ITensorMPS: sortmergeterms
 @reexport using ITensors.ITensorMPS:
   @OpName_str,
   @SiteType_str,
