@@ -3,7 +3,7 @@ using ITensorMPS: ITensorMPS
 using ITensorTDVP: ITensorTDVP
 using ITensors: ITensors
 include("utils/TestITensorMPSExportedNames.jl")
-using Test: @test, @testset
+using Test: @test, @test_broken, @testset
 @testset "ITensorMPS.jl" begin
   @testset "exports" begin
     @test issetequal(
@@ -17,8 +17,17 @@ using Test: @test, @testset
       ],
     )
   end
-  @testset "aliases" begin
+  @testset "Aliases" begin
     @test ITensorMPS.alternating_update_dmrg === ITensorTDVP.dmrg
+  end
+  @testset "Not exported" begin
+    @test ITensorMPS.sortmergeterms === ITensors.ITensorMPS.sortmergeterms
+    # Should we fix this in ITensors.jl by adding:
+    # ```julia
+    # using .ITensorMPS: sortmergeterms
+    # ```
+    # ?
+    @test_broken ITensorMPS.sortmergeterms === ITensors.sortmergeterms
   end
 end
 end
