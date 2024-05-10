@@ -5,7 +5,7 @@ using ITensorTDVP: ITensorTDVP
 const alternating_update_dmrg = ITensorTDVP.dmrg
 # Not re-exported, but this makes these types and functions accessible
 # as `ITensorMPS.x`.
-using ITensors.ITensorMPS: AbstractSum, sortmergeterms
+using ITensors.ITensorMPS: AbstractSum, ProjMPS, sortmergeterms
 @reexport using ITensors.ITensorMPS:
   @OpName_str,
   @SiteType_str,
@@ -38,7 +38,6 @@ using ITensors.ITensorMPS: AbstractSum, sortmergeterms
   ProjMPO,
   ProjMPOSum,
   ProjMPO_MPS,
-  ProjMPS,
   Scaled,
   SiteType,
   Spectrum,
