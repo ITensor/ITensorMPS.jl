@@ -38,6 +38,7 @@ using ITensors.ITensorMPS: AbstractSum, sortmergeterms
   ProjMPO,
   ProjMPOSum,
   ProjMPO_MPS,
+  ProjMPS,
   Scaled,
   SiteType,
   Spectrum,
