@@ -28,6 +28,7 @@ using Test: @test, @test_broken, @testset
     # ```
     # ?
     @test_broken ITensorMPS.sortmergeterms === ITensors.sortmergeterms
+    @test ITensorMPS.AbstractSum === ITensors.ITensorMPS.AbstractSum
   end
 end
 end
