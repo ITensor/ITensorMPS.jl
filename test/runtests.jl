@@ -28,8 +28,18 @@ using Test: @test, @test_broken, @testset
     # ```
     # ?
     @test_broken ITensorMPS.sortmergeterms === ITensors.sortmergeterms
-    @test ITensorMPS.AbstractSum === ITensors.ITensorMPS.AbstractSum
-    @test ITensorMPS.ProjMPS === ITensors.ITensorMPS.ProjMPS
+    for f in [
+      :AbstractProjMPO,
+      :AbstractMPS,
+      :ProjMPS,
+      :makeL!,
+      :makeR!,
+      :set_terms,
+      :sortmergeterms,
+      :terms,
+    ]
+      @test getfield(ITensorMPS, f) === getfield(ITensors.ITensorMPS, f)
+    end
   end
 end
 end
