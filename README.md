@@ -8,7 +8,7 @@
 
 Finite MPS and MPO methods based on ITensor (ITensors.jl).
 
-This package currently re-exports the MPS and MPO functionality of the [ITensors.jl](https://github.com/ITensor/ITensors.jl) and [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) packages, including applications like DMRG, TDVP, applying MPO to MPS, applying gates, etc.
+This package currently re-exports the MPS and MPO functionality of the [ITensors.jl](https://github.com/ITensor/ITensors.jl) and [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) packages, including applications like DMRG, TDVP, applying MPO to MPS, applying gates to MPS and MPO, etc.
 
 See the [ITensor documentation](https://itensor.github.io/ITensors.jl/dev) and the [ITensorTDVP.jl examples](https://github.com/ITensor/ITensorTDVP.jl/tree/main/examples) for guides and examples on using this package.
 
