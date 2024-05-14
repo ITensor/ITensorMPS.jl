@@ -1,12 +1,15 @@
 module ITensorMPS
 using Reexport: @reexport
 @reexport using ITensorTDVP: TimeDependentSum, dmrg_x, linsolve, tdvp, to_vec
-using ITensorTDVP: ITensorTDVP
-const alternating_update_dmrg = ITensorTDVP.dmrg
 # Not re-exported, but this makes these types and functions accessible
 # as `ITensorMPS.x`.
 using ITensors.ITensorMPS:
   AbstractProjMPO, AbstractSum, ProjMPS, makeL!, makeR!, set_terms, sortmergeterms, terms
+include("Experimental.jl")
+using .Experimental: Experimental
+include("Deprecated.jl")
+using .Deprecated: Deprecated, dmrg
+export dmrg
 @reexport using ITensors.ITensorMPS:
   @OpName_str,
   @SiteType_str,
@@ -63,7 +66,6 @@ using ITensors.ITensorMPS:
   cutoff,
   cutoff!, # deprecate
   disk,
-  dmrg,
   dot, # remove export
   eigs, # deprecate
   energies, # deprecate
