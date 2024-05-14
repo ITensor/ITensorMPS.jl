@@ -18,7 +18,8 @@ using Test: @test, @test_broken, @testset
     )
   end
   @testset "Aliases" begin
-    @test ITensorMPS.alternating_update_dmrg === ITensorTDVP.dmrg
+    @test ITensorMPS.Experimental.dmrg === ITensorTDVP.dmrg
+    @test ITensorMPS.dmrg === ITensors.ITensorMPS.dmrg
   end
   @testset "Not exported" begin
     @test ITensorMPS.sortmergeterms === ITensors.ITensorMPS.sortmergeterms
