@@ -1,7 +1,7 @@
 name = "ITensorMPS"
 uuid = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>", "Miles Stoudenmire <mstoudenmire@flatironinstitute.org>"]
-version = "0.1.8"
+version = "0.2.0"
 
 [deps]
 ITensorTDVP = "25707e16-a4db-4a07-99d9-4d67b7af0342"
@@ -9,7 +9,7 @@ ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
-ITensorTDVP = "0.3"
+ITensorTDVP = "0.4"
 ITensors = "0.3, 0.4, 0.5, 0.6"
 Reexport = "1"
 julia = "1.6"
