@@ -11,7 +11,7 @@ using Test: @test, @test_broken, @testset
       [
         [:ITensorMPS]
         # ITensorTDVP reexports
-        [:TimeDependentSum, :dmrg_x, :linsolve, :tdvp, :to_vec]
+        [:TimeDependentSum, :dmrg_x, :expand, :linsolve, :tdvp, :to_vec]
         # ITensors and ITensors.ITensorMPS reexports
         TestITensorMPSExportedNames.ITENSORMPS_EXPORTED_NAMES
       ],

@@ -1,6 +1,6 @@
 module ITensorMPS
 using Reexport: @reexport
-@reexport using ITensorTDVP: TimeDependentSum, dmrg_x, linsolve, tdvp, to_vec
+@reexport using ITensorTDVP: TimeDependentSum, dmrg_x, expand, linsolve, tdvp, to_vec
 # Not re-exported, but this makes these types and functions accessible
 # as `ITensorMPS.x`.
 using ITensors.ITensorMPS:
