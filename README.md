@@ -18,6 +18,14 @@ The goal will be to move the MPS and MPO code from the ITensors.jl package, alon
 
 ## News
 
+### ITensorMPS.jl v0.2.1 release notes
+
+#### New features
+
+This release introduces a new (experimental) function `expand` for performing global Krylov expansion based on [arXiv:2005.06104](https://arxiv.org/abs/2005.06104). It is a re-export of the `expand` function introduced in ITensorTDVP.jl v0.4.1, see the [ITensorTDVP.jl v0.4.1 release notes](https://github.com/ITensor/ITensorTDVP.jl/tree/main?tab=readme-ov-file#itensortdvpjl-v041-release-notes) for more details.
+
 ### ITensorMPS.jl v0.2 release notes
+
+#### Breaking changes
 
 ITensorMPS.jl v0.2 has been released, which is a breaking release. It updates to using ITensorTDVP.jl v0.4, which has a number of breaking changes to the `tdvp`, `linsolve`, and `dmrg_x` functions. See the [ITensorTDVP.jl v0.4 release notes](https://github.com/ITensor/ITensorTDVP.jl/blob/main/README.md#itensortdvpjl-v04-release-notes) for details.
