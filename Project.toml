@@ -1,7 +1,7 @@
 name = "ITensorMPS"
 uuid = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>", "Miles Stoudenmire <mstoudenmire@flatironinstitute.org>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 ITensorTDVP = "25707e16-a4db-4a07-99d9-4d67b7af0342"
