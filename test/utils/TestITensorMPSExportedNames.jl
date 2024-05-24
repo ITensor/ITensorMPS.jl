@@ -51,6 +51,7 @@ const ITENSORMPS_EXPORTED_NAMES = [
   :coefficient,
   :common_siteind,
   :common_siteinds,
+  :contract,
   :convert_leaf_eltype,
   :correlation_matrix,
   :cutoff,

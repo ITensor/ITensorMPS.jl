@@ -10,6 +10,7 @@ using .Experimental: Experimental
 include("Deprecated.jl")
 using .Deprecated: Deprecated, dmrg
 export dmrg
+@reexport using ITensors: contract
 @reexport using ITensors.ITensorMPS:
   @OpName_str,
   @SiteType_str,

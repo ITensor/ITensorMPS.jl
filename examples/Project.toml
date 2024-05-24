@@ -1,12 +1,11 @@
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 ITensorMPS = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
-ITensorTDVP = "25707e16-a4db-4a07-99d9-4d67b7af0342"
 ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
 KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Observers = "338f10d5-c7f1-4033-a7d1-f9dec39bcaa0"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+ITensors = "0.6.7"
