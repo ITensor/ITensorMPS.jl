@@ -6,7 +6,24 @@ using Random: Random
 include("03_models.jl")
 include("03_updaters.jl")
 
-function main()
+"""
+Run the example on CPU:
+```julia
+main()
+```
+
+Run the example on CPU with single precision:
+```julia
+main(; eltype=Float32)
+```
+
+Run the example on GPU:
+```julia
+using CUDA: cu
+main(; eltype=Float32, device=cu)
+```
+"""
+function main(; eltype=Float64, device=identity)
   Random.seed!(1234)
 
   # Time dependent Hamiltonian is:
@@ -24,16 +41,16 @@ function main()
   outputlevel = 3
 
   # Frequency of time dependent terms
-  ω₁ = 0.1
-  ω₂ = 0.2
+  ω₁ = one(eltype) / 10
+  ω₂ = one(eltype) / 5
 
   # Nearest and next-nearest neighbor
   # Heisenberg couplings.
-  J₁ = 1.0
-  J₂ = 1.0
+  J₁ = one(eltype)
+  J₂ = one(eltype)
 
-  time_step = 0.1
-  time_stop = 1.0
+  time_step = one(eltype) / 10
+  time_stop = one(eltype)
 
   # nsite-update TDVP
   nsite = 2
@@ -46,9 +63,9 @@ function main()
 
   # TDVP truncation parameters
   maxdim = 100
-  cutoff = 1e-8
+  cutoff = √(eps(eltype))
 
-  tol = 1e-15
+  tol = 10 * eps(eltype)
 
   @show n
   @show ω₁, ω₂
@@ -61,18 +78,20 @@ function main()
   f⃗ = map(ω -> (t -> cos(ω * t)), ω⃗)
 
   # H₀ = H(0) = H₁(0) + H₂(0) + …
-  ℋ₁₀ = heisenberg(n; J=J₁, J2=0.0)
-  ℋ₂₀ = heisenberg(n; J=0.0, J2=J₂)
+  ℋ₁₀ = heisenberg(n; J=J₁, J2=zero(eltype))
+  ℋ₂₀ = heisenberg(n; J=zero(eltype), J2=J₂)
   ℋ⃗₀ = (ℋ₁₀, ℋ₂₀)
 
   s = siteinds("S=1/2", n)
 
-  H⃗₀ = map(ℋ₀ -> MPO(ℋ₀, s), ℋ⃗₀)
+  H⃗₀ = map(ℋ₀ -> device(MPO(eltype, ℋ₀, s)), ℋ⃗₀)
 
   # Initial state, ψ₀ = ψ(0)
   # Initialize as complex since that is what OrdinaryDiffEq.jl/DifferentialEquations.jl
   # expects.
-  ψ₀ = complex.(random_mps(s, j -> isodd(j) ? "↑" : "↓"; linkdims=start_linkdim))
+  ψ₀ = device(
+    complex.(random_mps(eltype, s, j -> isodd(j) ? "↑" : "↓"; linkdims=start_linkdim))
+  )
 
   @show norm(ψ₀)
 
