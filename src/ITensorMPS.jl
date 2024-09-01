@@ -10,7 +10,9 @@ using .Experimental: Experimental
 include("Deprecated.jl")
 using .Deprecated: Deprecated, dmrg
 export dmrg
-@reexport using ITensors: contract
+# `ops` is defined in `ITensors.SiteTypes`.
+# TODO: Maybe reexport from there.
+@reexport using ITensors: contract, ops
 @reexport using ITensors.ITensorMPS:
   @OpName_str,
   @SiteType_str,
@@ -117,7 +119,6 @@ export dmrg
   nsite,
   nsweep,
   op,
-  ops,
   orthoCenter,
   ortho_lims,
   orthocenter,
