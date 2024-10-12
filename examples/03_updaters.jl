@@ -2,7 +2,7 @@ using Compat: @compat
 using ITensors: ITensor, array, inds, itensor
 using ITensorMPS: TimeDependentSum, to_vec
 using KrylovKit: exponentiate
-using OrdinaryDiffEq: ODEProblem, Tsit5, solve
+using OrdinaryDiffEqTsit5: ODEProblem, Tsit5, solve
 
 function ode_updater(operator, init; internal_kwargs, alg=Tsit5(), kwargs...)
   @compat (; current_time, time_step) = (; current_time=zero(Bool), internal_kwargs...)
