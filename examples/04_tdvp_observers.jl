@@ -4,7 +4,7 @@ using Observers: observer
 function main()
   function heisenberg(N)
     os = OpSum()
-    for j in 1:(N - 1)
+    for j in 1:(N-1)
       os += 0.5, "S+", j, "S-", j + 1
       os += 0.5, "S-", j, "S+", j + 1
       os += "Sz", j, "Sz", j + 1
