@@ -1,6 +1,16 @@
 @eval module $(gensym())
 using ITensors: ITensors, Index, QN, contract, scalartype
-using ITensorMPS: ITensorMPS, MPO, MPS, ProjMPO, ProjMPOSum, TimeDependentSum, position!, random_mps, siteinds, tdvp
+using ITensorMPS:
+  ITensorMPS,
+  MPO,
+  MPS,
+  ProjMPO,
+  ProjMPOSum,
+  TimeDependentSum,
+  position!,
+  random_mps,
+  siteinds,
+  tdvp
 using LinearAlgebra: norm
 using StableRNGs: StableRNG
 using Test: @test, @test_skip, @testset

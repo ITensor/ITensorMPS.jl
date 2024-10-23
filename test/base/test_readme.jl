@@ -1,4 +1,4 @@
-using ITensors, Test
+using ITensorMPS, ITensors, Test
 
 @testset "README Examples" begin
   @testset "ITensor Basics" begin

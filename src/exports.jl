@@ -1,5 +1,43 @@
 using LinearAlgebra: ⋅
 export
+  # Exports that were removed from ITensors.jl
+  # when ITensors.ITensorMPS was moved to ITensorMPS.jl.
+  @OpName_str,
+  @SiteType_str,
+  @StateName_str,
+  @TagType_str,
+  @ValName_str,
+  Apply,
+  Op,
+  OpName,
+  Ops,
+  Prod,
+  Scaled,
+  SiteType,
+  Spectrum,
+  StateName,
+  Sum,
+  TagType,
+  Trotter,
+  ValName,
+  apply,
+  argsdict,
+  coefficient,
+  contract,
+  convert_leaf_eltype,
+  eigs,
+  entropy,
+  has_fermion_string,
+  hassameinds,
+  linkindex,
+  ops,
+  replaceprime,
+  siteindex,
+  splitblocks,
+  tr,
+  truncerror,
+  val,
+
   # dmrg.jl
   dmrg,
   # abstractmps.jl
@@ -21,7 +59,6 @@ export
   lognorm,
   movesite,
   movesites,
-  normalize,
   ortho_lims,
   orthocenter,
   promote_itensor_eltype,
@@ -31,6 +68,7 @@ export
   sim!,
   # autompo/
   AutoMPO,
+  OpSum,
   add!,
   # mpo.jl
   # Types
@@ -61,6 +99,7 @@ export
   linkdims,
   linkind,
   linkinds,
+  op,
   productMPS,
   random_mps,
   replacebond,
@@ -69,6 +108,7 @@ export
   sample!,
   siteind,
   siteinds,
+  state,
   replace_siteinds!,
   replace_siteinds,
   swapbondsites,
@@ -86,7 +126,6 @@ export
   measurements,
   truncerrors,
   # projmpo.jl
-  checkflux,
   disk,
   ProjMPO,
   lproj,

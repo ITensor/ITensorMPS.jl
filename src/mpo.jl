@@ -1,7 +1,8 @@
 using Adapt: adapt
 using LinearAlgebra: dot
 using Random: Random
-using ..SiteTypes: SiteTypes, siteind, siteinds
+using ITensors.Ops: OpSum
+using ITensors.SiteTypes: SiteTypes, siteind, siteinds
 
 """
     MPO

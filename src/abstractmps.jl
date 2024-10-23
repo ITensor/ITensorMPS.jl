@@ -1,7 +1,7 @@
 using IsApprox: Approx, IsApprox
 using ITensors: ITensors
 using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
-# TODO: Just load from `ITensors`, not from submodules.
+using ITensors.Ops: Prod
 using ITensors.QuantumNumbers: QuantumNumbers, removeqn
 using ITensors.SiteTypes: SiteTypes, siteinds
 using ITensors.TagSets: TagSets

@@ -1,5 +1,6 @@
 using NDTensors: using_auto_fermion
-using ..Ops: Op
+using ITensors.Ops: Ops, Op, OpSum, Scaled, Sum, coefficient
+using ITensors.SiteTypes: has_fermion_string, op
 
 # TODO: Deprecate.
 const AutoMPO = OpSum

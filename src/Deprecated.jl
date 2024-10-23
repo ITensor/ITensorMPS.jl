@@ -18,6 +18,7 @@
 @deprecate mul(A::AbstractMPS, B::AbstractMPS; kwargs...) contract(A, B; kwargs...)
 
 # mps/mpo.jl
+@deprecate toMPO(args...; kwargs...) MPO(args...; kwargs...)
 @deprecate MPO(A::MPS; kwargs...) outer(A', A; kwargs...)
 @deprecate randomMPO(args...; kwargs...) random_mpo(args...; kwargs...)
 

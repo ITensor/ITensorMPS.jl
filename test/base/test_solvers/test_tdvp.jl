@@ -1,15 +1,6 @@
 @eval module $(gensym())
 using ITensorMPS:
-  AbstractObserver,
-  MPO,
-  MPS,
-  OpSum,
-  apply,
-  expect,
-  inner,
-  random_mps,
-  siteinds,
-  tdvp
+  AbstractObserver, MPO, MPS, OpSum, apply, expect, inner, random_mps, siteinds, tdvp
 using ITensors: ITensors, ITensor, dag, noprime, op, prime, scalar
 using KrylovKit: exponentiate
 using LinearAlgebra: norm

@@ -1,7 +1,7 @@
 using Adapt: adapt
 using NDTensors: using_auto_fermion
 using Random: Random
-using ..SiteTypes: SiteTypes, siteind, siteinds
+using ITensors.SiteTypes: SiteTypes, siteind, siteinds, state
 
 """
     MPS
