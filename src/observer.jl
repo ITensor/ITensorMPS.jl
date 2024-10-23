@@ -128,16 +128,16 @@ energy after each sweep.
 """
 energies(o::DMRGObserver) = o.energies
 
-sites(obs::DMRGObserver) = obs.sites
+observer_sites(obs::DMRGObserver) = obs.sites
 
-ops(obs::DMRGObserver) = obs.ops
+observer_ops(obs::DMRGObserver) = obs.ops
 
 truncerrors(obs::DMRGObserver) = obs.truncerrs
 
 function measurelocalops!(obs::DMRGObserver, wf::ITensor, i::Int)
-  for o in ops(obs)
+  for o in observer_ops(obs)
     # Moves to GPU if needed
-    oⱼ = adapt(datatype(wf), op(sites(obs), o, i))
+    oⱼ = adapt(datatype(wf), op(observer_sites(obs), o, i))
     m = dot(wf, apply(oⱼ, wf))
     imag(m) > 1e-8 && (@warn "encountered finite imaginary part when measuring $o")
     measurements(obs)[o][end][i] = real(m)
@@ -155,7 +155,7 @@ function measure!(obs::DMRGObserver; kwargs...)
     N = length(psi)
 
     if b == (N - 1)
-      for o in ops(obs)
+      for o in observer_ops(obs)
         push!(measurements(obs)[o], zeros(N))
       end
       push!(truncerrors(obs), 0.0)
