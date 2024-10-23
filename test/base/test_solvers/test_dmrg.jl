@@ -1,6 +1,6 @@
 @eval module $(gensym())
 using ITensors: ITensors
-using ITensorMPS: Experimental, MPO, OpSum, inner, random_mps, siteinds
+using ITensorMPS: Experimental, MPO, OpSum, dmrg, inner, random_mps, siteinds
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset
 @testset "DMRG (eltype=$elt, nsite=$nsite, conserve_qns=$conserve_qns)" for elt in (
