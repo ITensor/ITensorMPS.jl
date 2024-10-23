@@ -6,6 +6,3 @@ KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
 Observers = "338f10d5-c7f1-4033-a7d1-f9dec39bcaa0"
 OrdinaryDiffEqTsit5 = "b1df2697-797e-41e3-8120-5422d3b24e4a"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-
-[compat]
-ITensors = "0.6.7"

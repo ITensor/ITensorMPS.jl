@@ -1,9 +1,9 @@
 @eval module $(gensym())
-using Test
-using ITensors
-using ITensors.Ops
-using ITensors.ITensorMPS: ITensorMPS
-using LinearAlgebra
+using ITensors: ITensor, contract, op, replaceprime
+using ITensors.Ops: Op, OpSum, Prod, Scaled, Sum, expand
+using ITensorMPS: ITensorMPS, MPO, siteinds
+using LinearAlgebra: I, norm
+using Test: @test, @testset
 
 @testset "Ops to MPO" begin
   ∑H = Sum{Op}()

@@ -1,3 +1,4 @@
+using ITensorMPS
 using ITensors
 using Random
 using Test

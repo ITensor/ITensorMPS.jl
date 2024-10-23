@@ -1,3 +1,3 @@
 module Experimental
-using ITensorTDVP: dmrg
+include("dmrg.jl")
 end

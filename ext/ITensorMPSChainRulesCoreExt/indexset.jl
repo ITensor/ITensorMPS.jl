@@ -10,7 +10,7 @@ using ITensors:
   replacetags,
   setprime,
   settags
-using ITensors.ITensorMPS: MPO, MPS
+using ITensorMPS: MPO, MPS
 
 for fname in (
   :prime, :setprime, :noprime, :replaceprime, :addtags, :removetags, :replacetags, :settags

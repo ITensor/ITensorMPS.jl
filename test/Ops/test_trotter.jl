@@ -1,7 +1,8 @@
 @eval module $(gensym())
-using Test
-using ITensors
-using ITensors.Ops
+using Test: @test, @testset
+using ITensorMPS: MPO, MPS, siteinds
+using ITensors: ITensor, apply, contract, replaceprime
+using ITensors.Ops: Op, Prod, Sum, Trotter
 
 function heisenberg(N)
   os = Sum{Op}()

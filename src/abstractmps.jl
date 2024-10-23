@@ -1833,7 +1833,7 @@ function setindex!(
   # into MPS tensors
   firstsite = first(r)
   lastsite = last(r)
-  @assert firstsite ≤ ITensors.orthocenter(ψ) ≤ lastsite
+  @assert firstsite ≤ ITensorMPS.orthocenter(ψ) ≤ lastsite
   @assert firstsite ≤ leftlim(ψ) + 1
   @assert rightlim(ψ) - 1 ≤ lastsite
 
