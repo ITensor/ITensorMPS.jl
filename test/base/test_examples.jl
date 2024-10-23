@@ -1,5 +1,5 @@
 @eval module $(gensym())
-using ITensors: ITensors
+using ITensorMPS: ITensorMPS
 using Suppressor: @capture_out
 using Test: @test_nowarn, @testset
 @testset "Example Codes" begin
@@ -8,10 +8,7 @@ using Test: @test_nowarn, @testset
       @capture_out begin
         include(
           joinpath(
-            pkgdir(ITensors),
-            "src",
-            "lib",
-            "ITensorMPS",
+            pkgdir(ITensorMPS),
             "examples",
             "dmrg",
             "1d_ising_with_observer.jl",
@@ -25,7 +22,7 @@ using Test: @test_nowarn, @testset
       @capture_out begin
         include(
           joinpath(
-            pkgdir(ITensors), "ext", "ITensorsPackageCompilerExt", "precompile_itensors.jl"
+            pkgdir(ITensorMPS), "ext", "ITensorMPSPackageCompilerExt", "precompile_itensormps.jl"
           ),
         )
       end

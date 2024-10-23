@@ -1,7 +1,6 @@
 @eval module $(gensym())
 using ITensors: ITensors, dag, delta, denseblocks
-using ITensors: MPO, OpSum, apply, contract, inner, random_mps, siteinds, truncate!
-using ITensorTDVP: ITensorTDVP
+using ITensorMPS: MPO, OpSum, apply, contract, inner, random_mps, siteinds, truncate!
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset
 @testset "Contract MPO (eltype=$elt, conserve_qns=$conserve_qns)" for elt in (

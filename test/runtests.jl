@@ -1,5 +1,5 @@
-using ITensors
-using Test
+using ITensors: ITensors
+using Test: @testset
 
 ITensors.Strided.disable_threads()
 ITensors.BLAS.set_num_threads(1)

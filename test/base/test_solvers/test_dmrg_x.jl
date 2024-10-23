@@ -1,6 +1,6 @@
 @eval module $(gensym())
-using ITensors: ITensors, MPO, MPS, OpSum, ProjMPO, inner, siteinds
-using ITensorTDVP: dmrg_x
+using ITensors: ITensors
+using ITensorMPS: MPO, MPS, OpSum, ProjMPO, dmrg_x, inner, siteinds
 using Random: Random
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset

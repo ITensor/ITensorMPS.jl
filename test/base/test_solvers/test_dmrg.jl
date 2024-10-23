@@ -1,6 +1,6 @@
 @eval module $(gensym())
-using ITensors: ITensors, MPO, OpSum, inner, random_mps, siteinds
-using ITensorTDVP: ITensorTDVP
+using ITensors: ITensors
+using ITensorMPS: Experimental, MPO, OpSum, inner, random_mps, siteinds
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset
 @testset "DMRG (eltype=$elt, nsite=$nsite, conserve_qns=$conserve_qns)" for elt in (
@@ -23,12 +23,12 @@ using Test: @test, @test_throws, @testset
   psi = random_mps(rng, elt, s, j -> isodd(j) ? "↑" : "↓"; linkdims=20)
   nsweeps = 10
   maxdim = [10, 20, 40, 100]
-  @test_throws ErrorException ITensorTDVP.dmrg(H, psi; maxdim, cutoff, nsite)
-  e, psi = ITensorTDVP.dmrg(
+  @test_throws ErrorException Experimental.dmrg(H, psi; maxdim, cutoff, nsite)
+  e, psi = Experimental.dmrg(
     H, psi; nsweeps, maxdim, cutoff, nsite, updater_kwargs=(; krylovdim=3, maxiter=1)
   )
   @test inner(psi', H, psi) ≈ e
-  e2, psi2 = ITensors.dmrg(H, psi; nsweeps, maxdim, cutoff, outputlevel=0)
+  e2, psi2 = dmrg(H, psi; nsweeps, maxdim, cutoff, outputlevel=0)
   @test ITensors.scalartype(psi2) == elt
   @test e2 isa real(elt)
   @test e ≈ e2 rtol = √(eps(real(elt))) * 10

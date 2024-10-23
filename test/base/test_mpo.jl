@@ -1,5 +1,6 @@
 @eval module $(gensym())
 using Combinatorics
+using ITensorMPS
 using ITensors
 using NDTensors: scalartype
 using StableRNGs: StableRNG
@@ -195,11 +196,11 @@ end
     # generic tags and prime levels
     Kgen = replacetags(K, "Site" => "OpOut"; plev=1)
     noprime!(replacetags!(Kgen, "Site" => "Kpsi"; plev=0))
-    ITensors.sim!(siteinds, Kgen)
+    ITensorMPS.sim!(siteinds, Kgen)
 
     Jgen = replacetags(J, "Site" => "OpOut"; plev=1)
     noprime!(replacetags!(Jgen, "Site" => "Jphi"; plev=0))
-    ITensors.sim!(siteinds, Jgen)
+    ITensorMPS.sim!(siteinds, Jgen)
     # make sure operators share site indices
     replaceinds!.(Jgen, siteinds(Jgen; tags="OpOut"), siteinds(Kgen; tags="OpOut"))
 
@@ -466,7 +467,7 @@ end
     @test hassameinds(ψ[1], (s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (s[N], s[N]', ls[N - 1]))
     @test prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == 4
+    @test ITensorMPS.orthocenter(ψ) == 4
     @test maxlinkdim(ψ) == 16
 
     A = random_itensor(s..., prime.(s)...)
@@ -475,7 +476,7 @@ end
     @test hassameinds(ψ[1], (s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (s[N], s[N]', ls[N - 1]))
     @test prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == 4
+    @test ITensorMPS.orthocenter(ψ) == 4
     @test maxlinkdim(ψ) == 16
 
     ψ0 = MPO(s, "Id")
@@ -485,7 +486,7 @@ end
     @test hassameinds(ψ[1], (s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (s[N], s[N]', ls[N - 1]))
     @test prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == 3
+    @test ITensorMPS.orthocenter(ψ) == 3
     @test maxlinkdim(ψ) == 1
 
     # Use matrix
@@ -499,7 +500,7 @@ end
     @test hassameinds(ψ[1], (s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (s[N], s[N]', ls[N - 1]))
     @test prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == 3
+    @test ITensorMPS.orthocenter(ψ) == 3
     @test maxlinkdim(ψ) == 1
 
     A = random_itensor(s..., prime.(s)..., l[1], r[1])
@@ -508,7 +509,7 @@ end
     @test hassameinds(ψ[1], (l[1], s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (r[1], s[N], s[N]', ls[N - 1]))
     @test prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == N
+    @test ITensorMPS.orthocenter(ψ) == N
     @test maxlinkdim(ψ) == 48
 
     A = random_itensor(s..., prime.(s)..., l[1], r[1])
@@ -517,7 +518,7 @@ end
     @test hassameinds(ψ[1], (l[1], s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (r[1], s[N], s[N]', ls[N - 1]))
     @test prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == N
+    @test ITensorMPS.orthocenter(ψ) == N
     @test maxlinkdim(ψ) == 48
 
     A = random_itensor(s..., prime.(s)..., l..., r...)
@@ -526,7 +527,7 @@ end
     @test hassameinds(ψ[1], (l..., s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (r..., s[N], s[N]', ls[N - 1]))
     @test @set_warn_order 15 prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == 2
+    @test ITensorMPS.orthocenter(ψ) == 2
     @test maxlinkdim(ψ) == 144
 
     A = random_itensor(s..., prime.(s)..., l..., r...)
@@ -535,7 +536,7 @@ end
     @test hassameinds(ψ[1], (l..., s[1], s[1]', ls[1]))
     @test hassameinds(ψ[N], (r..., s[N], s[N]', ls[N - 1]))
     @test @set_warn_order 15 prod(ψ) ≈ A
-    @test ITensors.orthocenter(ψ) == 2
+    @test ITensorMPS.orthocenter(ψ) == 2
     @test maxlinkdim(ψ) == 144
   end
 
@@ -551,7 +552,7 @@ end
     ψ[2:(N - 1)] = ϕ
     @test prod(ψ) ≈ ψ[1] * A * ψ[N]
     @test maxlinkdim(ψ) == 4
-    @test ITensors.orthocenter(ψ) == 2
+    @test ITensorMPS.orthocenter(ψ) == 2
 
     ψ = orthogonalize(ψ0, 1)
     A = prod(ITensors.data(ψ)[2:(N - 1)])
@@ -564,7 +565,7 @@ end
     ψ[2:(N - 1), orthocenter=3] = A
     @test prod(ψ) ≈ ψ[1] * A * ψ[N]
     @test maxlinkdim(ψ) == 4
-    @test ITensors.orthocenter(ψ) == 3
+    @test ITensorMPS.orthocenter(ψ) == 3
   end
 
   @testset "swapbondsites MPO" begin

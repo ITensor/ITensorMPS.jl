@@ -1,6 +1,5 @@
 @eval module $(gensym())
 using ITensorMPS: ITensorMPS
-using ITensorTDVP: ITensorTDVP
 using ITensors: ITensors
 include("utils/TestITensorMPSExportedNames.jl")
 using Test: @test, @test_broken, @testset
@@ -17,18 +16,7 @@ using Test: @test, @test_broken, @testset
       ],
     )
   end
-  @testset "Aliases" begin
-    @test ITensorMPS.Experimental.dmrg === ITensorTDVP.dmrg
-    @test ITensorMPS.dmrg === ITensors.ITensorMPS.dmrg
-  end
   @testset "Not exported" begin
-    @test ITensorMPS.sortmergeterms === ITensors.ITensorMPS.sortmergeterms
-    # Should we fix this in ITensors.jl by adding:
-    # ```julia
-    # using .ITensorMPS: sortmergeterms
-    # ```
-    # ?
-    @test_broken ITensorMPS.sortmergeterms === ITensors.sortmergeterms
     for f in [
       :AbstractProjMPO,
       :AbstractMPS,
