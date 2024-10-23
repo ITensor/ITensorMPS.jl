@@ -11,7 +11,8 @@ using ITensors.SiteTypes:
   SiteType,
   StateName,
   TagType,
-  ValName
+  ValName,
+  ops
 using ITensors.Ops: Trotter
 
 import Base:
