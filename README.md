@@ -6,17 +6,17 @@
 [![Coverage](https://codecov.io/gh/ITensor/ITensorMPS.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ITensor/ITensorMPS.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
-Finite MPS and MPO methods based on ITensor (ITensors.jl).
-
-This package currently re-exports the MPS and MPO functionality of the [ITensors.jl](https://github.com/ITensor/ITensors.jl), including functionality like DMRG, applying MPO to MPS, applying gates to MPS and MPO, etc. See the [ITensor documentation](https://itensor.github.io/ITensors.jl/dev) for guides and examples on using this package.
-
-Additionally, it re-exports the functionality of the [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) package, which provides other DMRG-like MPS solvers such as TDVP and MPS linear equation solving.
-
-## Upgrade guide
-
-The goal will be to move the MPS and MPO code from the ITensors.jl package, along with all of the code from the [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) package, into this repository. If you are using any MPS/MPO functionality of ITensors.jl, such as the `MPS` and `MPO` types or constructors thereof (like `randomMPS`), `OpSum`, `siteinds`, `dmrg`, `apply`, etc. you should install the ITensorMPS.jl package with `import Pkg; Pkg.add("ITensorMPS")` and add `using ITensorMPS` to your code. Additionally, if you are currently using [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl), you should replace `using ITensorTDVP` with `using ITensorMPS` in your codes.
+Finite MPS and MPO methods based on the Julia version of ITensor (ITensors.jl).
 
 ## News
+
+### ITensorMPS.jl v0.3 release notes
+
+All MPS/MPO code from [ITensors.jl](https://github.com/ITensor/ITensors.jl) and [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) has been moved into this repository and this repository now relies on ITensors.jl v0.7 and above. All of the MPS/MPO functionality that was previously in ITensors.jl and ITensorTDVP.jl will be developed here from now on. For users of this repository, this should not break any code, it should export and provide the same functionality, though please let us know if you have any issues.
+
+#### Upgrade guide
+
+If you are using any MPS/MPO functionality of ITensors.jl, such as the `MPS` and `MPO` types or constructors thereof (like `random_mps`), `OpSum`, `siteinds`, `dmrg`, `apply`, etc. you should install the ITensorMPS.jl package with `import Pkg; Pkg.add("ITensorMPS")` and add `using ITensorMPS` to your code. Additionally, if you are currently using [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl), you should replace `using ITensorTDVP` with `using ITensorMPS` in your code.
 
 ### ITensorMPS.jl v0.2.1 release notes
 
