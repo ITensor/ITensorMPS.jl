@@ -1,5 +1,5 @@
 @eval module $(gensym())
-using ITensors.ITensorMPS: MPS, maxlinkdim, randomMPS, siteinds
+using ITensorMPS: MPS, maxlinkdim, randomMPS, siteinds
 using LinearAlgebra: norm
 using Test: @test, @testset
 @testset "randomMPS" begin

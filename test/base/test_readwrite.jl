@@ -1,5 +1,5 @@
 @eval module $(gensym())
-using ITensors, HDF5, Test
+using ITensorMPS, ITensors, HDF5, Test
 
 include(joinpath(@__DIR__, "utils", "util.jl"))
 

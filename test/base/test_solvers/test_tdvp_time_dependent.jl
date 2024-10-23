@@ -1,12 +1,11 @@
 @eval module $(gensym())
 using ITensors: ITensors, Index, QN, contract, scalartype
-using ITensors.ITensorMPS: MPO, MPS, ProjMPO, ProjMPOSum, random_mps, position!, siteinds
-using ITensorTDVP: ITensorTDVP, TimeDependentSum, tdvp
+using ITensorMPS: ITensorMPS, MPO, MPS, ProjMPO, ProjMPOSum, TimeDependentSum, position!, random_mps, siteinds, tdvp
 using LinearAlgebra: norm
 using StableRNGs: StableRNG
 using Test: @test, @test_skip, @testset
-include(joinpath(pkgdir(ITensorTDVP), "examples", "03_models.jl"))
-include(joinpath(pkgdir(ITensorTDVP), "examples", "03_updaters.jl"))
+include(joinpath(pkgdir(ITensorMPS), "examples", "solvers", "03_models.jl"))
+include(joinpath(pkgdir(ITensorMPS), "examples", "solvers", "03_updaters.jl"))
 @testset "TDVP with ODE local updater" begin
   @testset "TimeDependentSum (eltype=$elt)" for elt in (
       Float32, Float64, Complex{Float32}, Complex{Float64}

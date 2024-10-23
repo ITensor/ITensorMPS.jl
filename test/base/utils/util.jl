@@ -1,7 +1,7 @@
+using ITensorMPS
 using ITensors
 using Random
-
-using ITensors: AbstractMPS
+using ITensorMPS: AbstractMPS
 
 function fill_trivial_coefficients(ψ)
   return ψ isa AbstractMPS ? (1, ψ) : ψ

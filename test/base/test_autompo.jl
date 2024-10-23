@@ -1,5 +1,5 @@
 @eval module $(gensym())
-using ITensors, Test, Random, JLD2
+using ITensorMPS, ITensors, Test, Random, JLD2
 using NDTensors: scalartype
 
 include(joinpath(@__DIR__, "utils", "util.jl"))

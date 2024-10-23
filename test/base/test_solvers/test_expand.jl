@@ -1,8 +1,8 @@
 @eval module $(gensym())
 using ITensors: scalartype
-using ITensors.ITensorMPS:
-  OpSum, MPO, MPS, inner, linkdims, maxlinkdim, random_mps, siteinds
-using ITensorTDVP: dmrg, expand, tdvp
+using ITensorMPS:
+  OpSum, MPO, MPS, expand, inner, linkdims, maxlinkdim, random_mps, siteinds, tdvp
+using ITensorMPS.Experimental: dmrg
 using LinearAlgebra: normalize
 using StableRNGs: StableRNG
 using Test: @test, @testset

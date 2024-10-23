@@ -1,7 +1,7 @@
 @eval module $(gensym())
 using ITensors: scalartype
-using ITensors.ITensorMPS: MPO, OpSum, apply, random_mps, siteinds
-using ITensorTDVP: ITensorTDVP, dmrg
+using ITensorMPS: MPO, OpSum, apply, random_mps, siteinds
+using ITensorMPS.Experimental: dmrg
 using KrylovKit: linsolve
 using LinearAlgebra: norm
 using StableRNGs: StableRNG
