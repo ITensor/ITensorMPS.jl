@@ -1,9 +1,9 @@
 @eval module $(gensym())
 using Combinatorics
+using ITensorMPS
 using ITensors
-using ITensors: ITensorMPS
-using Random
 using LinearAlgebra: diag
+using Random
 using Test
 
 Random.seed!(1234)

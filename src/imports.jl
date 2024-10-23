@@ -1,3 +1,19 @@
+# Primarily used to import names into the `ITensorMPS`
+# module from submodules or from `ITensors` so they can
+# be reexported.
+using ITensors.SiteTypes:
+  @OpName_str,
+  @SiteType_str,
+  @StateName_str,
+  @TagType_str,
+  @ValName_str,
+  OpName,
+  SiteType,
+  StateName,
+  TagType,
+  ValName
+using ITensors.Ops: Trotter
+
 import Base:
   # types
   Array,

@@ -9,12 +9,17 @@ using Test: @test, @test_broken, @testset
     @test issetequal(
       names(ITensorMPS), TestITensorMPSExportedNames.ITENSORMPS_EXPORTED_NAMES
     )
+    # Test the names are actually defined, if not we might need to import them
+    # from ITensors.jl.
+    for name in TestITensorMPSExportedNames.ITENSORMPS_EXPORTED_NAMES
+      @test isdefined(ITensorMPS, name)
+    end
   end
   @testset "Not exported" begin
-    for f in
+    for name in
         [:AbstractProjMPO, :ProjMPS, :makeL!, :makeR!, :set_terms, :sortmergeterms, :terms]
-      @test isdefined(ITensorMPS, f)
-      @test !Base.isexported(ITensorMPS, f)
+      @test isdefined(ITensorMPS, name)
+      @test !Base.isexported(ITensorMPS, name)
     end
   end
 end

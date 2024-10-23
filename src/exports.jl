@@ -38,6 +38,20 @@ export
   truncerror,
   val,
 
+  # lattices.jl
+  Lattice,
+  LatticeBond,
+  square_lattice,
+  triangular_lattice,
+
+  # solvers
+  TimeDependentSum,
+  dmrg_x,
+  expand,
+  linsolve,
+  tdvp,
+  to_vec,
+
   # dmrg.jl
   dmrg,
   # abstractmps.jl

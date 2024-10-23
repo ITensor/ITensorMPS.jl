@@ -24,8 +24,6 @@ include("deprecated.jl")
 include("defaults.jl")
 include("update_observer.jl")
 include("lattices/lattices.jl")
-export Lattice, LatticeBond, square_lattice, triangular_lattice
-export TimeDependentSum, dmrg_x, expand, linsolve, tdvp, to_vec
 include("solvers/ITensorsExtensions.jl")
 using .ITensorsExtensions: to_vec
 include("solvers/applyexp.jl")

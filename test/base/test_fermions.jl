@@ -1,5 +1,7 @@
-using ITensors, Test
-import ITensors: Out, In
+@eval module $(gensym())
+using ITensorMPS
+using ITensors
+using Test
 
 @testset "AutoFermion MPS, MPO, and OpSum" begin
   ITensors.enable_auto_fermion()
@@ -284,4 +286,5 @@ import ITensors: Out, In
   end
 
   ITensors.disable_auto_fermion()
+end
 end
