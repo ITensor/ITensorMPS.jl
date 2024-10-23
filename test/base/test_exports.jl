@@ -19,7 +19,6 @@ using Test: @test, @test_broken, @testset
   @testset "Not exported" begin
     for f in [
       :AbstractProjMPO,
-      :AbstractMPS,
       :ProjMPS,
       :makeL!,
       :makeR!,
@@ -27,7 +26,8 @@ using Test: @test, @test_broken, @testset
       :sortmergeterms,
       :terms,
     ]
-      @test getfield(ITensorMPS, f) === getfield(ITensors.ITensorMPS, f)
+      @test isdefined(ITensorMPS, f)
+      @test !Base.isexported(ITensorMPS, f)
     end
   end
 end
