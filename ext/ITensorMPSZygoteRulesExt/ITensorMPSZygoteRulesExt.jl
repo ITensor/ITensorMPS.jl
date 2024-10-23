@@ -1,6 +1,6 @@
 module ITensorMPSZygoteRulesExt
 using ChainRulesCore: ChainRulesCore
-using ITensors.ITensorMPS: MPO, MPS
+using ITensorMPS: MPO, MPS
 using ZygoteRules: @adjoint
 
 # Needed for defining the rule for `adjoint(A::ITensor)`

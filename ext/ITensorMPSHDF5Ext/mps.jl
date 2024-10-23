@@ -1,6 +1,6 @@
 using HDF5: HDF5, attributes, create_group, open_group, read, write
 using ITensors: ITensor
-using ITensors.ITensorMPS: MPS
+using ITensorMPS: MPS
 
 function HDF5.write(parent::Union{HDF5.File,HDF5.Group}, name::AbstractString, M::MPS)
   g = create_group(parent, name)

@@ -1,3 +1,3 @@
-module ITensorsPackageCompilerExt
+module ITensorMPSPackageCompilerExt
 include("compile.jl")
 end

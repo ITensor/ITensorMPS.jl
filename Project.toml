@@ -19,9 +19,17 @@ TupleTools = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
 
 [weakdeps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+Observers = "338f10d5-c7f1-4033-a7d1-f9dec39bcaa0"
+PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
+ZygoteRules = "700de1a5-db45-46bc-99cf-38207098b444"
 
 [extensions]
 ITensorMPSChainRulesCoreExt = "ChainRulesCore"
+ITensorMPSHDF5Ext = "HDF5"
+ITensorMPSObserversExt = "Observers"
+ITensorMPSPackageCompilerExt = "PackageCompiler"
+ITensorMPSZygoteRulesExt = ["ChainRulesCore", "ZygoteRules"]
 
 [compat]
 Adapt = "4.1.0"
