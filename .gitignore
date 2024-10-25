@@ -25,3 +25,5 @@ Manifest.toml
 
 # Vi/Vim backup files
 .*.swp
+
+.DS_Store
