@@ -1,18 +1,16 @@
 # ITensorMPS.jl
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://itensor.github.io/ITensorMPS.jl/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://itensor.github.io/ITensorMPS.jl/dev/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://itensor.github.io/ITensors.jl/dev/)
 [![Build Status](https://github.com/ITensor/ITensorMPS.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/ITensor/ITensorMPS.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/ITensor/ITensorMPS.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ITensor/ITensorMPS.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
 
-Finite MPS and MPO methods based on the Julia version of ITensor (ITensors.jl).
+Finite MPS and MPO methods based on the Julia version of [ITensor](https://www.itensor.org) ([ITensors.jl](https://github.com/ITensor/ITensors.jl)). See the [ITensors.jl documentation](https://itensor.github.io/ITensors.jl/dev/) for more details.
 
 ## News
 
 ### ITensorMPS.jl v0.3 release notes
 
-All MPS/MPO code from [ITensors.jl](https://github.com/ITensor/ITensors.jl) and [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) has been moved into this repository and this repository now relies on ITensors.jl v0.7 and above. All of the MPS/MPO functionality that was previously in ITensors.jl and ITensorTDVP.jl will be developed here from now on. For users of this repository, this should not break any code, it should export and provide the same functionality, though please let us know if you have any issues.
+All MPS/MPO code from [ITensors.jl](https://github.com/ITensor/ITensors.jl) and [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) has been moved into this repository and this repository now relies on ITensors.jl v0.7 and above. All of the MPS/MPO functionality that was previously in ITensors.jl and ITensorTDVP.jl will be developed here from now on. For users of this repository, this change should not break any code, though please let us know if you have any issues.
 
 #### Upgrade guide
 
