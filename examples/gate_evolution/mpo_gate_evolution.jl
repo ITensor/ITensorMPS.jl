@@ -57,7 +57,7 @@ function main(; N=10, cutoff=1E-8, δt=0.1, ttotal=5.0)
     rho = apply(gates, rho; cutoff, apply_dag=true)
     t += δt
   end
-  @show inner(psi, rho, psi)
+  @show inner(psi', rho, psi)
   @show inner(psi, psi)
   @show tr(rho)
 
