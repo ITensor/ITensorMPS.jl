@@ -655,7 +655,7 @@ function sample(rng::AbstractRNG, m::MPS)
     error("sample: MPS is not normalized, norm=$(norm(m[1]))")
   end
 
-  ElT = promote_itensor_eltype(m)
+  ElT = scalartype(m)
 
   result = zeros(Int, N)
   A = m[1]
@@ -751,7 +751,7 @@ function correlation_matrix(
   end_site = last(sites)
 
   N = length(psi)
-  ElT = promote_itensor_eltype(psi)
+  ElT = scalartype(psi)
   s = siteinds(psi)
 
   Op1 = _Op1 #make copies into which we can insert "F" string operators, and then restore.
@@ -985,7 +985,7 @@ updens, dndens = expect(psi, "Nup", "Ndn") # pass more than one operator
 function expect(psi::MPS, ops; sites=1:length(psi), site_range=nothing)
   psi = copy(psi)
   N = length(psi)
-  ElT = promote_itensor_eltype(psi)
+  ElT = scalartype(psi)
   s = siteinds(psi)
 
   if !isnothing(site_range)
