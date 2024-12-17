@@ -1873,7 +1873,7 @@ function setindex!(
           #AC = noprime(AC * _fermionic_swap(c))
           #A = AC * dag(C)
 
-          FSWAP = _fermionic_swap(s0[1], s0[2])
+          FSWAP = adapt(datatype(A), _fermionic_swap(s0[1], s0[2]))
           A = noprime(A * FSWAP)
         end
       elseif ψ isa MPO
