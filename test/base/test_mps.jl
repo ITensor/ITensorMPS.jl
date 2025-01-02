@@ -756,12 +756,14 @@ end
     @test linkdims(M) == [2, 4, 2, 2, 2, 2, 8, 4, 2]
   end
 
-  @testset "truncate! with truncation_error" begin
+  @testset "truncate! with truncation_errors" begin
+    N = 10
+    nbonds = N - 1
     M = basicRandomMPS(10; dim=10)
-    truncation_error = Ref{Float64}()
-    truncation_error[] = 0.0
-    truncate!(M, maxdim=3, cutoff=1E-3, truncation_error=truncation_error)
-    @test truncation_error[] > 0.0
+    truncation_errors = Ref{Vector{Float64}}()
+    truncation_errors[] = fill(-1.0, nbonds) # set to something other than zero for test.
+    truncate!(M, maxdim=3, cutoff=1E-3, truncation_errors=truncation_errors)
+    @test all(truncation_errors[] .>= 0.0)
   end
 
 
