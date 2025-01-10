@@ -1,6 +1,6 @@
 using Adapt: adapt
 using KrylovKit: eigsolve
-using NDTensors: scalartype, timer
+## using NDTensors: scalartype, timer
 using Printf: @printf
 using TupleTools: TupleTools
 
@@ -55,7 +55,8 @@ function dmrg(H::MPO, Ms::Vector{MPS}, psi0::MPS, sweeps::Sweeps; weight=true, k
   return dmrg(PMM, psi0, sweeps; kwargs...)
 end
 
-using NDTensors.TypeParameterAccessors: unwrap_array_type
+using TypeParameterAccessors: unwrap_array_type
+
 """
     dmrg(H::MPO, psi0::MPS; kwargs...)
     dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
@@ -179,12 +180,12 @@ function dmrg(
     )
   end
 
-  @debug_check begin
-    # Debug level checks
-    # Enable with ITensors.enable_debug_checks()
-    checkflux(psi0)
-    checkflux(PH)
-  end
+  ## @debug_check begin
+  ##   # Debug level checks
+  ##   # Enable with ITensors.enable_debug_checks()
+  ##   checkflux(psi0)
+  ##   checkflux(PH)
+  ## end
 
   psi = copy(psi0)
   N = length(psi)
@@ -217,36 +218,36 @@ function dmrg(
       end
 
       for (b, ha) in sweepnext(N)
-        @debug_check begin
-          checkflux(psi)
-          checkflux(PH)
-        end
+        ## @debug_check begin
+        ##   checkflux(psi)
+        ##   checkflux(PH)
+        ## end
 
-        @timeit_debug timer "dmrg: position!" begin
-          PH = position!(PH, psi, b)
-        end
+        ## @timeit_debug timer "dmrg: position!" begin
+        PH = position!(PH, psi, b)
+        ## end
 
-        @debug_check begin
-          checkflux(psi)
-          checkflux(PH)
-        end
+        ## @debug_check begin
+        ##   checkflux(psi)
+        ##   checkflux(PH)
+        ## end
 
-        @timeit_debug timer "dmrg: psi[b]*psi[b+1]" begin
-          phi = psi[b] * psi[b + 1]
-        end
+        ## @timeit_debug timer "dmrg: psi[b]*psi[b+1]" begin
+        phi = psi[b] * psi[b + 1]
+        ## end
 
-        @timeit_debug timer "dmrg: eigsolve" begin
-          vals, vecs = eigsolve(
-            PH,
-            phi,
-            1,
-            eigsolve_which_eigenvalue;
-            ishermitian,
-            tol=eigsolve_tol,
-            krylovdim=eigsolve_krylovdim,
-            maxiter=eigsolve_maxiter,
-          )
-        end
+        ## @timeit_debug timer "dmrg: eigsolve" begin
+        vals, vecs = eigsolve(
+          PH,
+          phi,
+          1,
+          eigsolve_which_eigenvalue;
+          ishermitian,
+          tol=eigsolve_tol,
+          krylovdim=eigsolve_krylovdim,
+          maxiter=eigsolve_maxiter,
+        )
+        ## end
 
         energy = vals[1]
         ## Right now there is a conversion problem in CUDA.jl where `UnifiedMemory` Arrays are being converted
@@ -263,40 +264,40 @@ function dmrg(
 
         drho = nothing
         if noise(sweeps, sw) > 0
-          @timeit_debug timer "dmrg: noiseterm" begin
-            # Use noise term when determining new MPS basis.
-            # This is used to preserve the element type of the MPS.
-            elt = real(scalartype(psi))
-            drho = elt(noise(sweeps, sw)) * noiseterm(PH, phi, ortho)
-          end
+          ## @timeit_debug timer "dmrg: noiseterm" begin
+          # Use noise term when determining new MPS basis.
+          # This is used to preserve the element type of the MPS.
+          elt = real(scalartype(psi))
+          drho = elt(noise(sweeps, sw)) * noiseterm(PH, phi, ortho)
+          ## end
         end
 
-        @debug_check begin
-          checkflux(phi)
-        end
+        ## @debug_check begin
+        ##   checkflux(phi)
+        ## end
 
-        @timeit_debug timer "dmrg: replacebond!" begin
-          spec = replacebond!(
-            PH,
-            psi,
-            b,
-            phi;
-            maxdim=maxdim(sweeps, sw),
-            mindim=mindim(sweeps, sw),
-            cutoff=cutoff(sweeps, sw),
-            eigen_perturbation=drho,
-            ortho,
-            normalize=true,
-            which_decomp,
-            svd_alg,
-          )
-        end
+        ## @timeit_debug timer "dmrg: replacebond!" begin
+        spec = replacebond!(
+          PH,
+          psi,
+          b,
+          phi;
+          maxdim=maxdim(sweeps, sw),
+          mindim=mindim(sweeps, sw),
+          cutoff=cutoff(sweeps, sw),
+          eigen_perturbation=drho,
+          ortho,
+          normalize=true,
+          which_decomp,
+          svd_alg,
+        )
+        ## end
         maxtruncerr = max(maxtruncerr, spec.truncerr)
 
-        @debug_check begin
-          checkflux(psi)
-          checkflux(PH)
-        end
+        ## @debug_check begin
+        ##   checkflux(psi)
+        ##   checkflux(PH)
+        ## end
 
         if outputlevel >= 2
           @printf("Sweep %d, half %d, bond (%d,%d) energy=%s\n", sw, ha, b, b + 1, energy)

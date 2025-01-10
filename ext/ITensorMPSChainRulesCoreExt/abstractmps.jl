@@ -3,7 +3,7 @@ using ChainRulesCore: ChainRulesCore, HasReverseMode, NoTangent, RuleConfig, rru
 using ITensors:
   ITensors, ITensor, dag, hassameinds, inds, itensor, mapprime, replaceprime, swapprime
 using ITensorMPS: ITensorMPS, MPO, MPS, apply, inner, siteinds
-using NDTensors: datatype
+## using NDTensors: datatype
 
 function ChainRulesCore.rrule(
   ::Type{T}, x::Vector{<:ITensor}; kwargs...

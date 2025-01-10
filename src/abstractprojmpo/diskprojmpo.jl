@@ -1,3 +1,5 @@
+using ITensors: OneITensor
+using SerializedElementArrays: SerializedElementVector
 
 """
 A DiskProjMPO computes and stores the projection of an
@@ -26,7 +28,7 @@ mutable struct DiskProjMPO <: AbstractProjMPO
   rpos::Int
   nsite::Int
   H::MPO
-  LR::DiskVector{ITensor}
+  LR::SerializedElementVector{ITensor}
   Lcache::Union{ITensor,OneITensor}
   lposcache::Union{Int,Nothing}
   Rcache::Union{ITensor,OneITensor}

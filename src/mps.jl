@@ -1,6 +1,6 @@
 using Adapt: adapt
-using NDTensors: using_auto_fermion
-using Random: Random
+## using NDTensors: using_auto_fermion
+using Random: Random, AbstractRNG
 using ITensors.SiteTypes: SiteTypes, siteind, siteinds, state
 
 """

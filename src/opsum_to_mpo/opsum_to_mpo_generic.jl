@@ -1,4 +1,4 @@
-using NDTensors: using_auto_fermion
+## using NDTensors: using_auto_fermion
 using ITensors.Ops: Ops, Op, OpSum, Scaled, Sum, coefficient
 using ITensors.SiteTypes: has_fermion_string, op
 
@@ -110,7 +110,7 @@ function Base.copyto!(os, bc::Broadcast.Broadcasted{OpSumAddTermStyle,<:Any,type
 end
 
 # XXX: Create a new function name for this.
-isempty(op_qn::Pair{Vector{Op},QN}) = isempty(op_qn.first)
+## isempty(op_qn::Pair{Vector{Op},QN}) = isempty(op_qn.first)
 
 # the key type is Prod{Op} for the dense case
 # and is Pair{Prod{Op},QN} for the QN conserving case

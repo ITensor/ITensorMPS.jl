@@ -1,10 +1,14 @@
+# TODO: Define in `BackendSelection.jl`.
+using ITensors: @Algorithm_str
+
 using IsApprox: Approx, IsApprox
-using ITensors: ITensors
-using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
+using ITensors: ITensors, ITensor, Index, commonind, commoninds, uniqueind, uniqueinds
+## using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
 using ITensors.Ops: Prod
-using ITensors.QuantumNumbers: QuantumNumbers, removeqn
+## using ITensors.QuantumNumbers: QuantumNumbers, removeqn
 using ITensors.SiteTypes: SiteTypes, siteinds
-using ITensors.TagSets: TagSets
+## using ITensors.TagSets: TagSets
+using LinearAlgebra: LinearAlgebra
 
 abstract type AbstractMPS end
 
@@ -53,9 +57,9 @@ have type `ComplexF64`, return `ComplexF64`.
 """
 promote_itensor_eltype(m::AbstractMPS) = LinearAlgebra.promote_leaf_eltypes(m)
 
-NDTensors.scalartype(m::AbstractMPS) = LinearAlgebra.promote_leaf_eltypes(m)
-NDTensors.scalartype(m::Array{ITensor}) = LinearAlgebra.promote_leaf_eltypes(m)
-NDTensors.scalartype(m::Array{<:Array{ITensor}}) = LinearAlgebra.promote_leaf_eltypes(m)
+## NDTensors.scalartype(m::AbstractMPS) = LinearAlgebra.promote_leaf_eltypes(m)
+## NDTensors.scalartype(m::Array{ITensor}) = LinearAlgebra.promote_leaf_eltypes(m)
+## NDTensors.scalartype(m::Array{<:Array{ITensor}}) = LinearAlgebra.promote_leaf_eltypes(m)
 
 """
     eltype(m::MPS)
@@ -711,9 +715,9 @@ for (fname, fname!) in [
   (:(ITensors.noprime), :(ITensors.noprime!)),
   (:(ITensors.swapprime), :(ITensors.swapprime!)),
   (:(ITensors.replaceprime), :(ITensors.replaceprime!)),
-  (:(TagSets.addtags), :(ITensors.addtags!)),
-  (:(TagSets.removetags), :(ITensors.removetags!)),
-  (:(TagSets.replacetags), :(ITensors.replacetags!)),
+  (:(ITensors.addtags), :(ITensors.addtags!)),
+  (:(ITensors.removetags), :(ITensors.removetags!)),
+  (:(ITensors.replacetags), :(ITensors.replacetags!)),
   (:(ITensors.settags), :(ITensors.settags!)),
 ]
   @eval begin
@@ -851,13 +855,13 @@ function hassamenuminds(::typeof(siteinds), M1::AbstractMPS, M2::AbstractMPS)
 end
 
 for (fname, fname!) in [
-  (:(NDTensors.sim), :(sim!)),
+  (:(ITensors.sim), :(sim!)),
   (:(ITensors.prime), :(ITensors.prime!)),
   (:(ITensors.setprime), :(ITensors.setprime!)),
   (:(ITensors.noprime), :(ITensors.noprime!)),
-  (:(TagSets.addtags), :(ITensors.addtags!)),
-  (:(TagSets.removetags), :(ITensors.removetags!)),
-  (:(TagSets.replacetags), :(ITensors.replacetags!)),
+  (:(ITensors.addtags), :(ITensors.addtags!)),
+  (:(ITensors.removetags), :(ITensors.removetags!)),
+  (:(ITensors.replacetags), :(ITensors.replacetags!)),
   (:(ITensors.settags), :(ITensors.settags!)),
 ]
   @eval begin
@@ -1602,11 +1606,11 @@ out-of-place with `orthogonalize`.
 """
 function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothing)
   # TODO: Delete `maxdim` and `normalize` keyword arguments.
-  @debug_check begin
-    if !(1 <= j <= length(M))
-      error("Input j=$j to `orthogonalize!` out of range (valid range = 1:$(length(M)))")
-    end
-  end
+  ## @debug_check begin
+  ##   if !(1 <= j <= length(M))
+  ##     error("Input j=$j to `orthogonalize!` out of range (valid range = 1:$(length(M)))")
+  ##   end
+  ## end
   while leftlim(M) < (j - 1)
     (leftlim(M) < 0) && setleftlim!(M, 0)
     b = leftlim(M) + 1
@@ -1772,12 +1776,12 @@ end
 
 _isodd_fermionic_parity(s::Index, ::Integer) = false
 
-function _isodd_fermionic_parity(s::QNIndex, n::Integer)
-  qn_n = qn(space(s)[n])
-  fermionic_qn_pos = findfirst(q -> isfermionic(q), qn_n)
-  isnothing(fermionic_qn_pos) && return false
-  return isodd(val(qn_n[fermionic_qn_pos]))
-end
+## function _isodd_fermionic_parity(s::QNIndex, n::Integer)
+##   qn_n = qn(space(s)[n])
+##   fermionic_qn_pos = findfirst(q -> isfermionic(q), qn_n)
+##   isnothing(fermionic_qn_pos) && return false
+##   return isodd(val(qn_n[fermionic_qn_pos]))
+## end
 
 function _fermionic_swap(s1::Index, s2::Index)
   T = ITensor(QN(), s1', s2', dag(s1), dag(s2))
@@ -1911,7 +1915,7 @@ replacesites!(ψ::AbstractMPS, args...; kwargs...) = setindex!(ψ, args...; kwar
 replacesites(ψ::AbstractMPS, args...; kwargs...) = setindex!(copy(ψ), args...; kwargs...)
 
 _number_inds(s::Index) = 1
-_number_inds(s::IndexSet) = length(s)
+_number_inds(s::Union{Vector{<:Index},Tuple{Vararg{Index}}}) = length(s)
 _number_inds(sites) = sum(_number_inds(s) for s in sites)
 
 """
@@ -2356,9 +2360,9 @@ function splitblocks(::typeof(linkinds), M::AbstractMPS; tol=0)
 end
 
 removeqns(M::AbstractMPS) = map(removeqns, M; set_limits=false)
-function QuantumNumbers.removeqn(M::AbstractMPS, qn_name::String)
-  return map(m -> removeqn(m, qn_name), M; set_limits=false)
-end
+## function QuantumNumbers.removeqn(M::AbstractMPS, qn_name::String)
+##   return map(m -> removeqn(m, qn_name), M; set_limits=false)
+## end
 
 #
 # Broadcasting

@@ -43,5 +43,5 @@ include("solvers/reducedlinearproblem.jl")
 include("solvers/linsolve.jl")
 include("solvers/expand.jl")
 include("lib/Experimental/src/Experimental.jl")
-include("lib/ITensorMPSNamedDimsArraysExt/src/ITensorMPSNamedDimsArraysExt.jl")
+## include("lib/ITensorMPSNamedDimsArraysExt/src/ITensorMPSNamedDimsArraysExt.jl")
 end
