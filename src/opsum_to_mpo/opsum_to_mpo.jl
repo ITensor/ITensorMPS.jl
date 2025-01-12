@@ -1,5 +1,5 @@
 ## using NDTensors: using_auto_fermion
-using ITensors: dim
+using ITensors: dim, inds, itensor
 
 replace_nothing(::Nothing, y) = y
 replace_nothing(x, y) = x
@@ -207,6 +207,10 @@ function svdMPO(
       end
 
       T = itensor(M, ll, rl)
+
+      @show inds(T)
+      @show inds(computeSiteProd(sites, argument(t)))
+
       H[n] += T * computeSiteProd(sites, argument(t))
     end
 
