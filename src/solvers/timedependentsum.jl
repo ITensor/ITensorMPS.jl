@@ -1,4 +1,5 @@
 using ITensors: ITensor, inds, permute
+using ITensors.Ops: Ops
 
 # Represents a time-dependent sum of terms:
 #
@@ -10,7 +11,7 @@ struct TimeDependentSum{Coefficients,Terms}
 end
 
 coefficients(expr::TimeDependentSum) = expr.coefficients
-terms(expr::TimeDependentSum) = expr.terms
+Ops.terms(expr::TimeDependentSum) = expr.terms
 function Base.copy(expr::TimeDependentSum)
   return TimeDependentSum(coefficients(expr), copy.(terms(expr)))
 end
@@ -51,7 +52,7 @@ struct ScaledSum{Coefficients,Terms}
 end
 
 coefficients(expr::ScaledSum) = expr.coefficients
-terms(expr::ScaledSum) = expr.terms
+Ops.terms(expr::ScaledSum) = expr.terms
 
 # Apply the scaled sum of terms:
 #

@@ -2,7 +2,8 @@
 using ITensors: @Algorithm_str
 
 using IsApprox: Approx, IsApprox
-using ITensors: ITensors, ITensor, Index, commonind, commoninds, uniqueind, uniqueinds
+using ITensors:
+  ITensors, ITensor, Index, commonind, commoninds, dag, hasqns, uniqueind, uniqueinds
 ## using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
 using ITensors.Ops: Prod
 ## using ITensors.QuantumNumbers: QuantumNumbers, removeqn
@@ -2293,7 +2294,7 @@ end
 Return true if the MPS or MPO has
 tensors which carry quantum numbers.
 """
-hasqns(M::AbstractMPS) = any(hasqns, data(M))
+ITensors.hasqns(M::AbstractMPS) = any(hasqns, data(M))
 
 # Trait type version of hasqns
 # Note this is not inferrable, so hasqns would be preferred

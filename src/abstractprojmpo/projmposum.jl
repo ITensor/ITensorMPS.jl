@@ -1,8 +1,8 @@
-using Compat: allequal
+using ITensors.Ops: Ops
 
 abstract type AbstractSum end
 
-terms(sum::AbstractSum) = sum.terms
+Ops.terms(sum::AbstractSum) = sum.terms
 
 function set_terms(sum::AbstractSum, terms)
   return error("Please implement `set_terms` for the `AbstractSum` type `$(typeof(sum))`.")
