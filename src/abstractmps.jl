@@ -1672,7 +1672,7 @@ provided as keyword arguments.
 
 Keyword arguments:
 * `site_range`=1:N - only truncate the MPS bonds between these sites
-* `truncation_errors` - if provided, will store the truncation error from each SVD performed in a single call to `truncate!`. This should be a `Ref` type, for example `truncation_errors = Ref{Vector{Float64}}()`. It should be initialized to some value (likely 0.0, e.g., `truncation_errors[] = zeros(nbonds)`).
+* `truncation_errors!` - if provided, will store the truncation error from each SVD performed in a single call to `truncate!`. This should be a `Ref` type, for example `truncation_errors! = Ref{Vector{Float64}}()`, which will be overwritten in the function.
 """
 function truncate!(M::AbstractMPS; alg="frobenius", kwargs...)
   return truncate!(Algorithm(alg), M; kwargs...)
@@ -1682,7 +1682,7 @@ function truncate!(
   ::Algorithm"frobenius",
   M::AbstractMPS;
   site_range=1:length(M),
-  truncation_errors=nothing,
+  (truncation_errors!)=nothing,
   kwargs...,
 )
   N = length(M)
@@ -1692,7 +1692,9 @@ function truncate!(
   orthogonalize!(M, last(site_range))
 
   # Perform truncations in a right-to-left sweep
-  for (i,j) in enumerate(reverse((first(site_range) + 1):last(site_range)))
+  js = reverse((first(site_range) + 1):last(site_range))
+  for i in eachindex(js)
+    j = js[i]
     rinds = uniqueinds(M[j], M[j - 1])
     ltags = tags(commonind(M[j], M[j - 1]))
     U, S, V, spec = svd(M[j], rinds; lefttags=ltags, kwargs...)
