@@ -1244,7 +1244,7 @@ the full inner product of the MPS/MPO with itself.
 
 See also [`lognorm`](@ref).
 """
-function norm(M::AbstractMPS)
+function LinearAlgebra.norm(M::AbstractMPS)
   if isortho(M)
     return norm(M[orthocenter(M)])
   end
