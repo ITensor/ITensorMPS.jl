@@ -1,7 +1,10 @@
 using Adapt: adapt
-## using NDTensors: using_auto_fermion
-using Random: Random, AbstractRNG
+using ITensors: hasqns
 using ITensors.SiteTypes: SiteTypes, siteind, siteinds, state
+using Random: Random, AbstractRNG
+
+## TODO: Add this back.
+## using NDTensors: using_auto_fermion
 
 """
     MPS
@@ -420,20 +423,19 @@ function MPS(eltype::Type{<:Number}, sites::Vector{<:Index}, states_)
 
   states = [state(sites[j], states_[j]) for j in 1:N]
 
-  ## TODO: Add this back.
-  ## if hasqns(states[1])
-  ##   lflux = QN()
-  ##   for j in 1:(N - 1)
-  ##     lflux += flux(states[j])
-  ##   end
-  ##   links = Vector{QNIndex}(undef, N - 1)
-  ##   for j in (N - 1):-1:1
-  ##     links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
-  ##     lflux -= flux(states[j])
-  ##   end
-  ## else
-  links = [Index(1; tags="Link,l=$n") for n in 1:N]
-  ## end
+  if hasqns(states[1])
+    lflux = QN()
+    for j in 1:(N - 1)
+      lflux += flux(states[j])
+    end
+    links = Vector{QNIndex}(undef, N - 1)
+    for j in (N - 1):-1:1
+      links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
+      lflux -= flux(states[j])
+    end
+  else
+    links = [Index(1; tags="Link,l=$n") for n in 1:N]
+  end
 
   M[1] = ITensor(sites[1], links[1])
   M[1] += states[1] * state(links[1], 1)
@@ -551,9 +553,9 @@ function replacebond!(
   use_relative_cutoff=nothing,
   min_blockdim=nothing,
 )
-  normalize = NDTensors.replace_nothing(normalize, false)
-  swapsites = NDTensors.replace_nothing(swapsites, false)
-  ortho = NDTensors.replace_nothing(ortho, "left")
+  normalize = replace_nothing(normalize, false)
+  swapsites = replace_nothing(swapsites, false)
+  ortho = replace_nothing(ortho, "left")
 
   indsMb = inds(M[b])
   if swapsites

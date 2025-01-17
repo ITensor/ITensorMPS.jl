@@ -1,32 +1,34 @@
 using Adapt: adapt
-using ITensors: plev
+using ITensors: ITensors, plev
 using KrylovKit: eigsolve
-## using NDTensors: scalartype, timer
 using Printf: @printf
 using TupleTools: TupleTools
+using VectorInterface: scalartype
 
-## TODO: Add this back.
-## function permute(
-##   M::AbstractMPS, ::Tuple{typeof(linkind),typeof(siteinds),typeof(linkind)}
-## )::typeof(M)
-##   M̃ = typeof(M)(length(M))
-##   for n in 1:length(M)
-##     lₙ₋₁ = linkind(M, n - 1)
-##     lₙ = linkind(M, n)
-##     s⃗ₙ = TupleTools.sort(Tuple(siteinds(M, n)); by=plev)
-##     M̃[n] = ITensors.permute(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
-##   end
-##   set_ortho_lims!(M̃, ortho_lims(M))
-##   return M̃
-## end
+## TODO: Add this back?
+## using NDTensors: timer
+
+function permute(
+  M::AbstractMPS, ::Tuple{typeof(linkind),typeof(siteinds),typeof(linkind)}
+)::typeof(M)
+  M̃ = typeof(M)(length(M))
+  for n in 1:length(M)
+    lₙ₋₁ = linkind(M, n - 1)
+    lₙ = linkind(M, n)
+    s⃗ₙ = TupleTools.sort(Tuple(siteinds(M, n)); by=plev)
+    # TODO: Use `NamedDimsArrays.aligndims` instead.
+    M̃[n] = ITensors.permute(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
+  end
+  set_ortho_lims!(M̃, ortho_lims(M))
+  return M̃
+end
 
 function dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
   check_hascommoninds(siteinds, H, psi0)
   check_hascommoninds(siteinds, H, psi0')
   # Permute the indices to have a better memory layout
   # and minimize permutations
-  ## TODO: Add this back.
-  ## H = permute(H, (linkind, siteinds, linkind))
+  H = permute(H, (linkind, siteinds, linkind))
   PH = ProjMPO(H)
   return dmrg(PH, psi0, sweeps; kwargs...)
 end
@@ -221,25 +223,22 @@ function dmrg(
       end
 
       for (b, ha) in sweepnext(N)
+        ## TODO: Add back `@debug_check`, `checkflux`.
         ## @debug_check begin
         ##   checkflux(psi)
         ##   checkflux(PH)
         ## end
 
-        ## @timeit_debug timer "dmrg: position!" begin
         PH = position!(PH, psi, b)
-        ## end
 
+        ## TODO: Add back `@debug_check`, `checkflux`.
         ## @debug_check begin
         ##   checkflux(psi)
         ##   checkflux(PH)
         ## end
 
-        ## @timeit_debug timer "dmrg: psi[b]*psi[b+1]" begin
         phi = psi[b] * psi[b + 1]
-        ## end
 
-        ## @timeit_debug timer "dmrg: eigsolve" begin
         vals, vecs = eigsolve(
           PH,
           phi,
@@ -250,36 +249,37 @@ function dmrg(
           krylovdim=eigsolve_krylovdim,
           maxiter=eigsolve_maxiter,
         )
-        ## end
 
         energy = vals[1]
+
+        ## TODO: Bring back some version of this logic.
         ## Right now there is a conversion problem in CUDA.jl where `UnifiedMemory` Arrays are being converted
         ## into `DeviceMemory`. This conversion line is here temporarily to fix that problem when it arises
         ## Adapt is only called when using CUDA backend. CPU will work as implemented previously.
         ## TODO this might be the only place we really need iscu if its not fixed.
-        phi = if NDTensors.iscu(phi) && NDTensors.iscu(vecs[1])
-          adapt(ITensors.set_eltype(unwrap_array_type(phi), eltype(vecs[1])), vecs[1])
-        else
-          vecs[1]
-        end
+        ## phi = if NDTensors.iscu(phi) && NDTensors.iscu(vecs[1])
+        ##   adapt(ITensors.set_eltype(unwrap_array_type(phi), eltype(vecs[1])), vecs[1])
+        ## else
+        ##  vecs[1]
+        ## end
+
+        phi = vecs[1]
 
         ortho = ha == 1 ? "left" : "right"
 
         drho = nothing
         if noise(sweeps, sw) > 0
-          ## @timeit_debug timer "dmrg: noiseterm" begin
           # Use noise term when determining new MPS basis.
           # This is used to preserve the element type of the MPS.
           elt = real(scalartype(psi))
           drho = elt(noise(sweeps, sw)) * noiseterm(PH, phi, ortho)
-          ## end
         end
 
+        ## TODO: Add back `@debug_check`, `checkflux`.
         ## @debug_check begin
         ##   checkflux(phi)
         ## end
 
-        ## @timeit_debug timer "dmrg: replacebond!" begin
         spec = replacebond!(
           PH,
           psi,
@@ -294,9 +294,9 @@ function dmrg(
           which_decomp,
           svd_alg,
         )
-        ## end
         maxtruncerr = max(maxtruncerr, spec.truncerr)
 
+        ## TODO: Add back `@debug_check`, `checkflux`.
         ## @debug_check begin
         ##   checkflux(psi)
         ##   checkflux(PH)

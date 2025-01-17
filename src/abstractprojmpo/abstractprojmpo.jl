@@ -1,3 +1,6 @@
+# TODO: Deprecate, use `ndims` instead.
+using ITensors: order
+
 abstract type AbstractProjMPO end
 
 copy(::AbstractProjMPO) = error("Not implemented")
