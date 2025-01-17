@@ -1,29 +1,32 @@
 using Adapt: adapt
+using ITensors: plev
 using KrylovKit: eigsolve
 ## using NDTensors: scalartype, timer
 using Printf: @printf
 using TupleTools: TupleTools
 
-function permute(
-  M::AbstractMPS, ::Tuple{typeof(linkind),typeof(siteinds),typeof(linkind)}
-)::typeof(M)
-  M̃ = typeof(M)(length(M))
-  for n in 1:length(M)
-    lₙ₋₁ = linkind(M, n - 1)
-    lₙ = linkind(M, n)
-    s⃗ₙ = TupleTools.sort(Tuple(siteinds(M, n)); by=plev)
-    M̃[n] = ITensors.permute(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
-  end
-  set_ortho_lims!(M̃, ortho_lims(M))
-  return M̃
-end
+## TODO: Add this back.
+## function permute(
+##   M::AbstractMPS, ::Tuple{typeof(linkind),typeof(siteinds),typeof(linkind)}
+## )::typeof(M)
+##   M̃ = typeof(M)(length(M))
+##   for n in 1:length(M)
+##     lₙ₋₁ = linkind(M, n - 1)
+##     lₙ = linkind(M, n)
+##     s⃗ₙ = TupleTools.sort(Tuple(siteinds(M, n)); by=plev)
+##     M̃[n] = ITensors.permute(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
+##   end
+##   set_ortho_lims!(M̃, ortho_lims(M))
+##   return M̃
+## end
 
 function dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
   check_hascommoninds(siteinds, H, psi0)
   check_hascommoninds(siteinds, H, psi0')
   # Permute the indices to have a better memory layout
   # and minimize permutations
-  H = permute(H, (linkind, siteinds, linkind))
+  ## TODO: Add this back.
+  ## H = permute(H, (linkind, siteinds, linkind))
   PH = ProjMPO(H)
   return dmrg(PH, psi0, sweeps; kwargs...)
 end

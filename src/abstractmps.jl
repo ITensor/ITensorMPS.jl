@@ -3,7 +3,17 @@ using ITensors: @Algorithm_str
 
 using IsApprox: Approx, IsApprox
 using ITensors:
-  ITensors, ITensor, Index, commonind, commoninds, dag, hasqns, uniqueind, uniqueinds
+  ITensors,
+  ITensor,
+  Index,
+  commonind,
+  commoninds,
+  dag,
+  factorize,
+  hasqns,
+  tags,
+  uniqueind,
+  uniqueinds
 ## using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
 using ITensors.Ops: Prod
 ## using ITensors.QuantumNumbers: QuantumNumbers, removeqn
@@ -79,7 +89,7 @@ Base.imag(ψ::AbstractMPS) = imag.(ψ)
 Base.conj(ψ::AbstractMPS) = conj.(ψ)
 
 function convert_leaf_eltype(eltype::Type, ψ::AbstractMPS)
-  return map(ψᵢ -> convert_leaf_eltype(eltype, ψᵢ), ψ; set_limits=false)
+  return map(ψᵢ -> eltype.(ψᵢ), ψ; set_limits=false)
 end
 
 """
@@ -760,7 +770,7 @@ function check_hascommoninds(::typeof(siteinds), A::AbstractMPS, B::AbstractMPS)
     )
   end
   for n in 1:N
-    !hascommoninds(siteinds(A, n), siteinds(B, n)) && error(
+    isdisjoint(siteinds(A, n), siteinds(B, n)) && error(
       "$(typeof(A)) A and $(typeof(B)) B must share site indices. On site $n, A has site indices $(siteinds(A, n)) while B has site indices $(siteinds(B, n)).",
     )
   end

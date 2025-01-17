@@ -420,19 +420,20 @@ function MPS(eltype::Type{<:Number}, sites::Vector{<:Index}, states_)
 
   states = [state(sites[j], states_[j]) for j in 1:N]
 
-  if hasqns(states[1])
-    lflux = QN()
-    for j in 1:(N - 1)
-      lflux += flux(states[j])
-    end
-    links = Vector{QNIndex}(undef, N - 1)
-    for j in (N - 1):-1:1
-      links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
-      lflux -= flux(states[j])
-    end
-  else
-    links = [Index(1; tags="Link,l=$n") for n in 1:N]
-  end
+  ## TODO: Add this back.
+  ## if hasqns(states[1])
+  ##   lflux = QN()
+  ##   for j in 1:(N - 1)
+  ##     lflux += flux(states[j])
+  ##   end
+  ##   links = Vector{QNIndex}(undef, N - 1)
+  ##   for j in (N - 1):-1:1
+  ##     links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
+  ##     lflux -= flux(states[j])
+  ##   end
+  ## else
+  links = [Index(1; tags="Link,l=$n") for n in 1:N]
+  ## end
 
   M[1] = ITensor(sites[1], links[1])
   M[1] += states[1] * state(links[1], 1)

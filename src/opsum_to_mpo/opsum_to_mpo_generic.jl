@@ -320,9 +320,10 @@ function MPO(os::OpSum, sites::Vector{<:Index}; splitblocks=true, kwargs...)::MP
     return qn_svdMPO(os, sites; kwargs...)
   end
   M = svdMPO(os, sites; kwargs...)
-  if splitblocks
-    M = ITensors.splitblocks(linkinds, M)
-  end
+  ## TODO: Add this back.
+  ## if splitblocks
+  ##   M = ITensors.splitblocks(linkinds, M)
+  ## end
   return M
 end
 

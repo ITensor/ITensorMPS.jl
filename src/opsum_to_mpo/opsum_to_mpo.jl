@@ -208,9 +208,6 @@ function svdMPO(
 
       T = itensor(M, ll, rl)
 
-      @show inds(T)
-      @show inds(computeSiteProd(sites, argument(t)))
-
       H[n] += T * computeSiteProd(sites, argument(t))
     end
 
