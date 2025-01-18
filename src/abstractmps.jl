@@ -11,6 +11,8 @@ using ITensors:
   dag,
   factorize,
   hasqns,
+  replaceinds,
+  sim,
   tags,
   uniqueind,
   uniqueinds
@@ -702,12 +704,12 @@ function replaceinds!(::typeof(linkinds), M::AbstractMPS, l̃s::Vector{<:Index})
   return M
 end
 
-function replaceinds(::typeof(linkinds), M::AbstractMPS, l̃s::Vector{<:Index})
+function ITensors.replaceinds(::typeof(linkinds), M::AbstractMPS, l̃s::Vector{<:Index})
   return replaceinds!(linkinds, copy(M), l̃s)
 end
 
 # TODO: change kwarg from `set_limits` to `preserve_ortho`
-function map!(f::Function, M::AbstractMPS; set_limits::Bool=true)
+function Base.map!(f::Function, M::AbstractMPS; set_limits::Bool=true)
   for i in eachindex(M)
     M[i, set_limits=set_limits] = f(M[i])
   end
@@ -715,7 +717,7 @@ function map!(f::Function, M::AbstractMPS; set_limits::Bool=true)
 end
 
 # TODO: change kwarg from `set_limits` to `preserve_ortho`
-function map(f::Function, M::AbstractMPS; set_limits::Bool=true)
+function Base.map(f::Function, M::AbstractMPS; set_limits::Bool=true)
   return map!(f, copy(M); set_limits=set_limits)
 end
 
@@ -777,44 +779,44 @@ function check_hascommoninds(::typeof(siteinds), A::AbstractMPS, B::AbstractMPS)
   return nothing
 end
 
-function map!(f::Function, ::typeof(linkinds), M::AbstractMPS)
+function Base.map!(f::Function, ::typeof(linkinds), M::AbstractMPS)
   for i in eachindex(M)[1:(end - 1)]
     l = linkinds(M, i)
     if !isempty(l)
-      l̃ = f(l)
+      l̃ = f.(l)
       @preserve_ortho M begin
-        M[i] = replaceinds(M[i], l, l̃)
-        M[i + 1] = replaceinds(M[i + 1], l, l̃)
+        M[i] = replaceinds(M[i], (l .=> l̃)...)
+        M[i + 1] = replaceinds(M[i + 1], (l .=> l̃)...)
       end
     end
   end
   return M
 end
 
-map(f::Function, ::typeof(linkinds), M::AbstractMPS) = map!(f, linkinds, copy(M))
+Base.map(f::Function, ::typeof(linkinds), M::AbstractMPS) = map!(f, linkinds, copy(M))
 
-function map!(f::Function, ::typeof(siteinds), M::AbstractMPS)
+function Base.map!(f::Function, ::typeof(siteinds), M::AbstractMPS)
   for i in eachindex(M)
     s = siteinds(M, i)
     if !isempty(s)
       @preserve_ortho M begin
-        M[i] = replaceinds(M[i], s, f(s))
+        M[i] = replaceinds(M[i], s, f.(s))
       end
     end
   end
   return M
 end
 
-map(f::Function, ::typeof(siteinds), M::AbstractMPS) = map!(f, siteinds, copy(M))
+Base.map(f::Function, ::typeof(siteinds), M::AbstractMPS) = map!(f, siteinds, copy(M))
 
-function map!(
+function Base.map!(
   f::Function, ::typeof(siteinds), ::typeof(commoninds), M1::AbstractMPS, M2::AbstractMPS
 )
   length(M1) != length(M2) && error("MPOs/MPSs must be the same length")
   for i in eachindex(M1)
     s = siteinds(commoninds, M1, M2, i)
     if !isempty(s)
-      s̃ = f(s)
+      s̃ = f.(s)
       @preserve_ortho (M1, M2) begin
         M1[i] = replaceinds(M1[i], s .=> s̃)
         M2[i] = replaceinds(M2[i], s .=> s̃)
@@ -824,7 +826,7 @@ function map!(
   return M1, M2
 end
 
-function map!(
+function Base.map!(
   f::Function, ::typeof(siteinds), ::typeof(uniqueinds), M1::AbstractMPS, M2::AbstractMPS
 )
   length(M1) != length(M2) && error("MPOs/MPSs must be the same length")
@@ -839,7 +841,7 @@ function map!(
   return M1
 end
 
-function map(
+function Base.map(
   f::Function,
   ffilter::typeof(siteinds),
   fsubset::Union{typeof(commoninds),typeof(uniqueinds)},

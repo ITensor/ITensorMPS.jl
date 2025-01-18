@@ -283,7 +283,7 @@ function hassameinds(::typeof(siteinds), ψ::MPS, Hϕ::Tuple{MPO,MPS})
   N = length(ψ)
   @assert N == length(Hϕ[1]) == length(Hϕ[1])
   for n in 1:N
-    !hassameinds(siteinds(Hϕ, n), siteinds(ψ, n)) && return false
+    !issetequal(siteinds(Hϕ, n), siteinds(ψ, n)) && return false
   end
   return true
 end

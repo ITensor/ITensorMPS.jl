@@ -14,7 +14,7 @@ end
 
 Random.seed!(1234)
 
-N = 100
+N = 10
 
 # Create N spin-one degrees of freedom
 sites = siteinds("S=1", N)
