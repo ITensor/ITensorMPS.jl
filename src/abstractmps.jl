@@ -854,7 +854,7 @@ end
 function hassameinds(::typeof(siteinds), M1::AbstractMPS, M2::AbstractMPS)
   length(M1) ≠ length(M2) && return false
   for n in 1:length(M1)
-    !hassameinds(siteinds(all, M1, n), siteinds(all, M2, n)) && return false
+    !issetequal(siteinds(all, M1, n), siteinds(all, M2, n)) && return false
   end
   return true
 end
@@ -1106,7 +1106,7 @@ function deprecate_make_inds_match!(
     make_inds_match = false
   end
   if !hassameinds(siteinds, M1dag, M2) && make_inds_match
-    ITensors.warn_once(inner_mps_mpo_mps_deprecation_warning(), :inner_mps_mps)
+    #ITensors.warn_once(inner_mps_mpo_mps_deprecation_warning(), :inner_mps_mps)
     replace_siteinds!(M1dag, siteindsM2)
   end
   return M1dag, M2

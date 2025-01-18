@@ -34,10 +34,12 @@ psi0 = MPS(sites, j -> isodd(j) ? "↑" : "↓")
 # Plan to do 5 DMRG sweeps:
 nsweeps = 5
 # Set maximum MPS bond dimensions for each sweep
-maxdim = [10, 20, 100, 100, 200]
+maxdim = [10]
 # Set maximum truncation error allowed when adapting bond dimensions
 cutoff = [1E-11]
 
 # Run the DMRG algorithm, returning energy and optimized MPS
 energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
+@show inner(psi', H, psi)
+@show inner(psi, psi)
 @printf("Final energy = %.12f\n", energy)
