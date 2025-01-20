@@ -165,10 +165,10 @@ end
 
 function computeSiteProd(sites, ops::Prod{Op})::ITensor
   i = only(site(ops[1]))
-  T = op(sites[i], which_op(ops[1]); params(ops[1])...)
+  T = op(which_op(ops[1]), sites[i]; params(ops[1])...)
   for j in 2:length(ops)
     (only(site(ops[j])) != i) && error("Mismatch of site number in computeSiteProd")
-    opj = op(sites[i], which_op(ops[j]); params(ops[j])...)
+    opj = op(which_op(ops[j]), sites[i]; params(ops[j])...)
     T = product(T, opj)
   end
   return T
