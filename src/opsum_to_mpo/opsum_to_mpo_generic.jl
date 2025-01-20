@@ -1,6 +1,37 @@
-using NDTensors: using_auto_fermion
-using ITensors.Ops: Ops, Op, OpSum, Scaled, Sum, coefficient
-using ITensors.SiteTypes: has_fermion_string, op
+## using NDTensors: using_auto_fermion
+using QuantumOperatorAlgebra:
+  QuantumOperatorAlgebra,
+  Op,
+  OpSum,
+  Scaled,
+  Sum,
+  argument,
+  coefficient,
+  site,
+  sites,
+  terms,
+  which_op
+using ITensorQuantumOperatorDefinitions: has_fermion_string, op
+
+"""
+    parity_sign(P)
+
+Given an array or tuple of integers representing
+a permutation or a subset of a permutation,
+compute the parity sign defined as -1 for a
+permutation consisting of an odd number of swaps
+and +1 for an even number of swaps. This
+implementation uses an O(n^2) algorithm and is
+intended for small permutations only.
+"""
+function parity_sign(P)::Int
+  L = length(P)
+  s = +1
+  for i in 1:L, j in (i + 1):L
+    s *= sign(P[j] - P[i])
+  end
+  return s
+end
 
 # TODO: Deprecate.
 const AutoMPO = OpSum
@@ -64,10 +95,10 @@ end
 add!(os::OpSum, o::Op) = add!(os, Prod{Op}() * o)
 add!(os::OpSum, o::Scaled{C,Op}) where {C} = add!(os, Prod{Op}() * o)
 add!(os::OpSum, o::Prod{Op}) = add!(os, one(Float64) * o)
-add!(os::OpSum, o::Tuple) = add!(os, Ops.op_term(o))
+add!(os::OpSum, o::Tuple) = add!(os, QuantumOperatorAlgebra.op_term(o))
 add!(os::OpSum, a1::String, args...) = add!(os, (a1, args...))
 add!(os::OpSum, a1::Number, args...) = add!(os, (a1, args...))
-subtract!(os::OpSum, o::Tuple) = add!(os, -Ops.op_term(o))
+subtract!(os::OpSum, o::Tuple) = add!(os, -QuantumOperatorAlgebra.op_term(o))
 
 function isfermionic(t::Vector{Op}, sites)
   p = +1
@@ -110,7 +141,7 @@ function Base.copyto!(os, bc::Broadcast.Broadcasted{OpSumAddTermStyle,<:Any,type
 end
 
 # XXX: Create a new function name for this.
-isempty(op_qn::Pair{Vector{Op},QN}) = isempty(op_qn.first)
+## isempty(op_qn::Pair{Vector{Op},QN}) = isempty(op_qn.first)
 
 # the key type is Prod{Op} for the dense case
 # and is Pair{Prod{Op},QN} for the QN conserving case
@@ -134,10 +165,10 @@ end
 
 function computeSiteProd(sites, ops::Prod{Op})::ITensor
   i = only(site(ops[1]))
-  T = op(sites[i], which_op(ops[1]); params(ops[1])...)
+  T = op(which_op(ops[1]), sites[i]; params(ops[1])...)
   for j in 2:length(ops)
     (only(site(ops[j])) != i) && error("Mismatch of site number in computeSiteProd")
-    opj = op(sites[i], which_op(ops[j]); params(ops[j])...)
+    opj = op(which_op(ops[j]), sites[i]; params(ops[j])...)
     T = product(T, opj)
   end
   return T
@@ -167,7 +198,7 @@ function sorteachterm(os::OpSum, sites)
   os = copy(os)
 
   for (j, t) in enumerate(os)
-    if maximum(ITensors.sites(t)) > length(sites)
+    if maximum(QuantumOperatorAlgebra.sites(t)) > length(sites)
       error(
         "The OpSum contains a term $t that extends beyond the number of sites $(length(sites)).",
       )
@@ -188,7 +219,8 @@ function sorteachterm(os::OpSum, sites)
     t_parity = +1
     for n in reverse(1:Nt)
       site_n = only(site(t[n]))
-      if !using_auto_fermion() && (t_parity == -1) && (site_n < prevsite)
+      ## if !using_auto_fermion() && (t_parity == -1) && (site_n < prevsite)
+      if (t_parity == -1) && (site_n < prevsite)
         # Insert local piece of Jordan-Wigner string emanating
         # from fermionic operators to the right
         # (Remaining F operators will be put in by svdMPO)
@@ -212,7 +244,7 @@ function sorteachterm(os::OpSum, sites)
     filter!(!iszero, perm)
     # and account for anti-commuting, fermionic operators
     # during above sort; put resulting sign into coef
-    t *= ITensors.parity_sign(perm)
+    t *= parity_sign(perm)
     terms(os)[j] = t
   end
 
@@ -298,9 +330,10 @@ function MPO(os::OpSum, sites::Vector{<:Index}; splitblocks=true, kwargs...)::MP
     return qn_svdMPO(os, sites; kwargs...)
   end
   M = svdMPO(os, sites; kwargs...)
-  if splitblocks
-    M = ITensors.splitblocks(linkinds, M)
-  end
+  ## TODO: Add this back.
+  ## if splitblocks
+  ##   M = ITensors.splitblocks(linkinds, M)
+  ## end
   return M
 end
 
@@ -339,7 +372,7 @@ function MPO(
   return MPO(eltype, OpSum{C}() + o, s; kwargs...)
 end
 
-# Like `Ops.OpSumLike` but without `OpSum` included.
+# Like `QuantumOperatorAlgebra.OpSumLike` but without `OpSum` included.
 const OpSumLikeWithoutOpSum{C} = Union{
   Op,Scaled{C,Op},Sum{Op},Prod{Op},Scaled{C,Prod{Op}},Sum{Scaled{C,Op}}
 }

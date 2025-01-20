@@ -15,7 +15,7 @@ using ITensors:
   scalartype,
   uniqueinds
 using LinearAlgebra: normalize, svd, tr
-using NDTensors: unwrap_array_type
+using TypeParameterAccessors: unwrap_array_type
 
 # Possible improvements:
 #  - Allow a maxdim argument to be passed to `expand`.

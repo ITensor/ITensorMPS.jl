@@ -1,7 +1,7 @@
 # Primarily used to import names into the `ITensorMPS`
 # module from submodules or from `ITensors` so they can
 # be reexported.
-using ITensors.SiteTypes:
+using ITensorQuantumOperatorDefinitions:
   @OpName_str,
   @SiteType_str,
   @StateName_str,
@@ -13,7 +13,7 @@ using ITensors.SiteTypes:
   TagType,
   ValName,
   ops
-using ITensors.Ops: Trotter
+using QuantumOperatorAlgebra: Trotter
 
 import Base:
   # types
@@ -98,28 +98,27 @@ import Base.Broadcast:
   broadcastable,
   instantiate
 
-import ..ITensors.NDTensors:
-  Algorithm,
-  @Algorithm_str,
-  EmptyNumber,
-  _Tuple,
-  _NTuple,
-  blas_get_num_threads,
-  datatype,
-  dense,
-  diagind,
-  disable_auto_fermion,
-  double_precision,
-  eachblock,
-  eachdiagblock,
-  enable_auto_fermion,
-  fill!!,
-  randn!!,
-  permutedims,
-  permutedims!
+## import ..ITensors.NDTensors:
+##   Algorithm,
+##   @Algorithm_str,
+##   EmptyNumber,
+##   _Tuple,
+##   _NTuple,
+##   blas_get_num_threads,
+##   datatype,
+##   dense,
+##   diagind,
+##   disable_auto_fermion,
+##   double_precision,
+##   eachblock,
+##   eachdiagblock,
+##   enable_auto_fermion,
+##   fill!!,
+##   randn!!,
+##   permutedims,
+##   permutedims!
 
 import ..ITensors:
-  AbstractRNG,
   Apply,
   apply,
   argument,
@@ -169,6 +168,6 @@ import ..ITensors:
   truncate!,
   which_op
 
-import ..ITensors.Ops: params
+import QuantumOperatorAlgebra: params
 
 import SerializedElementArrays: disk

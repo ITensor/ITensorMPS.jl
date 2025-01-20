@@ -10,7 +10,6 @@ export
   Apply,
   Op,
   OpName,
-  Ops,
   Prod,
   Scaled,
   SiteType,
