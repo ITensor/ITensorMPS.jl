@@ -2,8 +2,9 @@ using Adapt: adapt
 using LinearAlgebra: dot
 using Random: Random, AbstractRNG
 using ITensors: @ts_str, Algorithm, dag, outer
-using ITensors.Ops: OpSum
-using ITensors.SiteTypes: SiteTypes, siteind, siteinds
+using QuantumOperatorAlgebra: OpSum
+using ITensorQuantumOperatorDefinitions:
+  ITensorQuantumOperatorDefinitions, siteind, siteinds
 
 """
     MPO
@@ -242,7 +243,8 @@ end
 Get the first site Index of the MPO found, by
 default with prime level 0.
 """
-SiteTypes.siteind(M::MPO, j::Int; kwargs...) = siteind(first, M, j; plev=0, kwargs...)
+ITensorQuantumOperatorDefinitions.siteind(M::MPO, j::Int; kwargs...) =
+  siteind(first, M, j; plev=0, kwargs...)
 
 # TODO: make this return the site indices that would have
 # been used to create the MPO? I.e.:
@@ -252,9 +254,9 @@ SiteTypes.siteind(M::MPO, j::Int; kwargs...) = siteind(first, M, j; plev=0, kwar
 
 Get a Vector of IndexSets of all the site indices of M.
 """
-SiteTypes.siteinds(M::MPO; kwargs...) = siteinds(all, M; kwargs...)
+ITensorQuantumOperatorDefinitions.siteinds(M::MPO; kwargs...) = siteinds(all, M; kwargs...)
 
-function SiteTypes.siteinds(Mψ::Tuple{MPO,MPS}, n::Int; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(Mψ::Tuple{MPO,MPS}, n::Int; kwargs...)
   return siteinds(uniqueinds, Mψ[1], Mψ[2], n; kwargs...)
 end
 
@@ -265,7 +267,7 @@ function nsites(Mψ::Tuple{MPO,MPS})
   return N
 end
 
-function SiteTypes.siteinds(Mψ::Tuple{MPO,MPS}; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(Mψ::Tuple{MPO,MPS}; kwargs...)
   return [siteinds(Mψ, n; kwargs...) for n in 1:nsites(Mψ)]
 end
 

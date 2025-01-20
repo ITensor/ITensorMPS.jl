@@ -1,5 +1,5 @@
 using ITensors: ITensor, inds, permute
-using ITensors.Ops: Ops
+using QuantumOperatorAlgebra: QuantumOperatorAlgebra
 
 # Represents a time-dependent sum of terms:
 #
@@ -11,7 +11,7 @@ struct TimeDependentSum{Coefficients,Terms}
 end
 
 coefficients(expr::TimeDependentSum) = expr.coefficients
-Ops.terms(expr::TimeDependentSum) = expr.terms
+QuantumOperatorAlgebra.terms(expr::TimeDependentSum) = expr.terms
 function Base.copy(expr::TimeDependentSum)
   return TimeDependentSum(coefficients(expr), copy.(terms(expr)))
 end
@@ -52,7 +52,7 @@ struct ScaledSum{Coefficients,Terms}
 end
 
 coefficients(expr::ScaledSum) = expr.coefficients
-Ops.terms(expr::ScaledSum) = expr.terms
+QuantumOperatorAlgebra.terms(expr::ScaledSum) = expr.terms
 
 # Apply the scaled sum of terms:
 #

@@ -1,7 +1,17 @@
 ## using NDTensors: using_auto_fermion
-using ITensors.Ops:
-  Ops, Op, OpSum, Scaled, Sum, argument, coefficient, site, sites, terms, which_op
-using ITensors.SiteTypes: has_fermion_string, op
+using QuantumOperatorAlgebra:
+  QuantumOperatorAlgebra,
+  Op,
+  OpSum,
+  Scaled,
+  Sum,
+  argument,
+  coefficient,
+  site,
+  sites,
+  terms,
+  which_op
+using ITensorQuantumOperatorDefinitions: has_fermion_string, op
 
 """
     parity_sign(P)
@@ -85,10 +95,10 @@ end
 add!(os::OpSum, o::Op) = add!(os, Prod{Op}() * o)
 add!(os::OpSum, o::Scaled{C,Op}) where {C} = add!(os, Prod{Op}() * o)
 add!(os::OpSum, o::Prod{Op}) = add!(os, one(Float64) * o)
-add!(os::OpSum, o::Tuple) = add!(os, Ops.op_term(o))
+add!(os::OpSum, o::Tuple) = add!(os, QuantumOperatorAlgebra.op_term(o))
 add!(os::OpSum, a1::String, args...) = add!(os, (a1, args...))
 add!(os::OpSum, a1::Number, args...) = add!(os, (a1, args...))
-subtract!(os::OpSum, o::Tuple) = add!(os, -Ops.op_term(o))
+subtract!(os::OpSum, o::Tuple) = add!(os, -QuantumOperatorAlgebra.op_term(o))
 
 function isfermionic(t::Vector{Op}, sites)
   p = +1
@@ -188,7 +198,7 @@ function sorteachterm(os::OpSum, sites)
   os = copy(os)
 
   for (j, t) in enumerate(os)
-    if maximum(Ops.sites(t)) > length(sites)
+    if maximum(QuantumOperatorAlgebra.sites(t)) > length(sites)
       error(
         "The OpSum contains a term $t that extends beyond the number of sites $(length(sites)).",
       )
@@ -362,7 +372,7 @@ function MPO(
   return MPO(eltype, OpSum{C}() + o, s; kwargs...)
 end
 
-# Like `Ops.OpSumLike` but without `OpSum` included.
+# Like `QuantumOperatorAlgebra.OpSumLike` but without `OpSum` included.
 const OpSumLikeWithoutOpSum{C} = Union{
   Op,Scaled{C,Op},Sum{Op},Prod{Op},Scaled{C,Prod{Op}},Sum{Scaled{C,Op}}
 }

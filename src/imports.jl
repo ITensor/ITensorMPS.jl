@@ -1,7 +1,7 @@
 # Primarily used to import names into the `ITensorMPS`
 # module from submodules or from `ITensors` so they can
 # be reexported.
-using ITensors.SiteTypes:
+using ITensorQuantumOperatorDefinitions:
   @OpName_str,
   @SiteType_str,
   @StateName_str,
@@ -13,7 +13,7 @@ using ITensors.SiteTypes:
   TagType,
   ValName,
   ops
-using ITensors.Ops: Trotter
+using QuantumOperatorAlgebra: Trotter
 
 import Base:
   # types
@@ -168,6 +168,6 @@ import ..ITensors:
   truncate!,
   which_op
 
-import ..ITensors.Ops: params
+import QuantumOperatorAlgebra: params
 
 import SerializedElementArrays: disk

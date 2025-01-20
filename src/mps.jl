@@ -1,6 +1,7 @@
 using Adapt: adapt
 using ITensors: hasqns
-using ITensors.SiteTypes: SiteTypes, siteind, siteinds, state
+using ITensorQuantumOperatorDefinitions:
+  ITensorQuantumOperatorDefinitions, siteind, siteinds, state
 using Random: Random, AbstractRNG
 
 ## TODO: Add this back.
@@ -486,14 +487,17 @@ MPS(sites::Vector{<:Index}, states) = MPS(Float64, sites, states)
 
 Get the first site Index of the MPS. Return `nothing` if none is found.
 """
-SiteTypes.siteind(M::MPS, j::Int; kwargs...) = siteind(first, M, j; kwargs...)
+ITensorQuantumOperatorDefinitions.siteind(M::MPS, j::Int; kwargs...) =
+  siteind(first, M, j; kwargs...)
 
 """
     siteind(::typeof(only), M::MPS, j::Int; kwargs...)
 
 Get the only site Index of the MPS. Return `nothing` if none is found.
 """
-function SiteTypes.siteind(::typeof(only), M::MPS, j::Int; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteind(
+  ::typeof(only), M::MPS, j::Int; kwargs...
+)
   is = siteinds(M, j; kwargs...)
   if isempty(is)
     return nothing
@@ -515,7 +519,8 @@ Get a vector of the only site Index found on each tensor of the MPS. Errors if m
 
 Get a vector of the all site Indices found on each tensor of the MPS. Returns a Vector of IndexSets.
 """
-SiteTypes.siteinds(M::MPS; kwargs...) = siteinds(first, M; kwargs...)
+ITensorQuantumOperatorDefinitions.siteinds(M::MPS; kwargs...) =
+  siteinds(first, M; kwargs...)
 
 function replace_siteinds!(M::MPS, sites)
   for j in eachindex(M)

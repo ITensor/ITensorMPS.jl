@@ -17,9 +17,9 @@ using ITensors:
   uniqueind,
   uniqueinds
 ## using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
-using ITensors.Ops: Prod
+using QuantumOperatorAlgebra: Prod
 ## using ITensors.QuantumNumbers: QuantumNumbers, removeqn
-using ITensors.SiteTypes: SiteTypes, siteinds
+using ITensorQuantumOperatorDefinitions: ITensorQuantumOperatorDefinitions, siteinds
 ## using ITensors.TagSets: TagSets
 using LinearAlgebra: LinearAlgebra
 
@@ -485,7 +485,7 @@ end
 
 Get the site index (or indices) of MPO `A` that is unique to `A` (not shared with MPS/MPO `B`).
 """
-function SiteTypes.siteinds(
+function ITensorQuantumOperatorDefinitions.siteinds(
   f::Union{typeof(uniqueinds),typeof(uniqueind)},
   A::AbstractMPS,
   B::AbstractMPS,
@@ -505,7 +505,7 @@ end
 
 Get the site indices of MPO `A` that are unique to `A` (not shared with MPS/MPO `B`), as a `Vector{<:Index}`.
 """
-function SiteTypes.siteinds(
+function ITensorQuantumOperatorDefinitions.siteinds(
   f::Union{typeof(uniqueinds),typeof(uniqueind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
 )
   return [siteinds(f, A, B, j; kwargs...) for j in eachindex(A)]
@@ -517,7 +517,7 @@ end
 
 Get the site index (or indices) of  the `j`th MPO tensor of `A` that is shared with MPS/MPO `B`.
 """
-function SiteTypes.siteinds(
+function ITensorQuantumOperatorDefinitions.siteinds(
   f::Union{typeof(commoninds),typeof(commonind)},
   A::AbstractMPS,
   B::AbstractMPS,
@@ -533,7 +533,7 @@ end
 
 Get a vector of the site index (or indices) of MPO `A` that is shared with MPS/MPO `B`.
 """
-function SiteTypes.siteinds(
+function ITensorQuantumOperatorDefinitions.siteinds(
   f::Union{typeof(commoninds),typeof(commonind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
 )
   return [siteinds(f, A, B, j) for j in eachindex(A)]
@@ -639,7 +639,9 @@ Return the first site Index found on the MPS or MPO
 You can choose different filters, like prime level
 and tags, with the `kwargs`.
 """
-function SiteTypes.siteind(::typeof(first), M::AbstractMPS, j::Integer; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteind(
+  ::typeof(first), M::AbstractMPS, j::Integer; kwargs...
+)
   N = length(M)
   (N == 1) && return firstind(M[1]; kwargs...)
   if j == 1
@@ -661,7 +663,7 @@ at the site `j` as an IndexSet.
 Optionally filter prime tags and prime levels with
 keyword arguments like `plev` and `tags`.
 """
-function SiteTypes.siteinds(M::AbstractMPS, j::Integer; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(M::AbstractMPS, j::Integer; kwargs...)
   N = length(M)
   (N == 1) && return inds(M[1]; kwargs...)
   if j == 1
@@ -674,19 +676,27 @@ function SiteTypes.siteinds(M::AbstractMPS, j::Integer; kwargs...)
   return si
 end
 
-function SiteTypes.siteinds(::typeof(all), ψ::AbstractMPS, n::Integer; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(
+  ::typeof(all), ψ::AbstractMPS, n::Integer; kwargs...
+)
   return siteinds(ψ, n; kwargs...)
 end
 
-function SiteTypes.siteinds(::typeof(first), ψ::AbstractMPS; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(
+  ::typeof(first), ψ::AbstractMPS; kwargs...
+)
   return [siteind(first, ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
-function SiteTypes.siteinds(::typeof(only), ψ::AbstractMPS; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(
+  ::typeof(only), ψ::AbstractMPS; kwargs...
+)
   return [siteind(only, ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
-function SiteTypes.siteinds(::typeof(all), ψ::AbstractMPS; kwargs...)
+function ITensorQuantumOperatorDefinitions.siteinds(
+  ::typeof(all), ψ::AbstractMPS; kwargs...
+)
   return [siteinds(ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
