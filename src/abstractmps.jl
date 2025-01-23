@@ -1672,30 +1672,43 @@ provided as keyword arguments.
 
 Keyword arguments:
 * `site_range`=1:N - only truncate the MPS bonds between these sites
+* `truncation_error=false` - If `true`, will return a vector containing the trucation error calculated at each bond.
 """
 function truncate!(M::AbstractMPS; alg="frobenius", kwargs...)
   return truncate!(Algorithm(alg), M; kwargs...)
 end
 
 function truncate!(
-  ::Algorithm"frobenius", M::AbstractMPS; site_range=1:length(M), kwargs...
+  ::Algorithm"frobenius",
+  M::AbstractMPS;
+  site_range=1:length(M),
+  truncation_error = false,
+  kwargs...,
 )
   N = length(M)
-
+  nbonds = N - 1
+  truncation_errors = zeros(real(scalartype(M)), nbonds)
   # Left-orthogonalize all tensors to make
   # truncations controlled
   orthogonalize!(M, last(site_range))
 
   # Perform truncations in a right-to-left sweep
-  for j in reverse((first(site_range) + 1):last(site_range))
+  js = reverse((first(site_range) + 1):last(site_range))
+  for i in eachindex(js)
+    j = js[i]
     rinds = uniqueinds(M[j], M[j - 1])
     ltags = tags(commonind(M[j], M[j - 1]))
-    U, S, V = svd(M[j], rinds; lefttags=ltags, kwargs...)
+    U, S, V, spec = svd(M[j], rinds; lefttags=ltags, kwargs...)
+    truncation_errors[i] = spec.truncerr
     M[j] = U
     M[j - 1] *= (S * V)
     setrightlim!(M, j)
   end
-  return M
+  if truncation_error
+    return truncation_errors
+  else
+    return M
+  end
 end
 
 function truncate(ψ0::AbstractMPS; kwargs...)

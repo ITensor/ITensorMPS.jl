@@ -755,6 +755,17 @@ end
     truncate!(M; site_range=3:7, maxdim=2)
     @test linkdims(M) == [2, 4, 2, 2, 2, 2, 8, 4, 2]
   end
+
+  @testset "truncate! with truncation_error" begin
+    nsites = 10
+    nbonds = nsites - 1
+    mps_ = basicRandomMPS(nsites; dim=10)
+    truncation_errors = truncate!(mps_, maxdim=3, cutoff=1E-3, truncation_error=true)
+    @test length(truncation_errors) == nbonds
+    @test all(truncation_errors .>= 0.0)
+  end
+
+
 end
 
 @testset "Other MPS methods" begin
