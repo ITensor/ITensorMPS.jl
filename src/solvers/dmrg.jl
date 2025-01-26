@@ -1,5 +1,6 @@
 using ITensors: ITensors
 using KrylovKit: eigsolve
+using VectorInterface: scalartype
 
 function eigsolve_updater(
   operator,
@@ -7,7 +8,7 @@ function eigsolve_updater(
   internal_kwargs,
   which_eigval=:SR,
   ishermitian=true,
-  tol=10^2 * eps(real(ITensors.scalartype(init))),
+  tol=10^2 * eps(real(scalartype(init))),
   krylovdim=3,
   maxiter=1,
   verbosity=0,

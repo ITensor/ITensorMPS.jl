@@ -1,4 +1,5 @@
-using ITensors: ITensor, inds, permute
+using ITensors: ITensor, inds
+using NamedDimsArrays: aligndims
 using QuantumOperatorAlgebra: QuantumOperatorAlgebra
 
 # Represents a time-dependent sum of terms:
@@ -66,4 +67,4 @@ function scaledsum_apply(expr, x)
   end
 end
 (expr::ScaledSum)(x) = scaledsum_apply(expr, x)
-(expr::ScaledSum)(x::ITensor) = permute(scaledsum_apply(expr, x), inds(x))
+(expr::ScaledSum)(x::ITensor) = aligndims(scaledsum_apply(expr, x), inds(x))

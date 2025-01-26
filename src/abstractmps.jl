@@ -16,12 +16,11 @@ using ITensors:
   tags,
   uniqueind,
   uniqueinds
-## using NDTensors: NDTensors, using_auto_fermion, scalartype, tensor
 using QuantumOperatorAlgebra: Prod
 ## using ITensors.QuantumNumbers: QuantumNumbers, removeqn
-using ITensorQuantumOperatorDefinitions: ITensorQuantumOperatorDefinitions, siteinds
 ## using ITensors.TagSets: TagSets
 using LinearAlgebra: LinearAlgebra
+using VectorInterface: VectorInterface, scalartype
 
 abstract type AbstractMPS end
 
@@ -70,9 +69,11 @@ have type `ComplexF64`, return `ComplexF64`.
 """
 promote_itensor_eltype(m::AbstractMPS) = LinearAlgebra.promote_leaf_eltypes(m)
 
-## NDTensors.scalartype(m::AbstractMPS) = LinearAlgebra.promote_leaf_eltypes(m)
-## NDTensors.scalartype(m::Array{ITensor}) = LinearAlgebra.promote_leaf_eltypes(m)
-## NDTensors.scalartype(m::Array{<:Array{ITensor}}) = LinearAlgebra.promote_leaf_eltypes(m)
+VectorInterface.scalartype(m::AbstractMPS) = LinearAlgebra.promote_leaf_eltypes(m)
+
+## TODO: Are these definitions needed?
+## VectorInterface.scalartype(m::Array{ITensor}) = LinearAlgebra.promote_leaf_eltypes(m)
+## VectorInterface.scalartype(m::Array{<:Array{ITensor}}) = LinearAlgebra.promote_leaf_eltypes(m)
 
 """
     eltype(m::MPS)
@@ -485,7 +486,7 @@ end
 
 Get the site index (or indices) of MPO `A` that is unique to `A` (not shared with MPS/MPO `B`).
 """
-function ITensorQuantumOperatorDefinitions.siteinds(
+function siteinds(
   f::Union{typeof(uniqueinds),typeof(uniqueind)},
   A::AbstractMPS,
   B::AbstractMPS,
@@ -505,7 +506,7 @@ end
 
 Get the site indices of MPO `A` that are unique to `A` (not shared with MPS/MPO `B`), as a `Vector{<:Index}`.
 """
-function ITensorQuantumOperatorDefinitions.siteinds(
+function siteinds(
   f::Union{typeof(uniqueinds),typeof(uniqueind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
 )
   return [siteinds(f, A, B, j; kwargs...) for j in eachindex(A)]
@@ -517,7 +518,7 @@ end
 
 Get the site index (or indices) of  the `j`th MPO tensor of `A` that is shared with MPS/MPO `B`.
 """
-function ITensorQuantumOperatorDefinitions.siteinds(
+function siteinds(
   f::Union{typeof(commoninds),typeof(commonind)},
   A::AbstractMPS,
   B::AbstractMPS,
@@ -533,7 +534,7 @@ end
 
 Get a vector of the site index (or indices) of MPO `A` that is shared with MPS/MPO `B`.
 """
-function ITensorQuantumOperatorDefinitions.siteinds(
+function siteinds(
   f::Union{typeof(commoninds),typeof(commonind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
 )
   return [siteinds(f, A, B, j) for j in eachindex(A)]
@@ -639,9 +640,7 @@ Return the first site Index found on the MPS or MPO
 You can choose different filters, like prime level
 and tags, with the `kwargs`.
 """
-function ITensorQuantumOperatorDefinitions.siteind(
-  ::typeof(first), M::AbstractMPS, j::Integer; kwargs...
-)
+function siteind(::typeof(first), M::AbstractMPS, j::Integer; kwargs...)
   N = length(M)
   (N == 1) && return firstind(M[1]; kwargs...)
   if j == 1
@@ -663,7 +662,7 @@ at the site `j` as an IndexSet.
 Optionally filter prime tags and prime levels with
 keyword arguments like `plev` and `tags`.
 """
-function ITensorQuantumOperatorDefinitions.siteinds(M::AbstractMPS, j::Integer; kwargs...)
+function siteinds(M::AbstractMPS, j::Integer; kwargs...)
   N = length(M)
   (N == 1) && return inds(M[1]; kwargs...)
   if j == 1
@@ -676,27 +675,19 @@ function ITensorQuantumOperatorDefinitions.siteinds(M::AbstractMPS, j::Integer; 
   return si
 end
 
-function ITensorQuantumOperatorDefinitions.siteinds(
-  ::typeof(all), ψ::AbstractMPS, n::Integer; kwargs...
-)
+function siteinds(::typeof(all), ψ::AbstractMPS, n::Integer; kwargs...)
   return siteinds(ψ, n; kwargs...)
 end
 
-function ITensorQuantumOperatorDefinitions.siteinds(
-  ::typeof(first), ψ::AbstractMPS; kwargs...
-)
+function siteinds(::typeof(first), ψ::AbstractMPS; kwargs...)
   return [siteind(first, ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
-function ITensorQuantumOperatorDefinitions.siteinds(
-  ::typeof(only), ψ::AbstractMPS; kwargs...
-)
+function siteinds(::typeof(only), ψ::AbstractMPS; kwargs...)
   return [siteind(only, ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
-function ITensorQuantumOperatorDefinitions.siteinds(
-  ::typeof(all), ψ::AbstractMPS; kwargs...
-)
+function siteinds(::typeof(all), ψ::AbstractMPS; kwargs...)
   return [siteinds(ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
@@ -738,10 +729,11 @@ for (fname, fname!) in [
   (:(ITensors.noprime), :(ITensors.noprime!)),
   (:(ITensors.swapprime), :(ITensors.swapprime!)),
   (:(ITensors.replaceprime), :(ITensors.replaceprime!)),
-  (:(ITensors.addtags), :(ITensors.addtags!)),
-  (:(ITensors.removetags), :(ITensors.removetags!)),
-  (:(ITensors.replacetags), :(ITensors.replacetags!)),
-  (:(ITensors.settags), :(ITensors.settags!)),
+  # TODO: Delete these, use `settag` instead.
+  # (:(ITensors.addtags), :(ITensors.addtags!)),
+  # (:(ITensors.removetags), :(ITensors.removetags!)),
+  # (:(ITensors.replacetags), :(ITensors.replacetags!)),
+  # (:(ITensors.settags), :(ITensors.settags!)),
 ]
   @eval begin
     """
@@ -882,10 +874,11 @@ for (fname, fname!) in [
   (:(ITensors.prime), :(ITensors.prime!)),
   (:(ITensors.setprime), :(ITensors.setprime!)),
   (:(ITensors.noprime), :(ITensors.noprime!)),
-  (:(ITensors.addtags), :(ITensors.addtags!)),
-  (:(ITensors.removetags), :(ITensors.removetags!)),
-  (:(ITensors.replacetags), :(ITensors.replacetags!)),
-  (:(ITensors.settags), :(ITensors.settags!)),
+  # TODO: Delete these, use `settag` instead.
+  # (:(ITensors.addtags), :(ITensors.addtags!)),
+  # (:(ITensors.removetags), :(ITensors.removetags!)),
+  # (:(ITensors.replacetags), :(ITensors.replacetags!)),
+  # (:(ITensors.settags), :(ITensors.settags!)),
 ]
   @eval begin
     """
@@ -1332,7 +1325,7 @@ of the orthogonality center to avoid numerical overflow in the case of diverging
 
 See also [`normalize!`](@ref), [`norm`](@ref), [`lognorm`](@ref).
 """
-function normalize(M::AbstractMPS; (lognorm!)=[])
+function LinearAlgebra.normalize(M::AbstractMPS; (lognorm!)=[])
   return normalize!(deepcopy_ortho_center(M); (lognorm!)=lognorm!)
 end
 
@@ -1604,7 +1597,7 @@ truncation.
 - `cutoff::Real`: singular value truncation cutoff
 - `maxdim::Int`: maximum MPS/MPO bond dimension
 """
-function sum(ψ⃗::Vector{T}; kwargs...) where {T<:AbstractMPS}
+function Base.sum(ψ⃗::Vector{T}; kwargs...) where {T<:AbstractMPS}
   iszero(length(ψ⃗)) && return T()
   isone(length(ψ⃗)) && return copy(only(ψ⃗))
   return +(ψ⃗...; kwargs...)
@@ -2432,7 +2425,7 @@ function Base.show(io::IO, M::AbstractMPS)
       println(io, "#undef")
     else
       A = M[i]
-      if order(A) != 0
+      if ndims(A) != 0
         println(io, "[$i] $(inds(A))")
       else
         println(io, "[$i] ITensor()")

@@ -11,7 +11,7 @@ using QuantumOperatorAlgebra:
   sites,
   terms,
   which_op
-using ITensorQuantumOperatorDefinitions: has_fermion_string, op
+using QuantumOperatorDefinitions: has_fermion_string, op
 
 """
     parity_sign(P)

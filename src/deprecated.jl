@@ -8,7 +8,6 @@
 @deprecate error_mpoprod(args...; kwargs...) error_contract(args...; kwargs...)
 @deprecate error_mul(args...; kwargs...) error_contract(args...; kwargs...)
 @deprecate multMPO(args...; kwargs...) contract(args...; kwargs...)
-@deprecate sum(A::AbstractMPS, B::AbstractMPS; kwargs...) add(A, B; kwargs...)
 @deprecate multmpo(args...; kwargs...) contract(args...; kwargs...)
 @deprecate set_leftlim!(args...; kwargs...) ITensors.setleftlim!(args...; kwargs...)
 @deprecate set_rightlim!(args...; kwargs...) ITensors.setrightlim!(args...; kwargs...)

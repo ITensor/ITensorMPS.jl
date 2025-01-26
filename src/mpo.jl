@@ -1,10 +1,12 @@
 using Adapt: adapt
 using LinearAlgebra: dot
 using Random: Random, AbstractRNG
-using ITensors: @ts_str, Algorithm, dag, outer
+using ITensors: dag
+# TODO: Remove from ITensors?
+using ITensors: @ts_str, Algorithm
+# TODO: Add this back.
+# using ITensors: outer
 using QuantumOperatorAlgebra: OpSum
-using ITensorQuantumOperatorDefinitions:
-  ITensorQuantumOperatorDefinitions, siteind, siteinds
 
 """
     MPO
@@ -44,7 +46,7 @@ function MPO(::Type{ElT}, sites::Vector{<:Index}) where {ElT<:Number}
     return MPO(v)
   end
   space_ii = all(hasqns, sites) ? [QN() => 1] : 1
-  l = [Index(space_ii, "Link,l=$ii") for ii in 1:(N - 1)]
+  l = [Index(space_ii; tags=Dict("l" => "$ii")) for ii in 1:(N - 1)]
   for ii in eachindex(sites)
     s = sites[ii]
     if ii == 1
@@ -148,6 +150,8 @@ function outer_mps_mps_deprecation_warning()
   return "Calling `outer(ψ::MPS, ϕ::MPS)` for MPS `ψ` and `ϕ` with shared indices is deprecated. Currently, we automatically prime `ψ` to make sure the site indices don't clash, but that will no longer be the case in ITensors v0.4. To upgrade your code, call `outer(ψ', ϕ)`. Although the new interface seems less convenient, it will allow `outer` to accept more general outer products going forward, such as outer products where some indices are shared (a batched outer product) or outer products of MPS between site indices that aren't just related by a single prime level."
 end
 
+function outer end
+
 function deprecate_make_inds_unmatch(::typeof(outer), ψ::MPS, ϕ::MPS; kw...)
   if hassameinds(siteinds, ψ, ϕ)
     ITensors.warn_once(outer_mps_mps_deprecation_warning(), :outer_mps_mps)
@@ -243,8 +247,7 @@ end
 Get the first site Index of the MPO found, by
 default with prime level 0.
 """
-ITensorQuantumOperatorDefinitions.siteind(M::MPO, j::Int; kwargs...) =
-  siteind(first, M, j; plev=0, kwargs...)
+siteind(M::MPO, j::Int; kwargs...) = siteind(first, M, j; plev=0, kwargs...)
 
 # TODO: make this return the site indices that would have
 # been used to create the MPO? I.e.:
@@ -254,9 +257,9 @@ ITensorQuantumOperatorDefinitions.siteind(M::MPO, j::Int; kwargs...) =
 
 Get a Vector of IndexSets of all the site indices of M.
 """
-ITensorQuantumOperatorDefinitions.siteinds(M::MPO; kwargs...) = siteinds(all, M; kwargs...)
+siteinds(M::MPO; kwargs...) = siteinds(all, M; kwargs...)
 
-function ITensorQuantumOperatorDefinitions.siteinds(Mψ::Tuple{MPO,MPS}, n::Int; kwargs...)
+function siteinds(Mψ::Tuple{MPO,MPS}, n::Int; kwargs...)
   return siteinds(uniqueinds, Mψ[1], Mψ[2], n; kwargs...)
 end
 
@@ -267,7 +270,7 @@ function nsites(Mψ::Tuple{MPO,MPS})
   return N
 end
 
-function ITensorQuantumOperatorDefinitions.siteinds(Mψ::Tuple{MPO,MPS}; kwargs...)
+function siteinds(Mψ::Tuple{MPO,MPS}; kwargs...)
   return [siteinds(Mψ, n; kwargs...) for n in 1:nsites(Mψ)]
 end
 
@@ -452,9 +455,10 @@ Same as [`dot`](@ref).
 """
 inner(y::MPS, A::MPO, x::MPS; kwargs...) = dot(y, A, x; kwargs...)
 
-function inner(y::MPS, Ax::Apply{Tuple{MPO,MPS}})
-  return inner(y', Ax.args[1], Ax.args[2])
-end
+## TODO: Add this back?
+## function inner(y::MPS, Ax::Apply{Tuple{MPO,MPS}})
+##   return inner(y', Ax.args[1], Ax.args[2])
+## end
 
 """
     loginner(y::MPS, A::MPO, x::MPS)

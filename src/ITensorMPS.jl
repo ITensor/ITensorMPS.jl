@@ -2,6 +2,7 @@ module ITensorMPS
 using ITensors
 include("imports.jl")
 include("exports.jl")
+include("siteinds.jl")
 include("abstractmps.jl")
 include("mps.jl")
 include("mpo.jl")

@@ -1,5 +1,4 @@
-# TODO: Deprecate, use `ndims` instead.
-using ITensors: order
+using ITensors: noprime
 
 abstract type AbstractProjMPO end
 
@@ -72,7 +71,7 @@ shorthand for `product(P,v)`.
 """
 function product(P::AbstractProjMPO, v::ITensor)::ITensor
   Pv = contract(P, v)
-  if order(Pv) != order(v)
+  if ndims(Pv) != ndims(v)
     error(
       string(
         "The order of the ProjMPO-ITensor product P*v is not equal to the order of the ITensor v, ",

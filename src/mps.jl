@@ -1,7 +1,6 @@
 using Adapt: adapt
 using ITensors: hasqns
-using ITensorQuantumOperatorDefinitions:
-  ITensorQuantumOperatorDefinitions, siteind, siteinds, state
+using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state
 using Random: Random, AbstractRNG
 
 ## TODO: Add this back.
@@ -418,11 +417,11 @@ function MPS(eltype::Type{<:Number}, sites::Vector{<:Index}, states_)
   M = MPS(N)
 
   if N == 1
-    M[1] = state(sites[1], states_[1])
+    M[1] = state(states_[1], sites[1])
     return convert_leaf_eltype(eltype, M)
   end
 
-  states = [state(sites[j], states_[j]) for j in 1:N]
+  states = [state(states_[j], sites[j]) for j in 1:N]
 
   if hasqns(states[1])
     lflux = QN()
@@ -431,21 +430,21 @@ function MPS(eltype::Type{<:Number}, sites::Vector{<:Index}, states_)
     end
     links = Vector{QNIndex}(undef, N - 1)
     for j in (N - 1):-1:1
-      links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
+      links[j] = dag(Index(lflux => 1; tags=Dict("l" => "$j")))
       lflux -= flux(states[j])
     end
   else
-    links = [Index(1; tags="Link,l=$n") for n in 1:N]
+    links = [Index(1; tags=Dict("l" => "$n")) for n in 1:N]
   end
 
   M[1] = ITensor(sites[1], links[1])
-  M[1] += states[1] * state(links[1], 1)
+  M[1] += states[1] * state(1, links[1])
   for n in 2:(N - 1)
     M[n] = ITensor(dag(links[n - 1]), sites[n], links[n])
-    M[n] += state(dag(links[n - 1]), 1) * states[n] * state(links[n], 1)
+    M[n] += state(1, dag(links[n - 1])) * states[n] * state(1, links[n])
   end
   M[N] = ITensor(dag(links[N - 1]), sites[N])
-  M[N] += state(dag(links[N - 1]), 1) * states[N]
+  M[N] += state(1, dag(links[N - 1])) * states[N]
 
   return convert_leaf_eltype(eltype, M)
 end
@@ -487,17 +486,14 @@ MPS(sites::Vector{<:Index}, states) = MPS(Float64, sites, states)
 
 Get the first site Index of the MPS. Return `nothing` if none is found.
 """
-ITensorQuantumOperatorDefinitions.siteind(M::MPS, j::Int; kwargs...) =
-  siteind(first, M, j; kwargs...)
+siteind(M::MPS, j::Int; kwargs...) = siteind(first, M, j; kwargs...)
 
 """
     siteind(::typeof(only), M::MPS, j::Int; kwargs...)
 
 Get the only site Index of the MPS. Return `nothing` if none is found.
 """
-function ITensorQuantumOperatorDefinitions.siteind(
-  ::typeof(only), M::MPS, j::Int; kwargs...
-)
+function siteind(::typeof(only), M::MPS, j::Int; kwargs...)
   is = siteinds(M, j; kwargs...)
   if isempty(is)
     return nothing
@@ -519,8 +515,7 @@ Get a vector of the only site Index found on each tensor of the MPS. Errors if m
 
 Get a vector of the all site Indices found on each tensor of the MPS. Returns a Vector of IndexSets.
 """
-ITensorQuantumOperatorDefinitions.siteinds(M::MPS; kwargs...) =
-  siteinds(first, M; kwargs...)
+siteinds(M::MPS; kwargs...) = siteinds(first, M; kwargs...)
 
 function replace_siteinds!(M::MPS, sites)
   for j in eachindex(M)

@@ -12,10 +12,10 @@ using ITensors:
   directsum,
   hasqns,
   prime,
-  scalartype,
   uniqueinds
 using LinearAlgebra: normalize, svd, tr
 using TypeParameterAccessors: unwrap_array_type
+using VectorInterface: scalartype
 
 # Possible improvements:
 #  - Allow a maxdim argument to be passed to `expand`.
