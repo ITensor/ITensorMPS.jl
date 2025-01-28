@@ -1,11 +1,10 @@
 using Adapt: adapt
+using BackendSelection: @Algorithm_str, Algorithm
 using DiagonalArrays: δ
 using ITensors:
   ITensors,
-  Algorithm,
   Index,
   ITensor,
-  @Algorithm_str,
   commonind,
   dag,
   denseblocks,

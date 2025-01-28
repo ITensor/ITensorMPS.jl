@@ -7,6 +7,7 @@ using QuantumOperatorDefinitions:
   @OpName_str, @SiteType_str, @StateName_str, OpName, SiteType, StateName
 using QuantumOperatorAlgebra: Trotter
 
+# TODO: Delete this, overload explicitly.
 import Base:
   # types
   Array,
@@ -77,6 +78,7 @@ import Base:
   # macros
   @propagate_inbounds
 
+# TODO: Delete this, overload explicitly.
 import Base.Broadcast:
   # types
   AbstractArrayStyle,
@@ -90,76 +92,8 @@ import Base.Broadcast:
   broadcastable,
   instantiate
 
-## import ..ITensors.NDTensors:
-##   Algorithm,
-##   @Algorithm_str,
-##   EmptyNumber,
-##   _Tuple,
-##   _NTuple,
-##   blas_get_num_threads,
-##   datatype,
-##   dense,
-##   diagind,
-##   disable_auto_fermion,
-##   double_precision,
-##   eachblock,
-##   eachdiagblock,
-##   enable_auto_fermion,
-##   fill!!,
-##   randn!!,
-##   permutedims,
-##   permutedims!
-
-## import ..ITensors:
-##   Apply,
-##   apply,
-##   argument,
-##   Broadcasted,
-##   @Algorithm_str,
-##   checkflux,
-##   convert_leaf_eltype,
-##   commontags,
-##   @debug_check,
-##   dag,
-##   data,
-##   DefaultArrayStyle,
-##   DiskVector,
-##   flux,
-##   hascommoninds,
-##   hasqns,
-##   hassameinds,
-##   inner,
-##   isfermionic,
-##   maxdim,
-##   mindim,
-##   noprime,
-##   noprime!,
-##   norm,
-##   normalize,
-##   outer,
-##   OneITensor,
-##   permute,
-##   prime,
-##   prime!,
-##   product,
-##   QNIndex,
-##   replaceinds,
-##   replaceprime,
-##   replacetags,
-##   setprime,
-##   sim,
-##   site,
-##   splitblocks,
-##   store,
-##   Style,
-##   sum,
-##   swapprime,
-##   symmetrystyle,
-##   terms,
-##   @timeit_debug,
-##   truncate!,
-##   which_op
-
+# TODO: Delete this, overload explicitly.
 import QuantumOperatorAlgebra: params
 
+# TODO: Delete this, overload explicitly.
 import SerializedElementArrays: disk

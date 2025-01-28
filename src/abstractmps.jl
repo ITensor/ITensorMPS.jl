@@ -1,6 +1,4 @@
-# TODO: Define in `BackendSelection.jl`.
-using ITensors: @Algorithm_str
-
+using BackendSelection: @Algorithm_str, Algorithm
 using IsApprox: Approx, IsApprox
 using ITensors:
   ITensors,

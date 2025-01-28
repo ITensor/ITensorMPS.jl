@@ -1,4 +1,6 @@
-using ITensors: ITensors, ITensor, Index, @Algorithm_str, contract
+using BackendSelection: @Algorithm_str
+using ITensors: ITensors, ITensor, Index
+using TensorAlgebra: contract
 
 function contract_operator_state_updater(operator, init; internal_kwargs)
   # TODO: Use `contract(operator)`.

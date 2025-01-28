@@ -1,9 +1,8 @@
 using Adapt: adapt
+using BackendSelection: @Algorithm_str, Algorithm
 using DiagonalArrays: δ
 using ITensors: dag
 using LinearAlgebra: dot
-# TODO: Remove from ITensors?
-using ITensors: Algorithm
 # TODO: Add this back?
 # using ITensors: outer
 using QuantumOperatorAlgebra: OpSum
