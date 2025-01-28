@@ -1,11 +1,11 @@
 using Adapt: adapt
+using DiagonalArrays: δ
 using ITensors:
   ITensors,
   Algorithm,
   Index,
   ITensor,
   @Algorithm_str,
-  δ,
   commonind,
   dag,
   denseblocks,

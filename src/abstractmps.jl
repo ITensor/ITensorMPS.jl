@@ -619,7 +619,7 @@ findsites(ψ::AbstractMPS, s::Index) = findsites(ψ, IndexSet(s))
 Return the first site of the MPS or MPO that has the
 site index `i`.
 """
-findfirstsiteind(ψ::AbstractMPS, s::Index) = findfirst(hasind(s), ψ)
+findfirstsiteind(ψ::AbstractMPS, s::Index) = findfirst(ψᵢ -> s ∈ inds(ψᵢ), ψ)
 
 # TODO: depracate in favor of findsite.
 """
@@ -629,7 +629,7 @@ findfirstsiteind(ψ::AbstractMPS, s::Index) = findfirst(hasind(s), ψ)
 Return the first site of the MPS or MPO that has the
 site indices `is`.
 """
-findfirstsiteinds(ψ::AbstractMPS, s) = findfirst(hasinds(s), ψ)
+findfirstsiteinds(ψ::AbstractMPS, s) = findfirst(ψᵢ -> s ⊆ inds(ψᵢ), ψ)
 
 """
     siteind(::typeof(first), M::Union{MPS,MPO}, j::Integer; kwargs...)
@@ -724,16 +724,16 @@ end
 
 for (fname, fname!) in [
   (:(ITensors.dag), :(dag!)),
-  (:(ITensors.prime), :(ITensors.prime!)),
-  (:(ITensors.setprime), :(ITensors.setprime!)),
-  (:(ITensors.noprime), :(ITensors.noprime!)),
-  (:(ITensors.swapprime), :(ITensors.swapprime!)),
-  (:(ITensors.replaceprime), :(ITensors.replaceprime!)),
+  (:(ITensors.prime), :(prime!)),
+  (:(ITensors.setprime), :(setprime!)),
+  (:(ITensors.noprime), :(noprime!)),
+  (:(ITensors.swapprime), :(swapprime!)),
+  (:(ITensors.replaceprime), :(replaceprime!)),
   # TODO: Delete these, use `settag` instead.
-  # (:(ITensors.addtags), :(ITensors.addtags!)),
-  # (:(ITensors.removetags), :(ITensors.removetags!)),
-  # (:(ITensors.replacetags), :(ITensors.replacetags!)),
-  # (:(ITensors.settags), :(ITensors.settags!)),
+  # (:(ITensors.addtags), :(addtags!)),
+  # (:(ITensors.removetags), :(removetags!)),
+  # (:(ITensors.replacetags), :(replacetags!)),
+  # (:(ITensors.settags), :(settags!)),
 ]
   @eval begin
     """
@@ -871,14 +871,14 @@ end
 
 for (fname, fname!) in [
   (:(ITensors.sim), :(sim!)),
-  (:(ITensors.prime), :(ITensors.prime!)),
-  (:(ITensors.setprime), :(ITensors.setprime!)),
-  (:(ITensors.noprime), :(ITensors.noprime!)),
+  (:(ITensors.prime), :(prime!)),
+  (:(ITensors.setprime), :(setprime!)),
+  (:(ITensors.noprime), :(noprime!)),
   # TODO: Delete these, use `settag` instead.
-  # (:(ITensors.addtags), :(ITensors.addtags!)),
-  # (:(ITensors.removetags), :(ITensors.removetags!)),
-  # (:(ITensors.replacetags), :(ITensors.replacetags!)),
-  # (:(ITensors.settags), :(ITensors.settags!)),
+  # (:(ITensors.addtags), :(addtags!)),
+  # (:(ITensors.removetags), :(removetags!)),
+  # (:(ITensors.replacetags), :(replacetags!)),
+  # (:(ITensors.settags), :(settags!)),
 ]
   @eval begin
     """
@@ -1955,9 +1955,9 @@ function (::Type{MPST})(
 ) where {MPST<:AbstractMPS}
   N = length(sites)
   for s in sites
-    @assert hasinds(A, s)
+    @assert s ⊆ inds(A)
   end
-  @assert isnothing(leftinds) || hasinds(A, leftinds)
+  @assert isnothing(leftinds) || leftinds ⊆ inds(A)
 
   @assert 1 ≤ orthocenter ≤ N
 
@@ -1986,7 +1986,7 @@ function (::Type{MPST})(
 end
 
 function (::Type{MPST})(A::AbstractArray, sites; kwargs...) where {MPST<:AbstractMPS}
-  return MPST(itensor(A, sites...), sites; kwargs...)
+  return MPST(ITensor(A, sites...), sites; kwargs...)
 end
 
 """
@@ -2220,7 +2220,7 @@ function ITensors.op(::OpName"CX", ::SiteType"S=1/2", s1::Index, s2::Index)
          0 1 0 0
          0 0 0 1
          0 0 1 0]
-  return itensor(mat, s2', s1', s2, s1)
+  return ITensor(mat, s2', s1', s2, s1)
 end
 
 os = [("CX", 1, 3), ("σz", 3)]

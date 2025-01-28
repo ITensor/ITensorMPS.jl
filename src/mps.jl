@@ -99,7 +99,7 @@ function randomU(rng::AbstractRNG, eltype::Type{<:Number}, s1::Index, s2::Index)
     mdim = dim(s1) * dim(s2)
     RM = randn(rng, eltype, mdim, mdim)
     Q, _ = NDTensors.qr_positive(RM)
-    G = itensor(Q, dag(s1), dag(s2), s1', s2')
+    G = ITensor(Q, dag(s1), dag(s2), s1', s2')
   else
     M = random_itensor(rng, eltype, QN(), s1', s2', dag(s1), dag(s2))
     U, S, V = svd(M, (s1', s2'))
@@ -185,7 +185,7 @@ function randomCircuitMPS(
   chi = min(linkdims[N - 1], d)
   l[N - 1] = Index(chi, "Link,l=$(N-1)")
   O = NDTensors.random_unitary(rng, eltype, chi, d)
-  M[N] = itensor(O, l[N - 1], sites[N])
+  M[N] = ITensor(O, l[N - 1], sites[N])
 
   for j in (N - 1):-1:2
     chi *= dim(sites[j])
@@ -193,13 +193,13 @@ function randomCircuitMPS(
     l[j - 1] = Index(chi, "Link,l=$(j-1)")
     O = NDTensors.random_unitary(rng, eltype, chi, dim(sites[j]) * dim(l[j]))
     T = reshape(O, (chi, dim(sites[j]), dim(l[j])))
-    M[j] = itensor(T, l[j - 1], sites[j], l[j])
+    M[j] = ITensor(T, l[j - 1], sites[j], l[j])
   end
 
   O = NDTensors.random_unitary(rng, eltype, 1, dim(sites[1]) * dim(l[1]))
   l0 = Index(1, "Link,l=0")
   T = reshape(O, (1, dim(sites[1]), dim(l[1])))
-  M[1] = itensor(T, l0, sites[1], l[1])
+  M[1] = ITensor(T, l0, sites[1], l[1])
   M[1] *= onehot(eltype, l0 => 1)
 
   M.llim = 0

@@ -1,3 +1,4 @@
+using FillArrays: Ones
 using ITensors: noprime
 
 abstract type AbstractProjMPO end
@@ -25,18 +26,18 @@ the length of the MPO used to construct it
 """
 Base.length(P::AbstractProjMPO) = length(P.H)
 
-function lproj(P::AbstractProjMPO)::Union{ITensor,OneITensor}
-  (P.lpos <= 0) && return OneITensor()
+function lproj(P::AbstractProjMPO)
+  (P.lpos <= 0) && return ITensor(Ones{Bool}())
   return P.LR[P.lpos]
 end
 
-function rproj(P::AbstractProjMPO)::Union{ITensor,OneITensor}
-  (P.rpos >= length(P) + 1) && return OneITensor()
+function rproj(P::AbstractProjMPO)
+  (P.rpos >= length(P) + 1) && return ITensor(Ones{Bool}())
   return P.LR[P.rpos]
 end
 
-function ITensors.contract(P::AbstractProjMPO, v::ITensor)::ITensor
-  itensor_map = Union{ITensor,OneITensor}[lproj(P)]
+function ITensors.contract(P::AbstractProjMPO, v::ITensor)
+  itensor_map = [lproj(P)]
   append!(itensor_map, P.H[site_range(P)])
   push!(itensor_map, rproj(P))
 

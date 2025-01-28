@@ -1,4 +1,4 @@
-using ITensors: ITensors, Index, ITensor, @Algorithm_str, commoninds, contract, hasind, sim
+using ITensors: ITensors, ITensor, Index, @Algorithm_str, contract
 
 function contract_operator_state_updater(operator, init; internal_kwargs)
   # TODO: Use `contract(operator)`.

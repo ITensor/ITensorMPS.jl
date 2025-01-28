@@ -1,12 +1,13 @@
 using Adapt: adapt
-using LinearAlgebra: dot
-using Random: Random, AbstractRNG
+using DiagonalArrays: δ
 using ITensors: dag
+using LinearAlgebra: dot
 # TODO: Remove from ITensors?
-using ITensors: @ts_str, Algorithm
-# TODO: Add this back.
+using ITensors: Algorithm
+# TODO: Add this back?
 # using ITensors: outer
 using QuantumOperatorAlgebra: OpSum
+using Random: Random, AbstractRNG
 
 """
     MPO
@@ -547,7 +548,7 @@ function logdot(M1::MPO, M2::MPO; make_inds_match::Bool=false, kwargs...)
   return _log_or_not_dot(M1, M2, true; make_inds_match=make_inds_match)
 end
 
-function LinearAlgebra.tr(M::MPO; plev::Pair{Int,Int}=0 => 1, tags::Pair=ts"" => ts"")
+function LinearAlgebra.tr(M::MPO; plev::Pair{Int,Int}=0 => 1, tags::Pair="" => "")
   N = length(M)
   #
   # TODO: choose whether to contract or trace
@@ -615,9 +616,10 @@ end
 
 (A::MPO)(ψ::MPS; kwargs...) = apply(A, ψ; kwargs...)
 
-function Apply(A::MPO, ψ::MPS; kwargs...)
-  return ITensors.LazyApply.Applied(apply, (A, ψ), NamedTuple(kwargs))
-end
+## TODO: Decide what to do about this.
+## function Apply(A::MPO, ψ::MPS; kwargs...)
+##   return ITensors.LazyApply.Applied(apply, (A, ψ), NamedTuple(kwargs))
+## end
 
 function ITensors.contract(A::MPO, ψ::MPS; alg=nothing, method=alg, kwargs...)
   # TODO: Delete `method` since it is deprecated.

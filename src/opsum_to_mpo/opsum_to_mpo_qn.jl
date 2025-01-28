@@ -225,7 +225,7 @@
 ##         T = ITensors.NDTensors.BlockSparseTensor(ValType, [b], (dag(ll), rl))
 ##         T[b] .= M
 ## 
-##         H[n] += (itensor(T) * Op)
+##         H[n] += (ITensor(T) * Op)
 ##       end
 ##     end
 ## 
@@ -234,13 +234,13 @@
 ##     b = Block(1, 1)
 ##     T = ITensors.NDTensors.BlockSparseTensor(ValType, [b], (dag(ll), rl))
 ##     T[b] = 1
-##     H[n] += (itensor(T) * Id)
+##     H[n] += (ITensor(T) * Id)
 ## 
 ##     # Put in starting identity operator
 ##     b = Block(nblocks(ll), nblocks(rl))
 ##     T = ITensors.NDTensors.BlockSparseTensor(ValType, [b], (dag(ll), rl))
 ##     T[b] = 1
-##     H[n] += (itensor(T) * Id)
+##     H[n] += (ITensor(T) * Id)
 ##   end # for n in 1:N
 ## 
 ##   L = ITensor(llinks[1])

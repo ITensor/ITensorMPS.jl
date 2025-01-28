@@ -1,6 +1,7 @@
 using Adapt: adapt
 using ITensors: ITensors, plev
 using KrylovKit: eigsolve
+using NamedDimsArrays: NamedDimsArrays, aligndims
 using Printf: @printf
 using TupleTools: TupleTools
 using VectorInterface: scalartype
@@ -8,7 +9,7 @@ using VectorInterface: scalartype
 ## TODO: Add this back?
 ## using NDTensors: timer
 
-function permute(
+function NamedDimsArrays.aligndims(
   M::AbstractMPS, ::Tuple{typeof(linkind),typeof(siteinds),typeof(linkind)}
 )::typeof(M)
   M̃ = typeof(M)(length(M))
@@ -16,8 +17,7 @@ function permute(
     lₙ₋₁ = linkind(M, n - 1)
     lₙ = linkind(M, n)
     s⃗ₙ = TupleTools.sort(Tuple(siteinds(M, n)); by=plev)
-    # TODO: Use `NamedDimsArrays.aligndims` instead.
-    M̃[n] = ITensors.permute(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
+    M̃[n] = aligndims(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
   end
   set_ortho_lims!(M̃, ortho_lims(M))
   return M̃
@@ -28,7 +28,7 @@ function dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
   check_hascommoninds(siteinds, H, psi0')
   # Permute the indices to have a better memory layout
   # and minimize permutations
-  H = permute(H, (linkind, siteinds, linkind))
+  H = aligndims(H, (linkind, siteinds, linkind))
   PH = ProjMPO(H)
   return dmrg(PH, psi0, sweeps; kwargs...)
 end
@@ -38,7 +38,7 @@ function dmrg(Hs::Vector{MPO}, psi0::MPS, sweeps::Sweeps; kwargs...)
     check_hascommoninds(siteinds, H, psi0)
     check_hascommoninds(siteinds, H, psi0')
   end
-  Hs .= permute.(Hs, Ref((linkind, siteinds, linkind)))
+  Hs .= aligndims.(Hs, Ref((linkind, siteinds, linkind)))
   PHS = ProjMPOSum(Hs)
   return dmrg(PHS, psi0, sweeps; kwargs...)
 end
@@ -49,8 +49,8 @@ function dmrg(H::MPO, Ms::Vector{MPS}, psi0::MPS, sweeps::Sweeps; weight=true, k
   for M in Ms
     check_hascommoninds(siteinds, M, psi0)
   end
-  H = permute(H, (linkind, siteinds, linkind))
-  Ms .= permute.(Ms, Ref((linkind, siteinds, linkind)))
+  H = aligndims(H, (linkind, siteinds, linkind))
+  Ms .= aligndims.(Ms, Ref((linkind, siteinds, linkind)))
   if weight <= 0
     error(
       "weight parameter should be > 0.0 in call to excited-state dmrg (value passed was weight=$weight)",
