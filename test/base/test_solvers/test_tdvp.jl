@@ -38,6 +38,15 @@ const elts = (Float32, Float64, Complex{Float32}, Complex{Float64})
   @test norm(ψ2) ≈ 1 rtol = √eps(real(elt)) * 10
   # Should rotate back to original state:
   @test abs(inner(ψ0, ψ2)) > 0.99
+
+  @testset "Failure mode tests" begin
+    total_time = elt(0.1) * im
+    # matching total time and time step directions
+    @test_throws "signs agree" tdvp(H, -total_time, ψ0; time_step)
+    @test_throws "signs agree" tdvp(H, total_time, ψ0; time_step=-time_step)
+    # total time is an integer of time steps
+    @test_throws "integer" tdvp(H, total_time * 1.5, ψ0; time_step)
+  end
 end
 
 @testset "TDVP: Sum of Hamiltonians (eltype=$elt)" for elt in elts
