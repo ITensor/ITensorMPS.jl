@@ -1,21 +1,20 @@
 using Adapt: adapt
+using BackendSelection: @Algorithm_str, Algorithm
+using DiagonalArrays: δ
 using ITensors:
   ITensors,
-  Algorithm,
   Index,
   ITensor,
-  @Algorithm_str,
-  δ,
   commonind,
   dag,
   denseblocks,
   directsum,
   hasqns,
   prime,
-  scalartype,
   uniqueinds
 using LinearAlgebra: normalize, svd, tr
-using NDTensors: unwrap_array_type
+using TypeParameterAccessors: unwrap_array_type
+using VectorInterface: scalartype
 
 # Possible improvements:
 #  - Allow a maxdim argument to be passed to `expand`.

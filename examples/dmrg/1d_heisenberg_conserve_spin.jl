@@ -1,39 +1,43 @@
 using ITensors, ITensorMPS
-using LinearAlgebra
 using Printf
 using Random
-using Strided
+using SymmetrySectors
 
-Random.seed!(1234)
-BLAS.set_num_threads(1)
-Strided.set_num_threads(1)
-ITensors.enable_threaded_blocksparse()
-#ITensors.disable_threaded_blocksparse()
-
-let
-  N = 100
-
-  sites = siteinds("S=1", N; conserve_qns=true)
-
+function heisenberg(N)
   os = OpSum()
   for j in 1:(N - 1)
     os += 0.5, "S+", j, "S-", j + 1
     os += 0.5, "S-", j, "S+", j + 1
     os += "Sz", j, "Sz", j + 1
   end
-  H = MPO(os, sites)
-
-  state = [isodd(n) ? "Up" : "Dn" for n in 1:N]
-  psi0 = random_mps(sites, state; linkdims=10)
-
-  # Plan to do 5 DMRG sweeps:
-  nsweeps = 5
-  # Set maximum MPS bond dimensions for each sweep
-  maxdim = [10, 20, 100, 100, 200]
-  # Set maximum truncation error allowed when adapting bond dimensions
-  cutoff = [1E-11]
-
-  # Run the DMRG algorithm, returning energy and optimized MPS
-  energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
-  @printf("Final energy = %.12f\n", energy)
+  return os
 end
+
+Random.seed!(1234)
+
+N = 10
+
+s = siteinds("S=1/2", N; gradings=("Sz",))
+
+os = heisenberg(N)
+
+# Input operator terms which define a Hamiltonian
+# Convert these terms to an MPO tensor network
+H = MPO(os, s)
+
+# Create an initial random matrix product state
+# psi0 = random_mps(s; linkdims=10)
+psi0 = MPS(s, j -> isodd(j) ? "↑" : "↓")
+
+# Plan to do 5 DMRG sweeps:
+nsweeps = 5
+# Set maximum MPS bond dimensions for each sweep
+maxdim = [10]
+# Set maximum truncation error allowed when adapting bond dimensions
+cutoff = [1E-11]
+
+# Run the DMRG algorithm, returning energy and optimized MPS
+energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
+@show inner(psi', H, psi)
+@show inner(psi, psi)
+@printf("Final energy = %.12f\n", energy)

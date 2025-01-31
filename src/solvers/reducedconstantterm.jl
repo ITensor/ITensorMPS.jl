@@ -105,7 +105,7 @@ function ITensorMPS.makeR!(reduced_state::ReducedConstantTerm, basis::MPS, posit
 end
 
 function ITensors.contract(reduced_state::ReducedConstantTerm, v::ITensor)
-  reduced_state_tensors = Union{ITensor,OneITensor}[lproj(reduced_state)]
+  reduced_state_tensors = [lproj(reduced_state)]
   append!(
     reduced_state_tensors,
     [prime(t, "Link") for t in reduced_state.state[site_range(reduced_state)]],
@@ -129,7 +129,7 @@ end
 
 # Contract the reduced constant term down to a since ITensor.
 function ITensors.contract(reduced_state::ReducedConstantTerm)
-  reduced_state_tensors = Union{ITensor,OneITensor}[lproj(reduced_state)]
+  reduced_state_tensors = [lproj(reduced_state)]
   append!(
     reduced_state_tensors,
     [dag(prime(t, "Link")) for t in reduced_state.state[site_range(reduced_state)]],

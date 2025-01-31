@@ -1,6 +1,7 @@
 using ITensors: ITensors, uniqueinds
 using LinearAlgebra: norm, normalize!, svd
 using Printf: @printf
+using VectorInterface: scalartype
 
 function sweep_update(
   order::TDVPOrder,
@@ -76,7 +77,7 @@ function sub_sweep_update(
   outputlevel=default_outputlevel(),
   maxdim=default_maxdim(),
   mindim=default_mindim(),
-  cutoff=default_cutoff(ITensors.scalartype(state)),
+  cutoff=default_cutoff(scalartype(state)),
   noise=default_noise(),
 )
   reduced_operator = copy(reduced_operator)

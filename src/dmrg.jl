@@ -1,10 +1,15 @@
 using Adapt: adapt
+using ITensors: ITensors, plev
 using KrylovKit: eigsolve
-using NDTensors: scalartype, timer
+using NamedDimsArrays: NamedDimsArrays, aligndims
 using Printf: @printf
 using TupleTools: TupleTools
+using VectorInterface: scalartype
 
-function permute(
+## TODO: Add this back?
+## using NDTensors: timer
+
+function NamedDimsArrays.aligndims(
   M::AbstractMPS, ::Tuple{typeof(linkind),typeof(siteinds),typeof(linkind)}
 )::typeof(M)
   M̃ = typeof(M)(length(M))
@@ -12,7 +17,7 @@ function permute(
     lₙ₋₁ = linkind(M, n - 1)
     lₙ = linkind(M, n)
     s⃗ₙ = TupleTools.sort(Tuple(siteinds(M, n)); by=plev)
-    M̃[n] = ITensors.permute(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
+    M̃[n] = aligndims(M[n], filter(!isnothing, (lₙ₋₁, s⃗ₙ..., lₙ)))
   end
   set_ortho_lims!(M̃, ortho_lims(M))
   return M̃
@@ -23,7 +28,7 @@ function dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
   check_hascommoninds(siteinds, H, psi0')
   # Permute the indices to have a better memory layout
   # and minimize permutations
-  H = permute(H, (linkind, siteinds, linkind))
+  H = aligndims(H, (linkind, siteinds, linkind))
   PH = ProjMPO(H)
   return dmrg(PH, psi0, sweeps; kwargs...)
 end
@@ -33,7 +38,7 @@ function dmrg(Hs::Vector{MPO}, psi0::MPS, sweeps::Sweeps; kwargs...)
     check_hascommoninds(siteinds, H, psi0)
     check_hascommoninds(siteinds, H, psi0')
   end
-  Hs .= permute.(Hs, Ref((linkind, siteinds, linkind)))
+  Hs .= aligndims.(Hs, Ref((linkind, siteinds, linkind)))
   PHS = ProjMPOSum(Hs)
   return dmrg(PHS, psi0, sweeps; kwargs...)
 end
@@ -44,8 +49,8 @@ function dmrg(H::MPO, Ms::Vector{MPS}, psi0::MPS, sweeps::Sweeps; weight=true, k
   for M in Ms
     check_hascommoninds(siteinds, M, psi0)
   end
-  H = permute(H, (linkind, siteinds, linkind))
-  Ms .= permute.(Ms, Ref((linkind, siteinds, linkind)))
+  H = aligndims(H, (linkind, siteinds, linkind))
+  Ms .= aligndims.(Ms, Ref((linkind, siteinds, linkind)))
   if weight <= 0
     error(
       "weight parameter should be > 0.0 in call to excited-state dmrg (value passed was weight=$weight)",
@@ -55,7 +60,8 @@ function dmrg(H::MPO, Ms::Vector{MPS}, psi0::MPS, sweeps::Sweeps; weight=true, k
   return dmrg(PMM, psi0, sweeps; kwargs...)
 end
 
-using NDTensors.TypeParameterAccessors: unwrap_array_type
+using TypeParameterAccessors: unwrap_array_type
+
 """
     dmrg(H::MPO, psi0::MPS; kwargs...)
     dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
@@ -179,12 +185,12 @@ function dmrg(
     )
   end
 
-  @debug_check begin
-    # Debug level checks
-    # Enable with ITensors.enable_debug_checks()
-    checkflux(psi0)
-    checkflux(PH)
-  end
+  ## @debug_check begin
+  ##   # Debug level checks
+  ##   # Enable with ITensors.enable_debug_checks()
+  ##   checkflux(psi0)
+  ##   checkflux(PH)
+  ## end
 
   psi = copy(psi0)
   N = length(psi)
@@ -217,86 +223,85 @@ function dmrg(
       end
 
       for (b, ha) in sweepnext(N)
-        @debug_check begin
-          checkflux(psi)
-          checkflux(PH)
-        end
+        ## TODO: Add back `@debug_check`, `checkflux`.
+        ## @debug_check begin
+        ##   checkflux(psi)
+        ##   checkflux(PH)
+        ## end
 
-        @timeit_debug timer "dmrg: position!" begin
-          PH = position!(PH, psi, b)
-        end
+        PH = position!(PH, psi, b)
 
-        @debug_check begin
-          checkflux(psi)
-          checkflux(PH)
-        end
+        ## TODO: Add back `@debug_check`, `checkflux`.
+        ## @debug_check begin
+        ##   checkflux(psi)
+        ##   checkflux(PH)
+        ## end
 
-        @timeit_debug timer "dmrg: psi[b]*psi[b+1]" begin
-          phi = psi[b] * psi[b + 1]
-        end
+        phi = psi[b] * psi[b + 1]
 
-        @timeit_debug timer "dmrg: eigsolve" begin
-          vals, vecs = eigsolve(
-            PH,
-            phi,
-            1,
-            eigsolve_which_eigenvalue;
-            ishermitian,
-            tol=eigsolve_tol,
-            krylovdim=eigsolve_krylovdim,
-            maxiter=eigsolve_maxiter,
-          )
-        end
+        vals, vecs = eigsolve(
+          PH,
+          phi,
+          1,
+          eigsolve_which_eigenvalue;
+          ishermitian,
+          tol=eigsolve_tol,
+          krylovdim=eigsolve_krylovdim,
+          maxiter=eigsolve_maxiter,
+          verbosity=eigsolve_verbosity,
+        )
 
         energy = vals[1]
+
+        ## TODO: Bring back some version of this logic.
         ## Right now there is a conversion problem in CUDA.jl where `UnifiedMemory` Arrays are being converted
         ## into `DeviceMemory`. This conversion line is here temporarily to fix that problem when it arises
         ## Adapt is only called when using CUDA backend. CPU will work as implemented previously.
         ## TODO this might be the only place we really need iscu if its not fixed.
-        phi = if NDTensors.iscu(phi) && NDTensors.iscu(vecs[1])
-          adapt(ITensors.set_eltype(unwrap_array_type(phi), eltype(vecs[1])), vecs[1])
-        else
-          vecs[1]
-        end
+        ## phi = if NDTensors.iscu(phi) && NDTensors.iscu(vecs[1])
+        ##   adapt(ITensors.set_eltype(unwrap_array_type(phi), eltype(vecs[1])), vecs[1])
+        ## else
+        ##  vecs[1]
+        ## end
+
+        phi = vecs[1]
 
         ortho = ha == 1 ? "left" : "right"
 
         drho = nothing
         if noise(sweeps, sw) > 0
-          @timeit_debug timer "dmrg: noiseterm" begin
-            # Use noise term when determining new MPS basis.
-            # This is used to preserve the element type of the MPS.
-            elt = real(scalartype(psi))
-            drho = elt(noise(sweeps, sw)) * noiseterm(PH, phi, ortho)
-          end
+          # Use noise term when determining new MPS basis.
+          # This is used to preserve the element type of the MPS.
+          elt = real(scalartype(psi))
+          drho = elt(noise(sweeps, sw)) * noiseterm(PH, phi, ortho)
         end
 
-        @debug_check begin
-          checkflux(phi)
-        end
+        ## TODO: Add back `@debug_check`, `checkflux`.
+        ## @debug_check begin
+        ##   checkflux(phi)
+        ## end
 
-        @timeit_debug timer "dmrg: replacebond!" begin
-          spec = replacebond!(
-            PH,
-            psi,
-            b,
-            phi;
-            maxdim=maxdim(sweeps, sw),
-            mindim=mindim(sweeps, sw),
-            cutoff=cutoff(sweeps, sw),
-            eigen_perturbation=drho,
-            ortho,
-            normalize=true,
-            which_decomp,
-            svd_alg,
-          )
-        end
+        spec = replacebond!(
+          PH,
+          psi,
+          b,
+          phi;
+          maxdim=maxdim(sweeps, sw),
+          mindim=mindim(sweeps, sw),
+          cutoff=cutoff(sweeps, sw),
+          eigen_perturbation=drho,
+          ortho,
+          normalize=true,
+          which_decomp,
+          svd_alg,
+        )
         maxtruncerr = max(maxtruncerr, spec.truncerr)
 
-        @debug_check begin
-          checkflux(psi)
-          checkflux(PH)
-        end
+        ## TODO: Add back `@debug_check`, `checkflux`.
+        ## @debug_check begin
+        ##   checkflux(psi)
+        ##   checkflux(PH)
+        ## end
 
         if outputlevel >= 2
           @printf("Sweep %d, half %d, bond (%d,%d) energy=%s\n", sw, ha, b, b + 1, energy)
