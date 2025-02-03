@@ -2,6 +2,7 @@ using Adapt: adapt
 using ITensors: hasqns
 using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state
 using Random: Random, AbstractRNG
+using SparseArraysBase: oneelement
 
 ## TODO: Add this back.
 ## using NDTensors: using_auto_fermion
@@ -200,7 +201,7 @@ function randomCircuitMPS(
   l0 = Index(1, "Link,l=0")
   T = reshape(O, (1, dim(sites[1]), dim(l[1])))
   M[1] = ITensor(T, l0, sites[1], l[1])
-  M[1] *= onehot(eltype, l0 => 1)
+  M[1] *= oneelement(eltype, l0 => 1)
 
   M.llim = 0
   M.rlim = 2

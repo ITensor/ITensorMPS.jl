@@ -4,6 +4,7 @@ using ITensorMPS
 using ITensors
 using LinearAlgebra: diag
 using Random
+using SparseArraysBase: oneelement
 using Test
 
 Random.seed!(1234)
@@ -1425,8 +1426,8 @@ end
     CSWAP = [op("CSWAP", s, n, m, k) for n in 1:N, m in 1:N, k in 1:N]
     CCCNOT = [op("CCCNOT", s, n, m, k, l) for n in 1:N, m in 1:N, k in 1:N, l in 1:N]
 
-    v0 = [onehot(s[n] => "0") for n in 1:N]
-    v1 = [onehot(s[n] => "1") for n in 1:N]
+    v0 = [oneelement(s[n] => "0") for n in 1:N]
+    v1 = [oneelement(s[n] => "1") for n in 1:N]
 
     # Single qubit
     @test product(I[1], v0[1]) ≈ v0[1]
