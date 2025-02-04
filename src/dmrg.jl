@@ -245,6 +245,7 @@ function dmrg(
             tol=eigsolve_tol,
             krylovdim=eigsolve_krylovdim,
             maxiter=eigsolve_maxiter,
+            verbosity=eigsolve_verbosity,
           )
         end
 
