@@ -1,5 +1,5 @@
 using Adapt: adapt
-using GradedUnitRanges: dag
+using GradedUnitRanges: dual
 using ITensors: hasqns
 using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state
 using Random: Random, AbstractRNG
@@ -82,9 +82,9 @@ function MPS(
     if ii == 1
       v[ii] = ITensor(T, l[ii], s)
     elseif ii == N
-      v[ii] = ITensor(T, dag(l[ii - 1]), s)
+      v[ii] = ITensor(T, dual(l[ii - 1]), s)
     else
-      v[ii] = ITensor(T, dag(l[ii - 1]), s, l[ii])
+      v[ii] = ITensor(T, dual(l[ii - 1]), s, l[ii])
     end
   end
   return MPS(v)
@@ -101,9 +101,9 @@ function randomU(rng::AbstractRNG, eltype::Type{<:Number}, s1::Index, s2::Index)
     mdim = dim(s1) * dim(s2)
     RM = randn(rng, eltype, mdim, mdim)
     Q, _ = NDTensors.qr_positive(RM)
-    G = ITensor(Q, dag(s1), dag(s2), s1', s2')
+    G = ITensor(Q, dual(s1), dual(s2), s1', s2')
   else
-    M = random_itensor(rng, eltype, QN(), s1', s2', dag(s1), dag(s2))
+    M = random_itensor(rng, eltype, QN(), s1', s2', dual(s1), dual(s2))
     U, S, V = svd(M, (s1', s2'))
     u = commonind(U, S)
     v = commonind(S, V)
@@ -354,7 +354,7 @@ function MPS(::Type{T}, ivals::Vector{<:Pair{<:Index}}) where {T<:Number}
     end
     links = Vector{QNIndex}(undef, N - 1)
     for j in (N - 1):-1:1
-      links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
+      links[j] = dual(Index(lflux => 1; tags="Link,l=$j"))
       lflux -= qn(ivals[j])
     end
   else
@@ -365,10 +365,10 @@ function MPS(::Type{T}, ivals::Vector{<:Pair{<:Index}}) where {T<:Number}
   M[1][ivals[1], links[1] => 1] = one(T)
   for n in 2:(N - 1)
     s = ind(ivals[n])
-    M[n] = ITensor(T, dag(links[n - 1]), s, links[n])
+    M[n] = ITensor(T, dual(links[n - 1]), s, links[n])
     M[n][links[n - 1] => 1, ivals[n], links[n] => 1] = one(T)
   end
-  M[N] = ITensor(T, dag(links[N - 1]), ind(ivals[N]))
+  M[N] = ITensor(T, dual(links[N - 1]), ind(ivals[N]))
   M[N][links[N - 1] => 1, ivals[N]] = one(T)
 
   return M
@@ -432,21 +432,21 @@ function MPS(eltype::Type{<:Number}, sites::Vector{<:Index}, states_)
     end
     links = Vector{QNIndex}(undef, N - 1)
     for j in (N - 1):-1:1
-      links[j] = dag(Index(lflux => 1; tags=Dict("l" => "$j")))
+      links[j] = dual(settag(Index(lflux => 1), "l", "$j"))
       lflux -= flux(states[j])
     end
   else
-    links = [Index(1; tags=Dict("l" => "$n")) for n in 1:N]
+    links = [settag(Index(1), "l", "$n") for n in 1:N]
   end
 
   M[1] = ITensor(sites[1], links[1])
   M[1] += states[1] * state(1, links[1])
   for n in 2:(N - 1)
-    M[n] = ITensor(dag(links[n - 1]), sites[n], links[n])
-    M[n] += state(1, dag(links[n - 1])) * states[n] * state(1, links[n])
+    M[n] = ITensor(dual(links[n - 1]), sites[n], links[n])
+    M[n] += state(1, dual(links[n - 1])) * states[n] * state(1, links[n])
   end
-  M[N] = ITensor(dag(links[N - 1]), sites[N])
-  M[N] += state(1, dag(links[N - 1])) * states[N]
+  M[N] = ITensor(dual(links[N - 1]), sites[N])
+  M[N] += state(1, dual(links[N - 1])) * states[N]
 
   return convert_leaf_eltype(eltype, M)
 end
@@ -807,7 +807,7 @@ function correlation_matrix(
     L = ITensor(1.0)
   else
     lind = commonind(psi[start_site], psi[start_site - 1])
-    L = delta(dag(lind), lind')
+    L = delta(dual(lind), lind')
   end
   pL = start_site - 1
 
@@ -901,7 +901,7 @@ function correlation_matrix(
             Li21 *= oᵢ * dag(psi[pL21])'
           else
             sᵢ = siteind(psi, pL21)
-            Li21 *= prime(dag(si[pL21]), !sᵢ)
+            Li21 *= prime(dual(si[pL21]), !sᵢ)
           end
           Li21 *= psi[pL21]
         end

@@ -1,5 +1,5 @@
 ## using NDTensors: using_auto_fermion
-using ITensors: dim, inds
+using ITensors: dim, inds, settag
 
 replace_nothing(::Nothing, y) = y
 replace_nothing(x, y) = x
@@ -159,7 +159,7 @@ function svdMPO(
   end
 
   llinks = Vector{Index{Int}}(undef, N + 1)
-  llinks[1] = Index(2; tags=Dict("l" => "0"))
+  llinks[1] = settag(Index(2), "l", "0")
 
   H = MPO(sites)
 
@@ -171,7 +171,7 @@ function svdMPO(
     VR = Vs[n]
     tdim = isempty(rightmaps[n]) ? 0 : size(VR, 2)
 
-    llinks[n + 1] = Index(2 + tdim; tags=Dict("l" => "$n"))
+    llinks[n + 1] = settag(Index(2 + tdim), "l", "$n")
 
     ll = llinks[n]
     rl = llinks[n + 1]

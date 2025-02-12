@@ -46,7 +46,7 @@ function MPO(::Type{ElT}, sites::Vector{<:Index}) where {ElT<:Number}
     return MPO(v)
   end
   space_ii = all(hasqns, sites) ? [QN() => 1] : 1
-  l = [Index(space_ii; tags=Dict("l" => "$ii")) for ii in 1:(N - 1)]
+  l = [settag(Index(space_ii), "l", "$ii") for ii in 1:(N - 1)]
   for ii in eachindex(sites)
     s = sites[ii]
     if ii == 1
@@ -558,10 +558,10 @@ function LinearAlgebra.tr(M::MPO; plev::Pair{Int,Int}=0 => 1, tags::Pair="" => "
   #
   # So tracing first is better if d > √χ.
   #
-  L = tr(M[1]; plev=plev, tags=tags)
+  L = tr(M[1]; plev, tags)
   for j in 2:N
     L *= M[j]
-    L = tr(L; plev=plev, tags=tags)
+    L = tr(L; plev, tags)
   end
   return L
 end
