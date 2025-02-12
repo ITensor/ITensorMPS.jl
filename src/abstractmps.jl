@@ -1,4 +1,5 @@
 using BackendSelection: @Algorithm_str, Algorithm
+using GradedUnitRanges: GradedUnitRanges, dag
 using IsApprox: Approx, IsApprox
 using ITensors:
   ITensors,
@@ -6,7 +7,6 @@ using ITensors:
   Index,
   commonind,
   commoninds,
-  dag,
   factorize,
   hasqns,
   replaceinds,
@@ -721,7 +721,7 @@ function Base.map(f::Function, M::AbstractMPS; set_limits::Bool=true)
 end
 
 for (fname, fname!) in [
-  (:(ITensors.dag), :(dag!)),
+  (:(GradedUnitRanges.dag), :(dag!)),
   (:(ITensors.prime), :(prime!)),
   (:(ITensors.setprime), :(setprime!)),
   (:(ITensors.noprime), :(noprime!)),

@@ -1,4 +1,5 @@
 using Adapt: adapt
+using GradedUnitRanges: dag
 using ITensors: hasqns
 using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state
 using Random: Random, AbstractRNG

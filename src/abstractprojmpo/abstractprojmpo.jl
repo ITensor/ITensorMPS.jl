@@ -1,4 +1,5 @@
 using FillArrays: Ones
+using GradedUnitRanges: dag
 using ITensors: noprime
 
 abstract type AbstractProjMPO end
