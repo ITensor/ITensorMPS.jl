@@ -1,6 +1,7 @@
 using Adapt: adapt
 using GradedUnitRanges: dual
 using ITensors: hasqns
+using LinearAlgebra: qr
 using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state
 using Random: Random, AbstractRNG
 using SparseArraysBase: oneelement
@@ -165,6 +166,18 @@ function randomCircuitMPS(
   return randomCircuitMPS(Random.default_rng(), eltype, sites, linkdims; kwargs...)
 end
 
+function random_unitary(rng::AbstractRNG, elt::Type, n::Int, m::Int)
+  if n < m
+    return copy(random_unitary(rng, elt, m, n)')
+  end
+  F = qr(randn(rng, elt, n, m))
+  Q = Matrix(F.Q)
+  for c in 1:size(Q, 2)
+    Q[:, c] .*= sign(F.factors[c, c])
+  end
+  return Q
+end
+
 function randomCircuitMPS(
   rng::AbstractRNG,
   eltype::Type{<:Number},
@@ -185,21 +198,21 @@ function randomCircuitMPS(
 
   d = dim(sites[N])
   chi = min(linkdims[N - 1], d)
-  l[N - 1] = Index(chi, "Link,l=$(N-1)")
-  O = NDTensors.random_unitary(rng, eltype, chi, d)
+  l[N - 1] = settag(Index(chi), "l", "$(N-1)")
+  O = random_unitary(rng, eltype, chi, d)
   M[N] = ITensor(O, l[N - 1], sites[N])
 
   for j in (N - 1):-1:2
     chi *= dim(sites[j])
     chi = min(linkdims[j - 1], chi)
-    l[j - 1] = Index(chi, "Link,l=$(j-1)")
-    O = NDTensors.random_unitary(rng, eltype, chi, dim(sites[j]) * dim(l[j]))
+    l[j - 1] = settag(Index(chi), "l", "$(j-1)")
+    O = random_unitary(rng, eltype, chi, dim(sites[j]) * dim(l[j]))
     T = reshape(O, (chi, dim(sites[j]), dim(l[j])))
     M[j] = ITensor(T, l[j - 1], sites[j], l[j])
   end
 
-  O = NDTensors.random_unitary(rng, eltype, 1, dim(sites[1]) * dim(l[1]))
-  l0 = Index(1, "Link,l=0")
+  O = random_unitary(rng, eltype, 1, dim(sites[1]) * dim(l[1]))
+  l0 = settag(Index(1), "l", "0")
   T = reshape(O, (1, dim(sites[1]), dim(l[1])))
   M[1] = ITensor(T, l0, sites[1], l[1])
   M[1] *= oneelement(eltype, l0 => 1)
