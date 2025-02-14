@@ -99,10 +99,12 @@ end
 
 function randomU(rng::AbstractRNG, eltype::Type{<:Number}, s1::Index, s2::Index)
   if !hasqns(s1) && !hasqns(s2)
-    mdim = dim(s1) * dim(s2)
+    mdim = Int(length(s1)) * Int(length(s2))
     RM = randn(rng, eltype, mdim, mdim)
     Q, _ = qr_positive(RM)
-    G = ITensor(Q, dual(s1), dual(s2), s1', s2')
+    inds = (dual(s1), dual(s2), s1', s2')
+    dims = Int.(length.(inds))
+    G = ITensor(reshape(Q, dims), inds)
   else
     M = random_itensor(rng, eltype, QN(), s1', s2', dual(s1), dual(s2))
     U, S, V = svd(M, (s1', s2'))
@@ -140,11 +142,6 @@ function randomizeMPS!(
       s1 = sites[b]
       s2 = sites[b + db]
       G = randomU(rng, eltype, s1, s2)
-
-      @show inds(G)
-      @show inds(M[b])
-      @show inds(M[b + db])
-
       T = noprime(G * M[b] * M[b + db])
       rinds = uniqueinds(M[b], M[b + db])
 
