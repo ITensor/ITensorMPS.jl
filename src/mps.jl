@@ -101,7 +101,7 @@ function randomU(rng::AbstractRNG, eltype::Type{<:Number}, s1::Index, s2::Index)
   if !hasqns(s1) && !hasqns(s2)
     mdim = dim(s1) * dim(s2)
     RM = randn(rng, eltype, mdim, mdim)
-    Q, _ = NDTensors.qr_positive(RM)
+    Q, _ = qr_positive(RM)
     G = ITensor(Q, dual(s1), dual(s2), s1', s2')
   else
     M = random_itensor(rng, eltype, QN(), s1', s2', dual(s1), dual(s2))
@@ -140,6 +140,11 @@ function randomizeMPS!(
       s1 = sites[b]
       s2 = sites[b + db]
       G = randomU(rng, eltype, s1, s2)
+
+      @show inds(G)
+      @show inds(M[b])
+      @show inds(M[b + db])
+
       T = noprime(G * M[b] * M[b + db])
       rinds = uniqueinds(M[b], M[b + db])
 
@@ -166,15 +171,25 @@ function randomCircuitMPS(
   return randomCircuitMPS(Random.default_rng(), eltype, sites, linkdims; kwargs...)
 end
 
+# TODO: Move this to MatrixAlgebraKit.jl/TensorAlgebra.jl?
+using LinearAlgebra: Diagonal, diag
+function nonzero_sign(x)
+  iszero(x) && return one(x)
+  return sign(x)
+end
+function qr_positive(M::AbstractMatrix)
+  Q′, R = qr(M)
+  Q = convert(typeof(R), Q′)
+  signs = nonzero_sign.(diag(R))
+  Q = Q * Diagonal(signs)
+  R = Diagonal(conj.(signs)) * R
+  return Q, R
+end
 function random_unitary(rng::AbstractRNG, elt::Type, n::Int, m::Int)
   if n < m
     return copy(random_unitary(rng, elt, m, n)')
   end
-  F = qr(randn(rng, elt, n, m))
-  Q = Matrix(F.Q)
-  for c in 1:size(Q, 2)
-    Q[:, c] .*= sign(F.factors[c, c])
-  end
+  Q, _ = qr_positive(randn(rng, elt, n, m))
   return Q
 end
 

@@ -818,8 +818,8 @@ function Base.map!(
     if !isempty(s)
       s̃ = f.(s)
       @preserve_ortho (M1, M2) begin
-        M1[i] = replaceinds(M1[i], s .=> s̃)
-        M2[i] = replaceinds(M2[i], s .=> s̃)
+        M1[i] = replaceinds(M1[i], (s .=> s̃)...)
+        M2[i] = replaceinds(M2[i], (s .=> s̃)...)
       end
     end
   end
@@ -834,7 +834,7 @@ function Base.map!(
     s = siteinds(uniqueinds, M1, M2, i)
     if !isempty(s)
       @preserve_ortho M1 begin
-        M1[i] = replaceinds(M1[i], s .=> f(s))
+        M1[i] = replaceinds(M1[i], (s .=> f(s))...)
       end
     end
   end
@@ -956,7 +956,7 @@ for (fname, fname!) in [
       args...;
       kwargs...,
     )
-      return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
+      return map(i -> $fname.(i, args...; kwargs...), ffilter, fsubset, M1, M2)
     end
 
     function $(fname!)(

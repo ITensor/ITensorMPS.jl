@@ -1,3 +1,4 @@
+using BlockSparseArrays
 using ITensors, ITensorMPS
 using Printf
 using Random
@@ -21,13 +22,13 @@ s = siteinds("S=1/2", N; gradings=("Sz",))
 
 os = heisenberg(N)
 
+# Create an initial random matrix product state
+psi0 = random_mps(s, j -> isodd(j) ? "↑" : "↓"; linkdims=10)
+# psi0 = MPS(s, j -> isodd(j) ? "↑" : "↓")
+
 # Input operator terms which define a Hamiltonian
 # Convert these terms to an MPO tensor network
 H = MPO(os, s)
-
-# Create an initial random matrix product state
-# psi0 = random_mps(s; linkdims=10)
-psi0 = MPS(s, j -> isodd(j) ? "↑" : "↓")
 
 # Plan to do 5 DMRG sweeps:
 nsweeps = 5

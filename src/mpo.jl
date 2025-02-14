@@ -622,7 +622,7 @@ end
 
 function ITensors.contract(A::MPO, ψ::MPS; alg=nothing, method=alg, kwargs...)
   # TODO: Delete `method` since it is deprecated.
-  alg = NDTensors.replace_nothing(method, "densitymatrix")
+  alg = replace_nothing(method, "densitymatrix")
 
   # Keyword argument deprecations
   # TODO: Delete these.
