@@ -756,16 +756,19 @@ end
     @test linkdims(M) == [2, 4, 2, 2, 2, 2, 8, 4, 2]
   end
 
-  @testset "truncate! with truncation_error" begin
+  @testset "truncate! with callback!" begin
     nsites = 10
     nbonds = nsites - 1
     mps_ = basicRandomMPS(nsites; dim=10)
-    truncation_errors = truncate!(mps_, maxdim=3, cutoff=1E-3, truncation_error=true)
-    @test length(truncation_errors) == nbonds
+    truncation_errors = ones(nbonds) * -1.0
+    function _callback!(; link, truncation_error)
+      bond_no = last(link)
+      truncation_errors[bond_no] = truncation_error
+      return nothing
+    end
+    truncate!(mps_; maxdim=3, cutoff=1E-3, (callback!)=_callback!)
     @test all(truncation_errors .>= 0.0)
   end
-
-
 end
 
 @testset "Other MPS methods" begin
