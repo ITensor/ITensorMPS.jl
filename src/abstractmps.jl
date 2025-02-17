@@ -1701,9 +1701,7 @@ function truncate!(
   orthogonalize!(M, last(site_range))
 
   # Perform truncations in a right-to-left sweep
-  js = reverse((first(site_range) + 1):last(site_range))
-  for i in eachindex(js)
-    j = js[i]
+  for j in reverse((first(site_range) + 1):last(site_range))
     rinds = uniqueinds(M[j], M[j - 1])
     ltags = tags(commonind(M[j], M[j - 1]))
     U, S, V, spec = svd(M[j], rinds; lefttags=ltags, kwargs...)
