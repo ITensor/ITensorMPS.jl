@@ -2101,6 +2101,53 @@ function movesites(ψ::AbstractMPS, ns, ns′; kwargs...)
   return ψ
 end
 
+# TODO: Fix this, move to `ITensorBase.jl`, rewrite in terms of
+# a new `ITensorMap` type to generalize beyond prime levels.
+using ITensors: setprime
+function apply(A::ITensor, B::ITensor; apply_dag::Bool=false)
+  commonindsAB = filter(i -> iszero(plev(i)), commoninds(A, B))
+  isempty(commonindsAB) && error("In product, must have common indices with prime level 0.")
+  common_paired_indsA = filter(
+    i -> ((i ∈ commonindsAB) && (setprime(i, 1) ∈ inds(A))), inds(A)
+  )
+  common_paired_indsB = filter(
+    i -> ((i ∈ commonindsAB) && (setprime(i, 1) ∈ inds(B))), inds(B)
+  )
+
+  if !isempty(common_paired_indsA)
+    commoninds_pairs = unioninds(common_paired_indsA, common_paired_indsA')
+  elseif !isempty(common_paired_indsB)
+    commoninds_pairs = unioninds(common_paired_indsB, common_paired_indsB')
+  else
+    # vector-vector product
+    apply_dag && error("apply_dag not supported for vector-vector product")
+    return A * B
+  end
+  danglings_indsA = uniqueinds(A, commoninds_pairs)
+  danglings_indsB = uniqueinds(B, commoninds_pairs)
+  danglings_inds = unioninds(danglings_indsA, danglings_indsB)
+  if hassameinds(common_paired_indsA, common_paired_indsB)
+    # matrix-matrix product
+    A′ = prime(A; inds=!danglings_inds)
+    AB = mapprime(A′ * B, 2 => 1; inds=!danglings_inds)
+    if apply_dag
+      AB′ = prime(AB; inds=!danglings_inds)
+      Adag = swapprime(dag(A), 0 => 1; inds=!danglings_inds)
+      return mapprime(AB′ * Adag, 2 => 1; inds=!danglings_inds)
+    end
+    return AB
+  elseif isempty(common_paired_indsA) && !isempty(common_paired_indsB)
+    # vector-matrix product
+    apply_dag && error("apply_dag not supported for matrix-vector product")
+    A′ = prime(A; inds=!danglings_inds)
+    return A′ * B
+  elseif !isempty(common_paired_indsA) && isempty(common_paired_indsB)
+    # matrix-vector product
+    apply_dag && error("apply_dag not supported for vector-matrix product")
+    return replaceprime(A * B, 1 => 0; inds=!danglings_inds)
+  end
+end
+
 """
     apply(o::ITensor, ψ::Union{MPS, MPO}, [ns::Vector{Int}]; kwargs...)
     product([...])
