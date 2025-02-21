@@ -367,7 +367,11 @@ If there is no link Index, return `nothing`.
 function linkind(M::AbstractMPS, j::Integer)
   N = length(M)
   (j ≥ length(M) || j < 1) && return nothing
-  return commonind(M[j], M[j + 1])
+  is = commoninds(M[j], M[j + 1])
+  if iszero(length(is))
+    return nothing
+  end
+  return only(is)
 end
 
 """
@@ -600,7 +604,7 @@ findsites(M, (s[4]', s[4])) == [4]
 findsites(M, (s[4]', s[3])) == [3, 4]
 ```
 """
-findsites(ψ::AbstractMPS, is) = findall(hascommoninds(is), ψ)
+findsites(ψ::AbstractMPS, is) = findall(ψᵢ -> !isdisjoint(inds(ψᵢ), inds(is)), ψ)
 
 findsites(ψ::AbstractMPS, s::Index) = findsites(ψ, IndexSet(s))
 
@@ -1633,7 +1637,7 @@ function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothin
     if !isnothing(lb)
       ltags = tags(lb)
     else
-      ltags = TagSet("Link,l=$b")
+      ltags = Dict("l" => "$b")
     end
     L, R = factorize(M[b], linds; tags=ltags, maxdim)
     M[b] = L
@@ -1654,7 +1658,7 @@ function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothin
     if !isnothing(lb)
       ltags = tags(lb)
     else
-      ltags = TagSet("Link,l=$b")
+      ltags = Dict("l" => "$b")
     end
     L, R = factorize(M[b + 1], rinds; tags=ltags, maxdim)
     M[b + 1] = L
@@ -2121,7 +2125,7 @@ to false.
 - `move_sites_back::Bool = true`: after the ITensors are applied to the MPS or
    MPO, move the sites of the MPS or MPO back to their original locations.
 """
-function product(
+function apply(
   o::ITensor,
   ψ::AbstractMPS,
   ns=findsites(ψ, o);
@@ -2147,7 +2151,7 @@ function product(
   for n in 2:N
     ϕ *= ψ[ns′[n]]
   end
-  ϕ = product(o, ϕ; apply_dag=apply_dag)
+  ϕ = apply(o, ϕ; apply_dag=apply_dag)
   ψ[ns′[1]:ns′[end], kwargs...] = ϕ
   if move_sites_back
     # Move the sites back to their original positions
@@ -2254,7 +2258,7 @@ expτH = ops(os, s)
 ψτ = apply(expτH, ψ0)
 ```
 """
-function product(
+function apply(
   As::Vector{ITensor},
   ψ::AbstractMPS;
   move_sites_back_between_gates::Bool=true,
@@ -2263,7 +2267,7 @@ function product(
 )
   Aψ = ψ
   for A in As
-    Aψ = product(A, Aψ; move_sites_back=move_sites_back_between_gates, kwargs...)
+    Aψ = apply(A, Aψ; move_sites_back=move_sites_back_between_gates, kwargs...)
   end
   if !move_sites_back_between_gates && move_sites_back
     s = siteinds(Aψ)
@@ -2287,8 +2291,8 @@ end
 #
 # # U|ψ⟩ = Z₁X₁|ψ⟩
 # apply(U,
-function product(o::Prod{ITensor}, ψ::AbstractMPS; kwargs...)
-  return product(reverse(terms(o)), ψ; kwargs...)
+function apply(o::Prod{ITensor}, ψ::AbstractMPS; kwargs...)
+  return apply(reverse(terms(o)), ψ; kwargs...)
 end
 
 function (o::Prod{ITensor})(ψ::AbstractMPS; kwargs...)
