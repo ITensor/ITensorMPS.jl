@@ -759,7 +759,8 @@ end
   @testset "truncate! with callback!" begin
     nsites = 10
     nbonds = nsites - 1
-    mps_ = random_mps(nsites; linkdims=10)
+    s = siteinds("S=1/2", nsites)
+    mps_ = random_mps(s; linkdims=10)
     truncation_errors = ones(nbonds) * -1.0
     function _callback!(; link, truncation_error)
       bond_no = last(link)
