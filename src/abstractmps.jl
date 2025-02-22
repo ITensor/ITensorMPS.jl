@@ -1872,49 +1872,50 @@ function setindex!(
 
   #s = collect(Iterators.flatten(sites))
   indsA = filter(x -> !isnothing(x), [lind, Iterators.flatten(sites)..., rind])
-  @assert hassameinds(A, indsA)
+  @assert issetequal(inds(A), indsA)
 
   # For MPO case, restrict to 0 prime level
   #sites = filter(hasplev(0), sites)
 
-  if !isnothing(perm)
-    sites0 = sites
-    sites = sites0[[perm...]]
-    # Check if the site indices
-    # are fermionic
-    if !using_auto_fermion() && any(ITensors.anyfermionic, sites)
-      if length(sites) == 2 && ψ isa MPS
-        if all(ITensors.allfermionic, sites)
-          s0 = Index.(sites0)
+  ## TODO: Bring this package to handle fermions.
+  ## if !isnothing(perm)
+  ##   sites0 = sites
+  ##   sites = sites0[[perm...]]
+  ##   # Check if the site indices
+  ##   # are fermionic
+  ##   if !using_auto_fermion() && any(ITensors.anyfermionic, sites)
+  ##     if length(sites) == 2 && ψ isa MPS
+  ##       if all(ITensors.allfermionic, sites)
+  ##         s0 = Index.(sites0)
 
-          # TODO: the Fermionic swap is could be diagonal,
-          # if we combine the site indices
-          #C = combiner(s0[1], s0[2])
-          #c = combinedind(C)
-          #AC = A * C
-          #AC = noprime(AC * _fermionic_swap(c))
-          #A = AC * dag(C)
+  ##         # TODO: the Fermionic swap is could be diagonal,
+  ##         # if we combine the site indices
+  ##         #C = combiner(s0[1], s0[2])
+  ##         #c = combinedind(C)
+  ##         #AC = A * C
+  ##         #AC = noprime(AC * _fermionic_swap(c))
+  ##         #A = AC * dag(C)
 
-          FSWAP = adapt(datatype(A), _fermionic_swap(s0[1], s0[2]))
-          A = noprime(A * FSWAP)
-        end
-      elseif ψ isa MPO
-        @warn "In setindex!(MPO, ::ITensor, ::UnitRange), " *
-          "fermionic signs are only not handled properly for non-trivial " *
-          "permutations of sites. Please inform the developers of ITensors " *
-          "if you require this feature (otherwise, fermionic signs can be " *
-          "put in manually with fermionic swap gates)."
-      else
-        @warn "In setindex!(::Union{MPS, MPO}, ::ITensor, ::UnitRange), " *
-          "fermionic signs are only handled properly for permutations involving 2 sites. " *
-          "The original sites are $sites0, with a permutation $perm. " *
-          "To have the fermion sign handled correctly, we recommend performing your permutation " *
-          "pairwise."
-      end
-    end
-  end
+  ##         FSWAP = adapt(datatype(A), _fermionic_swap(s0[1], s0[2]))
+  ##         A = noprime(A * FSWAP)
+  ##       end
+  ##     elseif ψ isa MPO
+  ##       @warn "In setindex!(MPO, ::ITensor, ::UnitRange), " *
+  ##         "fermionic signs are only not handled properly for non-trivial " *
+  ##         "permutations of sites. Please inform the developers of ITensors " *
+  ##         "if you require this feature (otherwise, fermionic signs can be " *
+  ##         "put in manually with fermionic swap gates)."
+  ##     else
+  ##       @warn "In setindex!(::Union{MPS, MPO}, ::ITensor, ::UnitRange), " *
+  ##         "fermionic signs are only handled properly for permutations involving 2 sites. " *
+  ##         "The original sites are $sites0, with a permutation $perm. " *
+  ##         "To have the fermion sign handled correctly, we recommend performing your permutation " *
+  ##         "pairwise."
+  ##     end
+  ##   end
+  ## end
 
-  ψA = MPST(A, sites; leftinds=lind, orthocenter=orthocenter - first(r) + 1, kwargs...)
+  ψA = MPST(A, sites; leftinds=(lind,), orthocenter=orthocenter - first(r) + 1, kwargs...)
   #@assert prod(ψA) ≈ A
 
   ψ[firstsite:lastsite] = ψA
@@ -1959,6 +1960,7 @@ function (::Type{MPST})(
   for s in sites
     @assert s ⊆ inds(A)
   end
+
   @assert isnothing(leftinds) || leftinds ⊆ inds(A)
 
   @assert 1 ≤ orthocenter ≤ N
@@ -1970,9 +1972,9 @@ function (::Type{MPST})(
   # 1:orthocenter and reverse(orthocenter:N)
   # so the orthogonality center is set correctly.
   for n in 1:(N - 1)
-    Lis = IndexSet(sites[n])
+    Lis = (sites[n],)
     if !isnothing(l)
-      Lis = unioninds(Lis, l)
+      Lis = Lis ∪ l
     end
     L, R = factorize(Ã, Lis; kwargs..., tags="Link,n=$n", ortho="left")
     l = commonind(L, R)
@@ -2115,21 +2117,31 @@ function apply(A::ITensor, B::ITensor; apply_dag::Bool=false)
   )
 
   if !isempty(common_paired_indsA)
-    commoninds_pairs = unioninds(common_paired_indsA, common_paired_indsA')
+    ## Old version: `commoninds_pairs = unioninds(common_paired_indsA, common_paired_indsA')`
+    commoninds_pairs = common_paired_indsA ∪ prime.(common_paired_indsA)
   elseif !isempty(common_paired_indsB)
-    commoninds_pairs = unioninds(common_paired_indsB, common_paired_indsB')
+    ## Old version: `commoninds_pairs = unioninds(common_paired_indsB, common_paired_indsB')`
+    commoninds_pairs = common_paired_indsB ∪ prime.(common_paired_indsB)
   else
     # vector-vector product
     apply_dag && error("apply_dag not supported for vector-vector product")
     return A * B
   end
-  danglings_indsA = uniqueinds(A, commoninds_pairs)
-  danglings_indsB = uniqueinds(B, commoninds_pairs)
-  danglings_inds = unioninds(danglings_indsA, danglings_indsB)
-  if hassameinds(common_paired_indsA, common_paired_indsB)
+  danglings_indsA = setdiff(inds(A), commoninds_pairs)
+  danglings_indsB = setdiff(inds(B), commoninds_pairs)
+  danglings_inds = danglings_indsA ∪ danglings_indsB
+  if issetequal(common_paired_indsA, common_paired_indsB)
     # matrix-matrix product
-    A′ = prime(A; inds=!danglings_inds)
-    AB = mapprime(A′ * B, 2 => 1; inds=!danglings_inds)
+    ## Old version: `prime(A; inds=!danglings_inds)`
+    A′ = replaceinds(i -> i ∉ danglings_inds ? i' : i, A)
+    A′B = A′ * B
+    ## Old version: `AB = mapprime(A′B, 2 => 1; inds=!danglings_inds)`
+    A′ = replaceinds(A) do i
+      if i ∉ danglings_inds && plev(i) == 2
+        return setprime(i, 1)
+      end
+      return i
+    end
     if apply_dag
       AB′ = prime(AB; inds=!danglings_inds)
       Adag = swapprime(dag(A), 0 => 1; inds=!danglings_inds)
@@ -2144,7 +2156,14 @@ function apply(A::ITensor, B::ITensor; apply_dag::Bool=false)
   elseif !isempty(common_paired_indsA) && isempty(common_paired_indsB)
     # matrix-vector product
     apply_dag && error("apply_dag not supported for vector-matrix product")
-    return replaceprime(A * B, 1 => 0; inds=!danglings_inds)
+    ## Old version: `replaceprime(A * B, 1 => 0; inds=!danglings_inds)`
+    AB = A * B
+    return replaceinds(AB) do i
+      if i ∉ danglings_inds && plev(i) == 1
+        return setprime(i, 0)
+      end
+      return i
+    end
   end
 end
 
