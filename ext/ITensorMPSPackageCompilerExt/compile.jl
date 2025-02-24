@@ -1,4 +1,4 @@
-using NDTensors: @Algorithm_str
+using BackendSelection: @Algorithm_str
 using ITensors: ITensors
 using PackageCompiler: PackageCompiler
 

@@ -1,6 +1,7 @@
 @eval module $(gensym())
 using ITensorMPS, ITensors, Test, Random, JLD2
 using NDTensors: scalartype
+using SparseArraysBase: oneelement
 
 include(joinpath(@__DIR__, "utils", "util.jl"))
 
@@ -98,26 +99,26 @@ function NNheisenbergMPO(sites, J1::Float64, J2::Float64)::MPO
     ll = dag(link[n])
     rl = link[n + 1]
     H[n] = ITensor(ll, dag(s), s', rl)
-    H[n] += onehot(ll => 1) * onehot(rl => 1) * op(sites, "Id", n)
-    H[n] += onehot(ll => 8) * onehot(rl => 8) * op(sites, "Id", n)
+    H[n] += oneelement(ll => 1) * oneelement(rl => 1) * op(sites, "Id", n)
+    H[n] += oneelement(ll => 8) * oneelement(rl => 8) * op(sites, "Id", n)
 
-    H[n] += onehot(ll => 2) * onehot(rl => 1) * op(sites, "S-", n)
-    H[n] += onehot(ll => 5) * onehot(rl => 2) * op(sites, "Id", n)
-    H[n] += onehot(ll => 8) * onehot(rl => 2) * op(sites, "S+", n) * J1 / 2
-    H[n] += onehot(ll => 8) * onehot(rl => 5) * op(sites, "S+", n) * J2 / 2
+    H[n] += oneelement(ll => 2) * oneelement(rl => 1) * op(sites, "S-", n)
+    H[n] += oneelement(ll => 5) * oneelement(rl => 2) * op(sites, "Id", n)
+    H[n] += oneelement(ll => 8) * oneelement(rl => 2) * op(sites, "S+", n) * J1 / 2
+    H[n] += oneelement(ll => 8) * oneelement(rl => 5) * op(sites, "S+", n) * J2 / 2
 
-    H[n] += onehot(ll => 3) * onehot(rl => 1) * op(sites, "S+", n)
-    H[n] += onehot(ll => 6) * onehot(rl => 3) * op(sites, "Id", n)
-    H[n] += onehot(ll => 8) * onehot(rl => 3) * op(sites, "S-", n) * J1 / 2
-    H[n] += onehot(ll => 8) * onehot(rl => 6) * op(sites, "S-", n) * J2 / 2
+    H[n] += oneelement(ll => 3) * oneelement(rl => 1) * op(sites, "S+", n)
+    H[n] += oneelement(ll => 6) * oneelement(rl => 3) * op(sites, "Id", n)
+    H[n] += oneelement(ll => 8) * oneelement(rl => 3) * op(sites, "S-", n) * J1 / 2
+    H[n] += oneelement(ll => 8) * oneelement(rl => 6) * op(sites, "S-", n) * J2 / 2
 
-    H[n] += onehot(ll => 4) * onehot(rl => 1) * op(sites, "Sz", n)
-    H[n] += onehot(ll => 7) * onehot(rl => 4) * op(sites, "Id", n)
-    H[n] += onehot(ll => 8) * onehot(rl => 4) * op(sites, "Sz", n) * J1
-    H[n] += onehot(ll => 8) * onehot(rl => 7) * op(sites, "Sz", n) * J2
+    H[n] += oneelement(ll => 4) * oneelement(rl => 1) * op(sites, "Sz", n)
+    H[n] += oneelement(ll => 7) * oneelement(rl => 4) * op(sites, "Id", n)
+    H[n] += oneelement(ll => 8) * oneelement(rl => 4) * op(sites, "Sz", n) * J1
+    H[n] += oneelement(ll => 8) * oneelement(rl => 7) * op(sites, "Sz", n) * J2
   end
-  H[1] *= onehot(link[1] => 8)
-  H[N] *= onehot(dag(link[N + 1]) => 1)
+  H[1] *= oneelement(link[1] => 8)
+  H[N] *= oneelement(dag(link[N + 1]) => 1)
   return H
 end
 
@@ -1062,8 +1063,8 @@ end
       q = flux(op(which_op, sites[j]))
       links = [Index([n < j ? q => 1 : QN() => 1], "Link,l=$n") for n in 1:N]
       for n in 1:(N - 1)
-        M[n] *= onehot(links[n] => 1)
-        M[n + 1] *= onehot(dag(links[n]) => 1)
+        M[n] *= oneelement(links[n] => 1)
+        M[n + 1] *= oneelement(dag(links[n]) => 1)
       end
       return M
     end

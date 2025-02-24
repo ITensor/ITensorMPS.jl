@@ -1,13 +1,17 @@
-using ITensors: array, contract, dag, uniqueind, onehot
+using GradedUnitRanges: dag
+using ITensors: uniqueind
 using LinearAlgebra: eigen
+using NamedDimsArrays: unname
+using SparseArraysBase: oneelement
+using TensorAlgebra: contract
 
 function eigen_updater(operator, state; internal_kwargs)
   contracted_operator = contract(operator, ITensor(true))
   d, u = eigen(contracted_operator; ishermitian=true)
   u_ind = uniqueind(u, contracted_operator)
   u′_ind = uniqueind(d, u)
-  max_overlap, max_index = findmax(abs, array(state * dag(u)))
-  u_max = u * dag(onehot(eltype(u), u_ind => max_index))
+  max_overlap, max_index = findmax(abs, unname(state * dag(u)))
+  u_max = u * dag(oneelement(eltype(u), u_ind => max_index))
   d_max = d[u′_ind => max_index, u_ind => max_index]
   return u_max, (; eigval=d_max)
 end
