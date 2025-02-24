@@ -34,6 +34,11 @@ function time_step_and_nsteps(t, time_step, nsteps::Nothing)
   if nsteps_float ≉ nsteps_rounded
     return error("`t / time_step = $t / $time_step = $(t / time_step)` must be an integer.")
   end
+  if real(nsteps_rounded) < 0
+    return error(
+      "computed number of steps is negative ($nsteps_rounded), check that total time ($t) and time step ($time_step) signs agree",
+    )
+  end
   return time_step, Int(nsteps_rounded)
 end
 
