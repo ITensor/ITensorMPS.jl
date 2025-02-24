@@ -17,9 +17,9 @@ Random.seed!(1234)
 N = 10
 
 # Create N spin-one degrees of freedom
-#sites = siteinds("S=1", N)
+sites = siteinds("S=1", N)
 # Alternatively can make spin-half sites instead
-sites = siteinds("S=1/2", N)
+# sites = siteinds("S=1/2", N)
 
 os = heisenberg(N)
 
@@ -29,7 +29,7 @@ H = MPO(os, sites)
 
 # Create an initial random matrix product state
 psi0 = random_mps(sites; maxdim=10)
-# psi0 = random_mps(j -> isodd(j) ? "↑" : "↓", sites; linkdims=10)
+# psi0 = random_mps(j -> isodd(j) ? "↑" : "↓", sites; maxdim=10)
 # psi0 = MPS(j -> isodd(j) ? "↑" : "↓", sites)
 
 # Plan to do 5 DMRG sweeps:

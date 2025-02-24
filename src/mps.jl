@@ -50,7 +50,9 @@ function MPS(N::Int; ortho_lims::UnitRange=1:N)
   return MPS(Vector{ITensor}(undef, N); ortho_lims=ortho_lims)
 end
 
-function apply_random_staircase_circuit(rng::AbstractRNG, elt::Type, state::MPS; depth, kwargs...)
+function apply_random_staircase_circuit(
+  rng::AbstractRNG, elt::Type, state::MPS; depth, kwargs...
+)
   n = length(state)
   layer = [(j - 1, j) for j in reverse(2:n)]
   s = siteinds(state)
@@ -63,10 +65,21 @@ function apply_random_staircase_circuit(rng::AbstractRNG, elt::Type, state::MPS;
   return apply(gate_layers, state; kwargs...)
 end
 
-function random_mps(rng::AbstractRNG, elt::Type, state, sites::Vector{<:Index}; maxdim, kwargs...)
+function random_mps(
+  rng::AbstractRNG, elt::Type, state, sites::Vector{<:Index}; maxdim, kwargs...
+)
   x = MPS(elt, state, sites)
   depth = ceil(Int, log(minimum(Int ∘ length, sites), maxdim))
   return apply_random_staircase_circuit(rng, elt, x; depth, maxdim, kwargs...)
+end
+function random_mps(rng::AbstractRNG, state, sites::Vector{<:Index}; kwargs...)
+  return random_mps(rng, Float64, state, sites; kwargs...)
+end
+function random_mps(elt::Type, state, sites::Vector{<:Index}; kwargs...)
+  return random_mps(Random.default_rng(), elt, state, sites; kwargs...)
+end
+function random_mps(state, sites::Vector{<:Index}; kwargs...)
+  return random_mps(Random.default_rng(), Float64, state, sites; kwargs...)
 end
 function random_mps(sites; kwargs...)
   state = fill("0", length(sites))

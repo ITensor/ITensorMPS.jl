@@ -23,8 +23,8 @@ s = siteinds("S=1/2", N; gradings=("Sz",))
 os = heisenberg(N)
 
 # Create an initial random matrix product state
-psi0 = random_mps(s, j -> isodd(j) ? "↑" : "↓"; linkdims=10)
-# psi0 = MPS(s, j -> isodd(j) ? "↑" : "↓")
+psi0 = random_mps(j -> isodd(j) ? "↑" : "↓", s; maxdim=10)
+# psi0 = MPS(j -> isodd(j) ? "↑" : "↓", s)
 
 # Input operator terms which define a Hamiltonian
 # Convert these terms to an MPO tensor network

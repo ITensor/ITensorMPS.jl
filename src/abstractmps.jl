@@ -383,7 +383,7 @@ MPS or MPO tensor on site j to site j+1.
 """
 function linkinds(M::AbstractMPS, j::Integer)
   N = length(M)
-  (j ≥ length(M) || j < 1) && return IndexSet()
+  (j ≥ length(M) || j < 1) && return []
   return commoninds(M[j], M[j + 1])
 end
 
@@ -1637,7 +1637,7 @@ function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothin
     if !isnothing(lb)
       ltags = tags(lb)
     else
-      ltags = Dict("l" => "$b")
+      ltags = ["l" => "$b"]
     end
     L, R = factorize(M[b], linds; tags=ltags, maxdim)
     M[b] = L
@@ -1647,9 +1647,7 @@ function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothin
       setrightlim!(M, leftlim(M) + 2)
     end
   end
-
   N = length(M)
-
   while rightlim(M) > (j + 1)
     (rightlim(M) > (N + 1)) && setrightlim!(M, N + 1)
     b = rightlim(M) - 2
@@ -1658,12 +1656,11 @@ function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothin
     if !isnothing(lb)
       ltags = tags(lb)
     else
-      ltags = Dict("l" => "$b")
+      ltags = ["l" => "$b"]
     end
     L, R = factorize(M[b + 1], rinds; tags=ltags, maxdim)
     M[b + 1] = L
     M[b] *= R
-
     setrightlim!(M, b + 1)
     if leftlim(M) > rightlim(M) - 2
       setleftlim!(M, rightlim(M) - 2)
@@ -1865,14 +1862,11 @@ function setindex!(
 
   # Check that A has the proper common
   # indices with ψ
-  lind = linkind(ψ, firstsite - 1)
-  rind = linkind(ψ, lastsite)
-
+  linds = linkinds(ψ, firstsite - 1)
+  rinds = linkinds(ψ, lastsite)
   sites = [siteinds(ψ, j) for j in firstsite:lastsite]
 
-  #s = collect(Iterators.flatten(sites))
-  indsA = filter(x -> !isnothing(x), [lind, Iterators.flatten(sites)..., rind])
-  @assert issetequal(inds(A), indsA)
+  @assert issetequal(inds(A), [linds; reduce(vcat, sites); rinds])
 
   # For MPO case, restrict to 0 prime level
   #sites = filter(hasplev(0), sites)
@@ -1915,7 +1909,7 @@ function setindex!(
   ##   end
   ## end
 
-  ψA = MPST(A, sites; leftinds=(lind,), orthocenter=orthocenter - first(r) + 1, kwargs...)
+  ψA = MPST(A, sites; leftinds=linds, orthocenter=orthocenter - first(r) + 1, kwargs...)
   #@assert prod(ψA) ≈ A
 
   ψ[firstsite:lastsite] = ψA
@@ -1946,7 +1940,7 @@ by site according to the site indices `sites`.
 
 # Keywords
 
-- `leftinds = nothing`: optional left dangling indices. Indices that are not
+- `leftinds = []`: optional left dangling indices. Indices that are not
    in `sites` and `leftinds` will be dangling off of the right side of the MPS/MPO.
 - `orthocenter::Integer = length(sites)`: the desired final orthogonality
    center of the output MPS/MPO.
@@ -1954,15 +1948,13 @@ by site according to the site indices `sites`.
 - `maxdim`: the maximum link dimension.
 """
 function (::Type{MPST})(
-  A::ITensor, sites; leftinds=nothing, orthocenter::Integer=length(sites), kwargs...
+  A::ITensor, sites; leftinds=[], orthocenter::Integer=length(sites), kwargs...
 ) where {MPST<:AbstractMPS}
   N = length(sites)
   for s in sites
     @assert s ⊆ inds(A)
   end
-
-  @assert isnothing(leftinds) || leftinds ⊆ inds(A)
-
+  @assert leftinds ⊆ inds(A)
   @assert 1 ≤ orthocenter ≤ N
 
   ψ = Vector{ITensor}(undef, N)
@@ -1972,12 +1964,9 @@ function (::Type{MPST})(
   # 1:orthocenter and reverse(orthocenter:N)
   # so the orthogonality center is set correctly.
   for n in 1:(N - 1)
-    Lis = (sites[n],)
-    if !isnothing(l)
-      Lis = Lis ∪ l
-    end
-    L, R = factorize(Ã, Lis; kwargs..., tags="Link,n=$n", ortho="left")
-    l = commonind(L, R)
+    Lis = sites[n] ∪ l
+    L, R = factorize(Ã, Lis; kwargs..., tags=["site" => "$n"], ortho="left")
+    l = commoninds(L, R)
     ψ[n] = L
     Ã = R
   end
@@ -2136,7 +2125,7 @@ function apply(A::ITensor, B::ITensor; apply_dag::Bool=false)
     A′ = replaceinds(i -> i ∉ danglings_inds ? i' : i, A)
     A′B = A′ * B
     ## Old version: `AB = mapprime(A′B, 2 => 1; inds=!danglings_inds)`
-    A′ = replaceinds(A) do i
+    AB = replaceinds(A′B) do i
       if i ∉ danglings_inds && plev(i) == 2
         return setprime(i, 1)
       end
