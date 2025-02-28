@@ -21,6 +21,7 @@ export
   Trotter,
   ValName,
   apply,
+  evolve!,
   argsdict,
   coefficient,
   contract,

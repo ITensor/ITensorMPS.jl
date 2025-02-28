@@ -78,7 +78,7 @@ function MPO(::Type{ElT}, sites::Vector{<:Index}, ops::Vector) where {ElT<:Numbe
     os *= Op(ops[n], n)
   end
   M = MPO(ElT, os, sites)
-
+  
   # Currently, OpSum does not output the optimally truncated
   # MPO (see https://github.com/ITensor/ITensors.jl/issues/526)
   # So here, we need to first normalize, then truncate, then
@@ -99,7 +99,7 @@ MPO(sites::Vector{<:Index}, ops) = MPO(Float64, sites, ops)
 
 function MPO(sites::Vector{<:Index}, os::OpSum)
   return error(
-    "To construct an MPO from an OpSum `opsum` and a set of indices `sites`, you must use MPO(opsum, sites)",
+  "To construct an MPO from an OpSum `opsum` and a set of indices `sites`, you must use MPO(opsum, sites)",
   )
 end
 
@@ -118,7 +118,7 @@ MPO(sites::Vector{<:Index}, op::String) = MPO(Float64, sites, op)
 function MPO(::Type{ElT}, sites::Vector{<:Index}, op::Matrix{<:Number}) where {ElT<:Number}
   # return MPO(ElT, sites, fill(op, length(sites)))
   return error(
-    "Not defined on purpose because of potential ambiguity with `MPO(A::Array, sites::Vector)`. Pass the on-site matrices as functions like `MPO(sites, n -> [1 0; 0 1])` instead.",
+  "Not defined on purpose because of potential ambiguity with `MPO(A::Array, sites::Vector)`. Pass the on-site matrices as functions like `MPO(sites, n -> [1 0; 0 1])` instead.",
   )
 end
 
@@ -202,7 +202,7 @@ See also [`apply`](@ref), [`contract`](@ref).
 """
 function outer(ψ::MPS, ϕ::MPS; kw...)
   ψ, ϕ = deprecate_make_inds_unmatch(outer, ψ, ϕ; kw...)
-
+  
   ψmat = convert(MPO, ψ)
   ϕmat = convert(MPO, dag(ϕ))
   return contract(ψmat, ϕmat; kw...)
@@ -293,45 +293,45 @@ function inner_mps_mpo_mps_deprecation_warning()
  `x` and the `MPS` resulting from contracting `MPO` `A` with `MPS` `y` don't
  match is deprecated as of ITensors v0.3 and will result in an error in ITensors
  v0.4. The most common cause of this is something like the following:
-
+  
  ```julia
  s = siteinds("S=1/2")
  psi = random_mps(s)
  H = MPO(s, "Id")
  inner(psi, H, psi)
  ```
-
+  
  `psi` has the Index structure `-s-(psi)` and `H` has the Index structure
  `-s'-(H)-s-`, so the Index structure of would be `(dag(psi)-s- -s'-(H)-s-(psi)`
   unless the prime levels were fixed. Previously we tried fixing the prime level
    in situations like this, but we will no longer be doing that going forward.
-
+  
  There are a few ways to fix this. You can simply change:
-
+  
  ```julia
  inner(psi, H, psi)
  ```
-
+  
  to:
-
+  
  ```julia
  inner(psi', H, psi)
  ```
-
+  
  in which case the Index structure will be `(dag(psi)-s'-(H)-s-(psi)`.
-
+  
  Alternatively, you can use the `Apply` function:
-
+  
  ```julia
-
+  
  inner(psi, Apply(H, psi))
  ```
-
+  
  In this case, `Apply(H, psi)` represents the "lazy" evaluation of
  `apply(H, psi)`. The function `apply(H, psi)` performs the contraction of
  `H` with `psi` and then unprimes the results, so this versions ensures that
  the prime levels of the inner product will match.
-
+  
  Although the new behavior seems less convenient, it makes it easier to
  generalize `inner(::MPS, ::MPO, ::MPS)` to other types of inputs, like `MPS`
  and `MPO` with different tag and prime conventions, multiple sites per tensor,
@@ -341,21 +341,21 @@ end
 
 function deprecate_make_inds_match!(
   ::typeof(dot), ydag::MPS, A::MPO, x::MPS; make_inds_match::Bool=true
-)
+  )
   N = length(x)
   if !hassameinds(siteinds, ydag, (A, x))
     sAx = siteinds((A, x))
     if any(s -> length(s) > 1, sAx)
       n = findfirst(n -> !hassameinds(siteinds(ydag, n), siteinds((A, x), n)), 1:N)
       error(
-        """Calling `dot(ϕ::MPS, H::MPO, ψ::MPS)` with multiple site indices per MPO/MPS tensor but the site indices don't match. Even with `make_inds_match = true`, the case of multiple site indices per MPO/MPS is not handled automatically. The sites with unmatched site indices are:
-
+      """Calling `dot(ϕ::MPS, H::MPO, ψ::MPS)` with multiple site indices per MPO/MPS tensor but the site indices don't match. Even with `make_inds_match = true`, the case of multiple site indices per MPO/MPS is not handled automatically. The sites with unmatched site indices are:
+      
             inds(ϕ[$n]) = $(inds(ydag[n]))
-
+      
             inds(H[$n]) = $(inds(A[n]))
-
+      
             inds(ψ[$n]) = $(inds(x[n]))
-
+      
         Make sure the site indices of your MPO/MPS match. You may need to prime one of the MPS, such as `dot(ϕ', H, ψ)`.""",
       )
     end
@@ -369,7 +369,7 @@ end
 
 function _log_or_not_dot(
   y::MPS, A::MPO, x::MPS, loginner::Bool; make_inds_match::Bool=true, kwargs...
-)::Number
+  )::Number
   N = length(A)
   check_hascommoninds(siteinds, A, x)
   ydag = dag(y)
@@ -466,25 +466,25 @@ Same as [`inner`](@ref).
 """
 function LinearAlgebra.dot(
   B::MPO, y::MPS, A::MPO, x::MPS; make_inds_match::Bool=true, kwargs...
-)::Number
+  )::Number
   !make_inds_match && error(
-    "make_inds_match = false not currently supported in dot(::MPO, ::MPS, ::MPO, ::MPS)"
+  "make_inds_match = false not currently supported in dot(::MPO, ::MPS, ::MPO, ::MPS)"
   )
   N = length(B)
   if length(y) != N || length(x) != N || length(A) != N
     throw(
-      DimensionMismatch(
-        "inner: mismatched lengths $N and $(length(x)) or $(length(y)) or $(length(A))"
-      ),
+    DimensionMismatch(
+    "inner: mismatched lengths $N and $(length(x)) or $(length(y)) or $(length(A))"
+    ),
     )
   end
   check_hascommoninds(siteinds, A, x)
   check_hascommoninds(siteinds, B, y)
   for j in eachindex(B)
     !hascommoninds(
-      uniqueinds(siteinds(A, j), siteinds(x, j)), uniqueinds(siteinds(B, j), siteinds(y, j))
+    uniqueinds(siteinds(A, j), siteinds(x, j)), uniqueinds(siteinds(B, j), siteinds(y, j))
     ) && error(
-      "$(typeof(x)) Ax and $(typeof(y)) By must share site indices. On site $j, Ax has site indices $(uniqueinds(siteinds(A, j), (siteinds(x, j)))) while By has site indices $(uniqueinds(siteinds(B, j), siteinds(y, j))).",
+    "$(typeof(x)) Ax and $(typeof(y)) By must share site indices. On site $j, Ax has site indices $(uniqueinds(siteinds(A, j), (siteinds(x, j)))) while By has site indices $(uniqueinds(siteinds(B, j), siteinds(y, j))).",
     )
   end
   ydag = dag(y)
@@ -576,7 +576,7 @@ function error_contract(y::MPS, A::MPO, x::MPS; kwargs...)
   N = length(A)
   if length(y) != N || length(x) != N
     throw(
-      DimensionMismatch("inner: mismatched lengths $N and $(length(x)) or $(length(y))")
+    DimensionMismatch("inner: mismatched lengths $N and $(length(x)) or $(length(y))")
     )
   end
   iyy = dot(y, y; kwargs...)
@@ -610,6 +610,16 @@ end
 
 function Apply(A::MPO, ψ::MPS; kwargs...)
   return ITensors.LazyApply.Applied(apply, (A, ψ), NamedTuple(kwargs))
+end
+
+"""
+  function evolve!(ψ::MPS, A::MPO; alg=Algorithm"naive"(), kwargs...)
+  
+  An in place version of [`apply`](@ref). The state ψ is evolved by the MPO A.
+"""
+function evolve!(ψ::MPS, A::MPO; alg=Algorithm"naive"(), kwargs...)
+  ITensors.contract!(Algorithm(alg), A, ψ; kwargs...)
+  replaceprime!(ψ, 1 => 0)
 end
 
 function ITensors.contract(A::MPO, ψ::MPS; alg=nothing, method=alg, kwargs...)
@@ -698,37 +708,37 @@ function ITensors.contract(
   mindim=1,
   normalize=false,
   kwargs...,
-)::MPS
+  )::MPS
   n = length(A)
   n != length(ψ) &&
-    throw(DimensionMismatch("lengths of MPO ($n) and MPS ($(length(ψ))) do not match"))
+  throw(DimensionMismatch("lengths of MPO ($n) and MPS ($(length(ψ))) do not match"))
   if n == 1
     return MPS([A[1] * ψ[1]])
   end
   mindim = max(mindim, 1)
   requested_maxdim = maxdim
   ψ_out = similar(ψ)
-
+  
   any(i -> isempty(i), siteinds(commoninds, A, ψ)) &&
-    error("In `contract(A::MPO, x::MPS)`, `A` and `x` must share a set of site indices")
-
+  error("In `contract(A::MPO, x::MPS)`, `A` and `x` must share a set of site indices")
+  
   # In case A and ψ have the same link indices
   A = sim(linkinds, A)
-
+  
   ψ_c = dag(ψ)
   A_c = dag(A)
-
+  
   # To not clash with the link indices of A and ψ
   sim!(linkinds, A_c)
   sim!(linkinds, ψ_c)
   sim!(siteinds, commoninds, A_c, ψ_c)
-
+  
   # A version helpful for making the density matrix
   simA_c = sim(siteinds, uniqueinds, A_c, ψ_c)
-
+  
   # Store the left environment tensors
   E = Vector{ITensor}(undef, n - 1)
-
+  
   E[1] = ψ[1] * A[1] * A_c[1] * ψ_c[1]
   for j in 2:(n - 1)
     E[j] = E[j - 1] * ψ[j] * A[j] * A_c[j] * ψ_c[j]
@@ -752,7 +762,7 @@ function ITensors.contract(
     ciA = commoninds(A[j], E[j - 1])
     prod_dims = dim(cip) * dim(ciA)
     maxdim = min(prod_dims, requested_maxdim)
-
+    
     s = siteinds(uniqueinds, A, ψ, j)
     s̃ = siteinds(uniqueinds, simA_c, ψ_c, j)
     ρ = E[j - 1] * R * simR_c
@@ -776,36 +786,115 @@ function ITensors.contract(
   return ψ_out
 end
 
-function _contract(::Algorithm"naive", A, ψ; truncate=true, kwargs...)
-  A = sim(linkinds, A)
-  ψ = sim(linkinds, ψ)
-
+function _contract!(alg::Algorithm"naive", A::MPO, ψ::MPS; truncate::Bool=true, kwargs...)
+  A = sim(linkinds, A)    #Produces an view of A where the link indices have different id
+  
   N = length(A)
   if N != length(ψ)
     throw(DimensionMismatch("lengths of MPO ($N) and MPS ($(length(ψ))) do not match"))
   end
 
-  ψ_out = typeof(ψ)(N)
-  for j in 1:N
-    ψ_out[j] = A[j] * ψ[j]
-  end
+  #= 
 
-  for b in 1:(N - 1)
-    Al = commoninds(A[b], A[b + 1])
-    ψl = commoninds(ψ[b], ψ[b + 1])
-    l = [Al..., ψl...]
-    if !isempty(l)
-      C = combiner(l)
-      ψ_out[b] *= C
-      ψ_out[b + 1] *= dag(C)
+    The main idea is to use 2 vectors as stack, we always pop from one, elaborate the element and push it to the other.
+    This will lead for a tensor to never be referenced twice, allowing for the garbage collector to free the memory.
+
+    To be consistent with the density matrix method, and since truncate! always returns a right orthogonal MPS,
+    we have to work such that also when truncate=false the resulting MPS must be right orthogonal. In order to achieve
+    this we will set some aliases at the beginning and leave the `for` loop as general as possible. In particular:
+    
+    if truncate is true
+      then whe have to supply to truncate! a left orthogonal MPS, this is achieved by populating the stackOut vector
+      (the one from which we pop) with the tensors of ψ in reverse order. In this way when popping from it we are going
+      to push the tensors into ψ in the right order.
+    if truncate is false
+      then we have to obtain a right orthogonal MPS directly, in this case we are going to use ψ as stackOut and pushing
+      the results in a new vector that is the data of a new MPS ϕ. This will have the tensors in reverse order
+      so by left orthogonalizing it, we are right orthogonalizing ψ. At the end we will have to copy the data back to ψ.
+
+  =#
+  ϕ = MPS(N)
+  if truncate 
+    mpsIn = ψ
+    stackIn = data(ψ)
+    mpsOut = ϕ
+    stackOut = data(ϕ)
+    for i in 1:N  # empty stackIn and populate stackOut with the reverse
+      stackOut[i] = pop!(stackIn)
     end
+    mpoIndex = 1
+    mpoIndexIncrement = 1
+    bondIndex = 1
+  else
+    mpsIn = ϕ
+    stackIn = data(ϕ)
+    mpsOut = ψ
+    stackOut = data(ψ)
+    Base._deleteend!(stackIn, N)  # This is to avoid but it's easier
+    mpoIndex = N
+    mpoIndexIncrement = -1
+    bondIndex = N-1
   end
+  reset_ortho_lims!(mpsIn)
 
+  T2 = pop!(stackOut) * A[mpoIndex]
+  mpoIndex += mpoIndexIncrement
+  for j in 2:N
+    T1 = T2
+    T2 = pop!(stackOut) * A[mpoIndex]
+
+    l = commoninds(T1, T2)
+    @debug "common inds" l
+    if !isempty(l)
+      C = combiner(l; tags="Link,l=$(bondIndex)")
+      T1 *= C
+      T2 *= dag(C)
+    end
+    push!(stackIn, T1)  # push the result of the contraction
+    push!(stackIn, T2)  # push also T2 just to use orthogonalize! but then remove it
+    orthogonalize!(mpsIn, j)
+    if j<N
+      T2=pop!(stackIn) # remove T2, leave it if it is the last iteration
+    end
+    mpoIndex += mpoIndexIncrement
+    bondIndex += mpoIndexIncrement
+####### Debug
+    @assert length(mpsIn) == (j<N ? j-1 : j)
+    @assert length(mpsOut) == N-j 
+    total_size = Base.summarysize(ψ)+Base.summarysize(ϕ)
+    if j<N
+      total_size += Base.summarysize(T2)
+    end
+    @debug "Size after contraction is $(total_size/2^20) MiB"
+  end
+  T1 = T2 = nothing #make them unreachable
+
+  @debug "" length(mpsOut) == 0 length(mpsIn) == N
+  
   if truncate
-    truncate!(ψ_out; kwargs...)
+    truncate!(ψ; kwargs...)
+  else
+    for _ in 1:N
+      push!(stackOut, pop!(stackIn))
+    end
+    setleftlim!(ψ, 0)
+    setrightlim!(ψ, 2)
   end
 
-  return ψ_out
+end
+
+function _contract(alg::Algorithm"naive", A::MPO, ψ::MPS; kwargs...)
+  x = copy(ψ)
+  _contract!(alg, A, x; kwargs...)
+  return x
+end
+
+function ITensors.contract!(
+  alg::Algorithm"naive",
+  A::MPO,
+  ψ::MPS;
+  kwargs...)
+  _contract!(Algorithm"naive"(), A, ψ; kwargs...)
 end
 
 function ITensors.contract(alg::Algorithm"naive", A::MPO, ψ::MPS; kwargs...)
@@ -828,15 +917,15 @@ function ITensors.contract(
   maxdim=maxlinkdim(A) * maxlinkdim(B),
   mindim=1,
   kwargs...,
-)
+  )
   if hassameinds(siteinds, A, B)
     error(
-      "In `contract(A::MPO, B::MPO)`, MPOs A and B have the same site indices. The indices of the MPOs in the contraction are taken literally, and therefore they should only share one site index per site so the contraction results in an MPO. You may want to use `replaceprime(contract(A', B), 2 => 1)` or `apply(A, B)` which automatically adjusts the prime levels assuming the input MPOs have pairs of primed and unprimed indices.",
+    "In `contract(A::MPO, B::MPO)`, MPOs A and B have the same site indices. The indices of the MPOs in the contraction are taken literally, and therefore they should only share one site index per site so the contraction results in an MPO. You may want to use `replaceprime(contract(A', B), 2 => 1)` or `apply(A, B)` which automatically adjusts the prime levels assuming the input MPOs have pairs of primed and unprimed indices.",
     )
   end
   N = length(A)
   N != length(B) &&
-    throw(DimensionMismatch("lengths of MPOs A ($N) and B ($(length(B))) do not match"))
+  throw(DimensionMismatch("lengths of MPOs A ($N) and B ($(length(B))) do not match"))
   # Special case for a single site
   N == 1 && return MPO([A[1] * B[1]])
   A = orthogonalize(A, 1)
@@ -996,15 +1085,15 @@ function sample(rng::AbstractRNG, M::MPO)
   for n in reverse(1:(N - 1))
     R[n] = M[n] * δ(dag(s[n])) * R[n + 1]
   end
-
+  
   if abs(1.0 - R[1][]) > 1E-8
     error("sample: MPO is not normalized, norm=$(norm(M[1]))")
   end
-
+  
   result = zeros(Int, N)
   ρj = M[1] * R[2]
   Lj = ITensor()
-
+  
   for j in 1:N
     s = siteind(M, j)
     d = dim(s)
