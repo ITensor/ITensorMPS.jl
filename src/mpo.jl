@@ -619,7 +619,7 @@ end
 """
 function evolve!(ψ::MPS, A::MPO; alg=Algorithm"naive"(), kwargs...)
   ITensors.contract!(Algorithm(alg), A, ψ; kwargs...)
-  replaceprime!(ψ, 1 => 0)
+  ITensors.replaceprime!(ψ, 1 => 0)
 end
 
 function ITensors.contract(A::MPO, ψ::MPS; alg=nothing, method=alg, kwargs...)
