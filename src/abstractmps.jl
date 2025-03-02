@@ -1682,7 +1682,7 @@ function callback(; link, truncation_error)
   truncation_errors[bond_no] = truncation_error
   return nothing
 end
-truncate!(ψ; maxdim=5, cutoff=1E-7, callback=callback)
+truncate!(ψ; maxdim=5, cutoff=1E-7, callback)
 ```
 """
 function truncate!(M::AbstractMPS; alg="frobenius", kwargs...)
