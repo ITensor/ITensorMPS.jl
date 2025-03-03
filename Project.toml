@@ -1,7 +1,7 @@
 name = "ITensorMPS"
 uuid = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>", "Miles Stoudenmire <mstoudenmire@flatironinstitute.org>"]
-version = "0.3.7"
+version = "0.3.8"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"

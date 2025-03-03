@@ -1672,16 +1672,30 @@ provided as keyword arguments.
 
 Keyword arguments:
 * `site_range`=1:N - only truncate the MPS bonds between these sites
+* `callback=Returns(nothing)` - callback function that allows the user to save the per-bond truncation error. The API of `callback` expects to take two kwargs called `link` and `truncation_error` where `link` is of type `Pair{Int64, Int64}` and `truncation_error` is `Float64`. Consider the following example that illustrates one possible use case.
+
+```julia
+nbonds = 9
+truncation_errors = zeros(nbonds)
+function callback(; link, truncation_error)
+  bond_no = last(link)
+  truncation_errors[bond_no] = truncation_error
+  return nothing
+end
+truncate!(ψ; maxdim=5, cutoff=1E-7, callback)
+```
 """
 function truncate!(M::AbstractMPS; alg="frobenius", kwargs...)
   return truncate!(Algorithm(alg), M; kwargs...)
 end
 
 function truncate!(
-  ::Algorithm"frobenius", M::AbstractMPS; site_range=1:length(M), kwargs...
+  ::Algorithm"frobenius",
+  M::AbstractMPS;
+  site_range=1:length(M),
+  callback=Returns(nothing),
+  kwargs...,
 )
-  N = length(M)
-
   # Left-orthogonalize all tensors to make
   # truncations controlled
   orthogonalize!(M, last(site_range))
@@ -1690,10 +1704,11 @@ function truncate!(
   for j in reverse((first(site_range) + 1):last(site_range))
     rinds = uniqueinds(M[j], M[j - 1])
     ltags = tags(commonind(M[j], M[j - 1]))
-    U, S, V = svd(M[j], rinds; lefttags=ltags, kwargs...)
+    U, S, V, spec = svd(M[j], rinds; lefttags=ltags, kwargs...)
     M[j] = U
     M[j - 1] *= (S * V)
     setrightlim!(M, j)
+    callback(; link=(j => j - 1), truncation_error=spec.truncerr)
   end
   return M
 end
