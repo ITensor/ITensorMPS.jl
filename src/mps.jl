@@ -59,7 +59,7 @@ function apply_random_staircase_circuit(
   gate_layers = mapreduce(vcat, 1:depth) do _
     # TODO: Pass `elt` and `rng` as kwargs to `op`, to be
     # used as parameters in `OpName` by `QuantumOperaterDefinitions.jl`.
-    return map(((i, j),) -> op("RandomUnitary", (s[i], s[j])), layer)
+    return map(((i, j),) -> op("RandomUnitary", (s[i], s[j]); rng, eltype=elt), layer)
   end
   # TODO: Use `apply`, for some reason that can't be found right now.
   return apply(gate_layers, state; kwargs...)
