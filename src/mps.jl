@@ -896,7 +896,7 @@ function correlation_matrix(
             Li21 *= oᵢ * dag(psi[pL21])'
           else
             sᵢ = siteind(psi, pL21)
-            Li21 *= prime(dag(si[pL21]), !sᵢ)
+            Li21 *= prime(dag(psi[pL21]), !sᵢ)
           end
           Li21 *= psi[pL21]
         end
