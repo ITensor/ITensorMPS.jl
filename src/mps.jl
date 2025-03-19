@@ -1,7 +1,13 @@
 using Adapt: adapt
-using NDTensors: using_auto_fermion
-using Random: Random
-using ITensors.SiteTypes: SiteTypes, siteind, siteinds, state
+using GradedUnitRanges: dual
+using ITensors: hasqns
+using LinearAlgebra: qr
+using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state
+using Random: Random, AbstractRNG
+using SparseArraysBase: oneelement
+
+## TODO: Add this back.
+## using NDTensors: using_auto_fermion
 
 """
     MPS
@@ -44,333 +50,41 @@ function MPS(N::Int; ortho_lims::UnitRange=1:N)
   return MPS(Vector{ITensor}(undef, N); ortho_lims=ortho_lims)
 end
 
-"""
-    MPS([::Type{ElT} = Float64, ]sites; linkdims=1)
-
-Construct an MPS filled with Empty ITensors of type `ElT` from a collection of indices.
-
-Optionally specify the link dimension with the keyword argument `linkdims`, which by default is 1.
-
-In the future we may generalize `linkdims` to allow specifying each individual link dimension as a vector,
-and additionally allow specifying quantum numbers.
-"""
-function MPS(
-  ::Type{T}, sites::Vector{<:Index}; linkdims::Union{Integer,Vector{<:Integer}}=1
-) where {T<:Number}
-  _linkdims = _fill_linkdims(linkdims, sites)
-  N = length(sites)
-  v = Vector{ITensor}(undef, N)
-  if N == 1
-    v[1] = ITensor(T, sites[1])
-    return MPS(v)
-  end
-
-  spaces = if hasqns(sites)
-    [[QN() => _linkdims[j]] for j in 1:(N - 1)]
-  else
-    [_linkdims[j] for j in 1:(N - 1)]
-  end
-
-  l = [Index(spaces[ii], "Link,l=$ii") for ii in 1:(N - 1)]
-  for ii in eachindex(sites)
-    s = sites[ii]
-    if ii == 1
-      v[ii] = ITensor(T, l[ii], s)
-    elseif ii == N
-      v[ii] = ITensor(T, dag(l[ii - 1]), s)
-    else
-      v[ii] = ITensor(T, dag(l[ii - 1]), s, l[ii])
-    end
-  end
-  return MPS(v)
-end
-
-MPS(sites::Vector{<:Index}, args...; kwargs...) = MPS(Float64, sites, args...; kwargs...)
-
-function randomU(eltype::Type{<:Number}, s1::Index, s2::Index)
-  return randomU(Random.default_rng(), eltype, s1, s2)
-end
-
-function randomU(rng::AbstractRNG, eltype::Type{<:Number}, s1::Index, s2::Index)
-  if !hasqns(s1) && !hasqns(s2)
-    mdim = dim(s1) * dim(s2)
-    RM = randn(rng, eltype, mdim, mdim)
-    Q, _ = NDTensors.qr_positive(RM)
-    G = itensor(Q, dag(s1), dag(s2), s1', s2')
-  else
-    M = random_itensor(rng, eltype, QN(), s1', s2', dag(s1), dag(s2))
-    U, S, V = svd(M, (s1', s2'))
-    u = commonind(U, S)
-    v = commonind(S, V)
-    replaceind!(U, u, v)
-    G = U * V
-  end
-  return G
-end
-
-function randomizeMPS!(eltype::Type{<:Number}, M::MPS, sites::Vector{<:Index}, linkdims=1)
-  return randomizeMPS!(Random.default_rng(), eltype, M, sites, linkdims)
-end
-
-function randomizeMPS!(
-  rng::AbstractRNG, eltype::Type{<:Number}, M::MPS, sites::Vector{<:Index}, linkdims=1
+function apply_random_staircase_circuit(
+  rng::AbstractRNG, elt::Type, state::MPS; depth, kwargs...
 )
-  _linkdims = _fill_linkdims(linkdims, sites)
-  if isone(length(sites))
-    randn!(rng, M[1])
-    normalize!(M)
-    return M
+  n = length(state)
+  layer = [(j - 1, j) for j in reverse(2:n)]
+  s = siteinds(state)
+  gate_layers = mapreduce(vcat, 1:depth) do _
+    # TODO: Pass `elt` and `rng` as kwargs to `op`, to be
+    # used as parameters in `OpName` by `QuantumOperaterDefinitions.jl`.
+    return map(((i, j),) -> op("RandomUnitary", (s[i], s[j]); rng, eltype=elt), layer)
   end
-  N = length(sites)
-  c = div(N, 2)
-  max_pass = 100
-  for pass in 1:max_pass, half in 1:2
-    if half == 1
-      (db, brange) = (+1, 1:1:(N - 1))
-    else
-      (db, brange) = (-1, N:-1:2)
-    end
-    for b in brange
-      s1 = sites[b]
-      s2 = sites[b + db]
-      G = randomU(rng, eltype, s1, s2)
-      T = noprime(G * M[b] * M[b + db])
-      rinds = uniqueinds(M[b], M[b + db])
-
-      b_dim = half == 1 ? b : b + db
-      U, S, V = svd(T, rinds; maxdim=_linkdims[b_dim], utags="Link,l=$(b-1)")
-      M[b] = U
-      M[b + db] = S * V
-      M[b + db] /= norm(M[b + db])
-    end
-    if half == 2 && dim(commonind(M[c], M[c + 1])) >= _linkdims[c]
-      break
-    end
-  end
-  setleftlim!(M, 0)
-  setrightlim!(M, 2)
-  if dim(commonind(M[c], M[c + 1])) < _linkdims[c]
-    @warn "MPS center bond dimension is less than requested (you requested $(_linkdims[c]), but in practice it is $(dim(commonind(M[c], M[c + 1]))). This is likely due to technicalities of truncating quantum number sectors."
-  end
-end
-
-function randomCircuitMPS(
-  eltype::Type{<:Number}, sites::Vector{<:Index}, linkdims::Vector{<:Integer}; kwargs...
-)
-  return randomCircuitMPS(Random.default_rng(), eltype, sites, linkdims; kwargs...)
-end
-
-function randomCircuitMPS(
-  rng::AbstractRNG,
-  eltype::Type{<:Number},
-  sites::Vector{<:Index},
-  linkdims::Vector{<:Integer};
-  kwargs...,
-)
-  N = length(sites)
-  M = MPS(N)
-
-  if N == 1
-    M[1] = ITensor(randn(rng, eltype, dim(sites[1])), sites[1])
-    M[1] /= norm(M[1])
-    return M
-  end
-
-  l = Vector{Index}(undef, N)
-
-  d = dim(sites[N])
-  chi = min(linkdims[N - 1], d)
-  l[N - 1] = Index(chi, "Link,l=$(N-1)")
-  O = NDTensors.random_unitary(rng, eltype, chi, d)
-  M[N] = itensor(O, l[N - 1], sites[N])
-
-  for j in (N - 1):-1:2
-    chi *= dim(sites[j])
-    chi = min(linkdims[j - 1], chi)
-    l[j - 1] = Index(chi, "Link,l=$(j-1)")
-    O = NDTensors.random_unitary(rng, eltype, chi, dim(sites[j]) * dim(l[j]))
-    T = reshape(O, (chi, dim(sites[j]), dim(l[j])))
-    M[j] = itensor(T, l[j - 1], sites[j], l[j])
-  end
-
-  O = NDTensors.random_unitary(rng, eltype, 1, dim(sites[1]) * dim(l[1]))
-  l0 = Index(1, "Link,l=0")
-  T = reshape(O, (1, dim(sites[1]), dim(l[1])))
-  M[1] = itensor(T, l0, sites[1], l[1])
-  M[1] *= onehot(eltype, l0 => 1)
-
-  M.llim = 0
-  M.rlim = 2
-
-  return M
-end
-
-function randomCircuitMPS(sites::Vector{<:Index}, linkdims::Vector{<:Integer}; kwargs...)
-  return randomCircuitMPS(Random.default_rng(), sites, linkdims; kwargs...)
-end
-
-function randomCircuitMPS(
-  rng::AbstractRNG, sites::Vector{<:Index}, linkdims::Vector{<:Integer}; kwargs...
-)
-  return randomCircuitMPS(rng, Float64, sites, linkdims; kwargs...)
-end
-
-function _fill_linkdims(linkdims::Vector{<:Integer}, sites::Vector{<:Index})
-  @assert length(linkdims) == length(sites) - 1
-  return linkdims
-end
-
-function _fill_linkdims(linkdims::Integer, sites::Vector{<:Index})
-  return fill(linkdims, length(sites) - 1)
-end
-
-"""
-    random_mps(eltype::Type{<:Number}, sites::Vector{<:Index}; linkdims=1)
-
-Construct a random MPS with link dimension `linkdims` of
-type `eltype`.
-
-`linkdims` can also accept a `Vector{Int}` with
-`length(linkdims) == length(sites) - 1` for constructing an
-MPS with non-uniform bond dimension.
-"""
-function random_mps(
-  ::Type{ElT}, sites::Vector{<:Index}; linkdims::Union{Integer,Vector{<:Integer}}=1
-) where {ElT<:Number}
-  return random_mps(Random.default_rng(), ElT, sites; linkdims)
+  # TODO: Use `apply`, for some reason that can't be found right now.
+  return apply(gate_layers, state; kwargs...)
 end
 
 function random_mps(
-  rng::AbstractRNG,
-  ::Type{ElT},
-  sites::Vector{<:Index};
-  linkdims::Union{Integer,Vector{<:Integer}}=1,
-) where {ElT<:Number}
-  _linkdims = _fill_linkdims(linkdims, sites)
-  if any(hasqns, sites)
-    error("initial state required to use random_mps with QNs")
-  end
-
-  # For non-QN-conserving MPS, instantiate
-  # the random MPS directly as a circuit:
-  return randomCircuitMPS(rng, ElT, sites, _linkdims)
-end
-
-"""
-    random_mps(sites::Vector{<:Index}; linkdims=1)
-    random_mps(eltype::Type{<:Number}, sites::Vector{<:Index}; linkdims=1)
-
-Construct a random MPS with link dimension `linkdims` which by
-default has element type `Float64`.
-
-`linkdims` can also accept a `Vector{Int}` with
-`length(linkdims) == length(sites) - 1` for constructing an
-MPS with non-uniform bond dimension.
-"""
-function random_mps(sites::Vector{<:Index}; linkdims::Union{Integer,Vector{<:Integer}}=1)
-  return random_mps(Random.default_rng(), sites; linkdims)
-end
-
-function random_mps(
-  rng::AbstractRNG, sites::Vector{<:Index}; linkdims::Union{Integer,Vector{<:Integer}}=1
+  rng::AbstractRNG, elt::Type, state, sites::Vector{<:Index}; maxdim, kwargs...
 )
-  return random_mps(rng, Float64, sites; linkdims)
+  x = MPS(elt, state, sites)
+  depth = ceil(Int, log(minimum(Int ∘ length, sites), maxdim))
+  return apply_random_staircase_circuit(rng, elt, x; depth, maxdim, kwargs...)
 end
-
-function random_mps(
-  sites::Vector{<:Index}, state; linkdims::Union{Integer,Vector{<:Integer}}=1
-)
-  return random_mps(Random.default_rng(), sites, state; linkdims)
+function random_mps(rng::AbstractRNG, state, sites::Vector{<:Index}; kwargs...)
+  return random_mps(rng, Float64, state, sites; kwargs...)
 end
-
-function random_mps(
-  rng::AbstractRNG,
-  sites::Vector{<:Index},
-  state;
-  linkdims::Union{Integer,Vector{<:Integer}}=1,
-)
-  return random_mps(rng, Float64, sites, state; linkdims)
+function random_mps(elt::Type, state, sites::Vector{<:Index}; kwargs...)
+  return random_mps(Random.default_rng(), elt, state, sites; kwargs...)
 end
-
-function random_mps(
-  eltype::Type{<:Number},
-  sites::Vector{<:Index},
-  state;
-  linkdims::Union{Integer,Vector{<:Integer}}=1,
-)
-  return random_mps(Random.default_rng(), eltype, sites, state; linkdims)
+function random_mps(state, sites::Vector{<:Index}; kwargs...)
+  return random_mps(Random.default_rng(), Float64, state, sites; kwargs...)
 end
-
-function random_mps(
-  rng::AbstractRNG,
-  eltype::Type{<:Number},
-  sites::Vector{<:Index},
-  state;
-  linkdims::Union{Integer,Vector{<:Integer}}=1,
-)::MPS
-  M = MPS(eltype, sites, state)
-  if any(>(1), linkdims)
-    randomizeMPS!(rng, eltype, M, sites, linkdims)
-  end
-  return M
+function random_mps(sites; kwargs...)
+  state = fill("0", length(sites))
+  return random_mps(Random.default_rng(), Float64, state, sites; kwargs...)
 end
-
-@doc """
-    random_mps(sites::Vector{<:Index}, state; linkdims=1)
-
-Construct a real, random MPS with link dimension `linkdims`,
-made by randomizing an initial product state specified by
-`state`. This version of `random_mps` is necessary when creating
-QN-conserving random MPS (consisting of QNITensors). The initial
-`state` array provided determines the total QN of the resulting
-random MPS.
-""" random_mps(::Vector{<:Index}, ::Any)
-
-"""
-    MPS(::Type{T<:Number}, ivals::Vector{<:Pair{<:Index}})
-
-Construct a product state MPS with element type `T` and
-nonzero values determined from the input IndexVals.
-"""
-function MPS(::Type{T}, ivals::Vector{<:Pair{<:Index}}) where {T<:Number}
-  N = length(ivals)
-  M = MPS(N)
-
-  if N == 1
-    M[1] = ITensor(T, ind(ivals[1]))
-    M[1][ivals[1]] = one(T)
-    return M
-  end
-
-  if hasqns(ind(ivals[1]))
-    lflux = QN()
-    for j in 1:(N - 1)
-      lflux += qn(ivals[j])
-    end
-    links = Vector{QNIndex}(undef, N - 1)
-    for j in (N - 1):-1:1
-      links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
-      lflux -= qn(ivals[j])
-    end
-  else
-    links = [Index(1, "Link,l=$n") for n in 1:(N - 1)]
-  end
-
-  M[1] = ITensor(T, ind(ivals[1]), links[1])
-  M[1][ivals[1], links[1] => 1] = one(T)
-  for n in 2:(N - 1)
-    s = ind(ivals[n])
-    M[n] = ITensor(T, dag(links[n - 1]), s, links[n])
-    M[n][links[n - 1] => 1, ivals[n], links[n] => 1] = one(T)
-  end
-  M[N] = ITensor(T, dag(links[N - 1]), ind(ivals[N]))
-  M[N][links[N - 1] => 1, ivals[N]] = one(T)
-
-  return M
-end
-
-# For backwards compatibility
-const productMPS = MPS
 
 """
     MPS(ivals::Vector{<:Pair{<:Index}})
@@ -406,59 +120,23 @@ psi = MPS(ComplexF64, sites, states)
 phi = MPS(sites, "Up")
 ```
 """
-function MPS(eltype::Type{<:Number}, sites::Vector{<:Index}, states_)
-  if length(sites) != length(states_)
-    throw(DimensionMismatch("Number of sites and and initial vals don't match"))
-  end
-  N = length(states_)
-  M = MPS(N)
-
-  if N == 1
-    M[1] = state(sites[1], states_[1])
-    return convert_leaf_eltype(eltype, M)
-  end
-
-  states = [state(sites[j], states_[j]) for j in 1:N]
-
-  if hasqns(states[1])
-    lflux = QN()
-    for j in 1:(N - 1)
-      lflux += flux(states[j])
-    end
-    links = Vector{QNIndex}(undef, N - 1)
-    for j in (N - 1):-1:1
-      links[j] = dag(Index(lflux => 1; tags="Link,l=$j"))
-      lflux -= flux(states[j])
-    end
-  else
-    links = [Index(1; tags="Link,l=$n") for n in 1:N]
-  end
-
-  M[1] = ITensor(sites[1], links[1])
-  M[1] += states[1] * state(links[1], 1)
-  for n in 2:(N - 1)
-    M[n] = ITensor(dag(links[n - 1]), sites[n], links[n])
-    M[n] += state(dag(links[n - 1]), 1) * states[n] * state(links[n], 1)
-  end
-  M[N] = ITensor(dag(links[N - 1]), sites[N])
-  M[N] += state(dag(links[N - 1]), 1) * states[N]
-
-  return convert_leaf_eltype(eltype, M)
+function MPS(elt::Type{<:Number}, states_, sites::Vector{<:Index})
+  return MPS([state(elt, states_[j], sites[j]) for j in 1:length(sites)])
 end
 
 function MPS(
-  ::Type{T}, sites::Vector{<:Index}, state::Union{String,Integer}
+  ::Type{T}, state::Union{String,Integer}, sites::Vector{<:Index}
 ) where {T<:Number}
-  return MPS(T, sites, fill(state, length(sites)))
+  return MPS(T, fill(state, length(sites)), sites)
 end
 
-function MPS(::Type{T}, sites::Vector{<:Index}, states::Function) where {T<:Number}
+function MPS(::Type{T}, states::Function, sites::Vector{<:Index}) where {T<:Number}
   states_vec = [states(n) for n in 1:length(sites)]
-  return MPS(T, sites, states_vec)
+  return MPS(T, states_vec, sites)
 end
 
 """
-    MPS(sites::Vector{<:Index},states)
+    MPS(states, sites::Vector{<:Index})
 
 Construct a product state MPS having
 site indices `sites`, and which corresponds to the initial
@@ -476,21 +154,21 @@ states = [isodd(n) ? "Up" : "Dn" for n in 1:N]
 psi = MPS(sites, states)
 ```
 """
-MPS(sites::Vector{<:Index}, states) = MPS(Float64, sites, states)
+MPS(state, sites::Vector{<:Index}) = MPS(Float64, state, sites)
 
 """
     siteind(M::MPS, j::Int; kwargs...)
 
 Get the first site Index of the MPS. Return `nothing` if none is found.
 """
-SiteTypes.siteind(M::MPS, j::Int; kwargs...) = siteind(first, M, j; kwargs...)
+siteind(M::MPS, j::Int; kwargs...) = siteind(first, M, j; kwargs...)
 
 """
     siteind(::typeof(only), M::MPS, j::Int; kwargs...)
 
 Get the only site Index of the MPS. Return `nothing` if none is found.
 """
-function SiteTypes.siteind(::typeof(only), M::MPS, j::Int; kwargs...)
+function siteind(::typeof(only), M::MPS, j::Int; kwargs...)
   is = siteinds(M, j; kwargs...)
   if isempty(is)
     return nothing
@@ -512,7 +190,7 @@ Get a vector of the only site Index found on each tensor of the MPS. Errors if m
 
 Get a vector of the all site Indices found on each tensor of the MPS. Returns a Vector of IndexSets.
 """
-SiteTypes.siteinds(M::MPS; kwargs...) = siteinds(first, M; kwargs...)
+siteinds(M::MPS; kwargs...) = siteinds(first, M; kwargs...)
 
 function replace_siteinds!(M::MPS, sites)
   for j in eachindex(M)
@@ -550,9 +228,9 @@ function replacebond!(
   use_relative_cutoff=nothing,
   min_blockdim=nothing,
 )
-  normalize = NDTensors.replace_nothing(normalize, false)
-  swapsites = NDTensors.replace_nothing(swapsites, false)
-  ortho = NDTensors.replace_nothing(ortho, "left")
+  normalize = replace_nothing(normalize, false)
+  swapsites = replace_nothing(swapsites, false)
+  ortho = replace_nothing(ortho, "left")
 
   indsMb = inds(M[b])
   if swapsites
@@ -802,7 +480,7 @@ function correlation_matrix(
     L = ITensor(1.0)
   else
     lind = commonind(psi[start_site], psi[start_site - 1])
-    L = delta(dag(lind), lind')
+    L = delta(dual(lind), lind')
   end
   pL = start_site - 1
 
@@ -896,7 +574,7 @@ function correlation_matrix(
             Li21 *= oᵢ * dag(psi[pL21])'
           else
             sᵢ = siteind(psi, pL21)
-            Li21 *= prime(dag(si[pL21]), !sᵢ)
+            Li21 *= prime(dual(si[pL21]), !sᵢ)
           end
           Li21 *= psi[pL21]
         end
