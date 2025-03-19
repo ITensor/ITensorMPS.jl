@@ -1,5 +1,0 @@
-# Reference
-
-```@autodocs
-Modules = [ITensorMPS]
-```

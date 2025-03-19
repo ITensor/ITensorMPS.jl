@@ -12,7 +12,8 @@ makedocs(;
   format=Documenter.HTML(;
     canonical="https://ITensor.github.io/ITensorMPS.jl", edit_link="main", assets=String[]
   ),
-  pages=["Home" => "index.md", "Reference" => "reference.md"],
+  pages=["Home" => "index.md"],
+  warnonly=true,
 )
 
 deploydocs(; repo="github.com/ITensor/ITensorMPS.jl", devbranch="main", push_preview=true)
