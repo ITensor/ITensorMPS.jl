@@ -1,8 +1,11 @@
 # ITensorMPS.jl
 
-[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://itensor.github.io/ITensors.jl/dev/)
-[![Build Status](https://github.com/ITensor/ITensorMPS.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/ITensor/ITensorMPS.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://ITensor.github.io/ITensorMPS.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://ITensor.github.io/ITensorMPS.jl/dev/)
+[![Build Status](https://github.com/ITensor/ITensorMPS.jl/actions/workflows/Tests.yml/badge.svg?branch=main)](https://github.com/ITensor/ITensorMPS.jl/actions/workflows/Tests.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/ITensor/ITensorMPS.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ITensor/ITensorMPS.jl)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+[![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 Finite MPS and MPO methods based on the Julia version of [ITensor](https://www.itensor.org) ([ITensors.jl](https://github.com/ITensor/ITensors.jl)). See the [ITensors.jl documentation](https://itensor.github.io/ITensors.jl/dev/) for more details.
 
@@ -27,3 +30,8 @@ This release introduces a new (experimental) function `expand` for performing gl
 #### Breaking changes
 
 ITensorMPS.jl v0.2 has been released, which is a breaking release. It updates to using ITensorTDVP.jl v0.4, which has a number of breaking changes to the `tdvp`, `linsolve`, and `dmrg_x` functions. See the [ITensorTDVP.jl v0.4 release notes](https://github.com/ITensor/ITensorTDVP.jl/blob/main/README.md#itensortdvpjl-v04-release-notes) for details.
+
+---
+
+*This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
+
