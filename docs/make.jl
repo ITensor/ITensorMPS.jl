@@ -3,11 +3,14 @@ using ITensors
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
 DocMeta.setdocmeta!(ITensorMPS, :DocTestSetup, :(using ITensorMPS); recursive=true)
+DocMeta.setdocmeta!(ITensors, :DocTestSetup, :(using ITensors); recursive=true)
 
 include("make_index.jl")
 
 makedocs(;
-  modules=[ITensorMPS],
+  # Allows using ITensors.jl docstrings in ITensorMPS.jl documentation:
+  # https://github.com/JuliaDocs/Documenter.jl/issues/1734
+  modules=[ITensorMPS, ITensors],
   authors="ITensor developers <support@itensor.org> and contributors",
   sitename="ITensorMPS.jl",
   format=Documenter.HTML(;
