@@ -42,7 +42,8 @@ makedocs(;
       ],
       "OpSum" => "OpSum.md",
     ],
-    "Frequently Asked Questions" => ["DMRG FAQs" => "faq/DMRG.md"],
+    "Frequently Asked Questions" =>
+      ["DMRG FAQs" => "faq/DMRG.md", "Quantum Number (QN) FAQs" => "faq/QN.md"],
     "HDF5 File Formats" => "HDF5FileFormats.md",
   ],
   warnonly=true,
