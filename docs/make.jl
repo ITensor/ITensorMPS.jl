@@ -39,9 +39,7 @@ makedocs(;
       ],
       "OpSum" => "OpSum.md",
     ],
-    "Frequently Asked Questions" => [
-      "DMRG FAQs" => "faq/DMRG.md",
-    ],
+    "Frequently Asked Questions" => ["DMRG FAQs" => "faq/DMRG.md"],
     "HDF5 File Formats" => "HDF5FileFormats.md",
   ],
   warnonly=true,
