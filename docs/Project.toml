@@ -4,4 +4,6 @@ ITensorMPS = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 
 [compat]
+Documenter = "1"
+ITensorMPS = "0.3"
 Literate = "2"
