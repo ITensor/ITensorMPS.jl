@@ -14,7 +14,10 @@ makedocs(;
   authors="ITensor developers <support@itensor.org> and contributors",
   sitename="ITensorMPS.jl",
   format=Documenter.HTML(;
-    canonical="https://ITensor.github.io/ITensorMPS.jl", edit_link="main", assets=String[]
+    canonical="https://itensor.github.io/ITensorMPS.jl",
+    edit_link="main",
+    assets=["assets/favicon.ico"],
+    prettyurls=false,
   ),
   pages=[
     "Home" => "index.md",
@@ -47,7 +50,6 @@ makedocs(;
     "HDF5 File Formats" => "HDF5FileFormats.md",
   ],
   warnonly=true,
-  format=Documenter.HTML(; assets=["assets/favicon.ico"], prettyurls=false),
 )
 
 deploydocs(; repo="github.com/ITensor/ITensorMPS.jl", devbranch="main", push_preview=true)
