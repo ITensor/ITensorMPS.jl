@@ -47,6 +47,7 @@ makedocs(;
     "HDF5 File Formats" => "HDF5FileFormats.md",
   ],
   warnonly=true,
+  format=Documenter.HTML(; assets=["assets/favicon.ico"], prettyurls=false),
 )
 
 deploydocs(; repo="github.com/ITensor/ITensorMPS.jl", devbranch="main", push_preview=true)
