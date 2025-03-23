@@ -61,7 +61,7 @@ N = 100
 sites = siteinds("S=1",N)
 ```
 
-tells the function `siteinds` to make an array of ITensor [Index](https://itensor.github.io/ITensors.jl/stable/IndexType.html) objects which
+tells the function `siteinds` to make an array of ITensor [Index](https://docs.itensor.org/ITensors/stable/IndexType.html) objects which
 have the properties of ``S=1`` spins. This means their dimension will be 3 and
 they will carry the `"S=1"` tag, which will enable the next part of the code to know
 how to make appropriate operators for them.
