@@ -9,6 +9,12 @@
 
 Finite MPS and MPO methods based on the Julia version of [ITensor](https://www.itensor.org) ([ITensors.jl](https://github.com/ITensor/ITensors.jl)). See the [ITensorMPS.jl documentation](https://docs.itensor.org/ITensorMPS) for more details.
 
+## Support
+
+<img src="docs/src/assets/CCQ.png" width="20%" alt="Flatiron Center for Computational Quantum Physics logo.">
+
+ITensorMPS.jl is supported by the Flatiron Institute, a division of the Simons Foundation.
+
 ## News
 
 ### ITensorMPS.jl v0.3 release notes

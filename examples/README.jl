@@ -8,7 +8,13 @@
 # [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 # Finite MPS and MPO methods based on the Julia version of [ITensor](https://www.itensor.org) ([ITensors.jl](https://github.com/ITensor/ITensors.jl)). See the [ITensorMPS.jl documentation](https://docs.itensor.org/ITensorMPS) for more details.
+
+# ## Support
 #
+# {CCQ_LOGO}
+#
+# ITensorMPS.jl is supported by the Flatiron Institute, a division of the Simons Foundation.
+
 # ## News
 #
 # ### ITensorMPS.jl v0.3 release notes
