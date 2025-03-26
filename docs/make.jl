@@ -16,7 +16,7 @@ makedocs(;
   format=Documenter.HTML(;
     canonical="https://itensor.github.io/ITensorMPS.jl",
     edit_link="main",
-    assets=["assets/favicon.ico"],
+    assets=["assets/favicon.ico", "assets/extras.css"],
     prettyurls=false,
   ),
   pages=[
