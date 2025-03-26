@@ -4,7 +4,8 @@ using ITensorMPS: ITensorMPS
 function ccq_logo(content)
   include_ccq_logo = """
     ```@raw html
-    <img src="assets/CCQ.png" width="20%" alt="Flatiron Center for Computational Quantum Physics logo.">
+    <img class="display-light-only" src="assets/CCQ.png" width="20%" alt="Flatiron Center for Computational Quantum Physics logo."/>
+    <img class="display-dark-only" src="assets/CCQ-dark.png" width="20%" alt="Flatiron Center for Computational Quantum Physics logo."/>
     ```
     """
   content = replace(content, "{CCQ_LOGO}" => include_ccq_logo)
