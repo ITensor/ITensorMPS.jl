@@ -7,5 +7,5 @@ Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 [compat]
 Documenter = "1.9.0"
 ITensorMPS = "0.3.9"
-ITensors = "0.8.1"
+ITensors = "0.8.1, 0.9"
 Literate = "2.20.1"
