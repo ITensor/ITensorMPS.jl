@@ -1907,7 +1907,11 @@ function setindex!(
     end
   end
 
-  linktags = [defaultlinktags(i) for i in firstsite:(lastsite - 1)]
+  # use the first link index if present, otherwise use the default tag
+  linktags = [
+    (b = linkind(ψ, i);
+    isnothing(b) ? defaultlinkindtags(i) : tags(b)) for i in firstsite:(lastsite - 1)
+  ]
   ψA = MPST(
     A,
     sites;
