@@ -1907,7 +1907,15 @@ function setindex!(
     end
   end
 
-  ψA = MPST(A, sites; leftinds=lind, orthocenter=orthocenter - first(r) + 1, kwargs...)
+  linktags = [defaultlinktags(i) for i in firstsite:(lastsite - 1)]
+  ψA = MPST(
+    A,
+    sites;
+    leftinds=lind,
+    orthocenter=orthocenter - first(r) + 1,
+    tags=linktags,
+    kwargs...,
+  )
   #@assert prod(ψA) ≈ A
 
   ψ[firstsite:lastsite] = ψA
@@ -1946,7 +1954,12 @@ by site according to the site indices `sites`.
 - `maxdim`: the maximum link dimension.
 """
 function (::Type{MPST})(
-  A::ITensor, sites; leftinds=nothing, orthocenter::Integer=length(sites), kwargs...
+  A::ITensor,
+  sites;
+  leftinds=nothing,
+  orthocenter::Integer=length(sites),
+  tags::Vector{TagSet}=[defaultlinktags(i) for i in 1:(length(sites) - 1)],
+  kwargs...,
 ) where {MPST<:AbstractMPS}
   N = length(sites)
   for s in sites
@@ -1967,7 +1980,7 @@ function (::Type{MPST})(
     if !isnothing(l)
       Lis = unioninds(Lis, l)
     end
-    L, R = factorize(Ã, Lis; kwargs..., tags="Link,n=$n", ortho="left")
+    L, R = factorize(Ã, Lis; kwargs..., tags=tags[n], ortho="left")
     l = commonind(L, R)
     ψ[n] = L
     Ã = R
