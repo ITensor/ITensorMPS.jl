@@ -1955,7 +1955,7 @@ by site according to the site indices `sites`.
    in `sites` and `leftinds` will be dangling off of the right side of the MPS/MPO.
 - `orthocenter::Integer = length(sites)`: the desired final orthogonality
    center of the output MPS/MPO.
-- `tags::Vector{TagSet} = [defaultlinktags(i) for i in 1:(length(sites) - 1)]`:
+- `tags = [defaultlinktags(i) for i in 1:(length(sites) - 1)]`:
    the tags to use for the link indices. The length of `tags` must be
    `length(sites) - 1`. The default is to use the default link tags for each
    site.
@@ -1967,7 +1967,7 @@ function (::Type{MPST})(
   sites;
   leftinds=nothing,
   orthocenter::Integer=length(sites),
-  tags::Vector{TagSet}=[defaultlinktags(i) for i in 1:(length(sites) - 1)],
+  tags=[defaultlinktags(i) for i in 1:(length(sites) - 1)],
   kwargs...,
 ) where {MPST<:AbstractMPS}
   N = length(sites)
