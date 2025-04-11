@@ -79,7 +79,7 @@ function tdvp(
   nsweeps=nothing,
   nsteps=nsweeps,
   (step_observer!)=default_sweep_observer(),
-  (sweep_observer!)=step_observer!,
+  (sweep_observer!)=(step_observer!),
   kwargs...,
 )
   time_step, nsteps = time_step_and_nsteps(t, time_step, nsteps)

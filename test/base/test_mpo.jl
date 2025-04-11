@@ -562,7 +562,7 @@ end
     ψ = orthogonalize(ψ0, 2)
     A = prod(ITensors.data(ψ)[2:(N - 1)])
     randn!(A)
-    ψ[2:(N - 1), orthocenter=3] = A
+    ψ[2:(N - 1), orthocenter = 3] = A
     @test prod(ψ) ≈ ψ[1] * A * ψ[N]
     @test maxlinkdim(ψ) == 4
     @test ITensorMPS.orthocenter(ψ) == 3
@@ -728,7 +728,7 @@ end
     s = siteinds(H2; plev=1)
     C = combiner.(s; tags="X")
     H2 .*= C
-    H2H2 = prime(H2; tags=!ts"X") * dag(H2)
+    H2H2 = prime(H2; tags=(!ts"X")) * dag(H2)
     @test @disable_warn_order prod(HH) ≈ prod(H2H2)
   end
 
