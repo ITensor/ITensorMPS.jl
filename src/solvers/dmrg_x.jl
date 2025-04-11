@@ -1,4 +1,4 @@
-using GradedUnitRanges: dag
+using GradedArrays: dag
 using ITensors: uniqueind
 using LinearAlgebra: eigen
 using NamedDimsArrays: unname

@@ -1,4 +1,4 @@
-using GradedUnitRanges: dag
+using GradedArrays: dag
 using ITensors: ITensors, ITensor, dim, prime
 
 """

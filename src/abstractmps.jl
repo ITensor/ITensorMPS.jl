@@ -1,5 +1,5 @@
 using BackendSelection: @Algorithm_str, Algorithm
-using GradedUnitRanges: GradedUnitRanges, dag
+using GradedArrays: GradedUnitRanges, dag
 using IsApprox: Approx, IsApprox
 using ITensors:
   ITensors,
@@ -714,7 +714,7 @@ end
 # TODO: change kwarg from `set_limits` to `preserve_ortho`
 function Base.map!(f::Function, M::AbstractMPS; set_limits::Bool=true)
   for i in eachindex(M)
-    M[i, set_limits=set_limits] = f(M[i])
+    M[i, set_limits = set_limits] = f(M[i])
   end
   return M
 end
@@ -1328,7 +1328,7 @@ of the orthogonality center to avoid numerical overflow in the case of diverging
 See also [`normalize!`](@ref), [`norm`](@ref), [`lognorm`](@ref).
 """
 function LinearAlgebra.normalize(M::AbstractMPS; (lognorm!)=[])
-  return normalize!(deepcopy_ortho_center(M); (lognorm!)=lognorm!)
+  return normalize!(deepcopy_ortho_center(M); (lognorm!)=(lognorm!))
 end
 
 """
@@ -2014,7 +2014,7 @@ function swapbondsites(ψ::AbstractMPS, b::Integer; ortho="right", kwargs...)
   elseif rightlim(ψ) > b + 2
     ψ = orthogonalize(ψ, b + 1)
   end
-  ψ[b:(b + 1), orthocenter=orthocenter, perm=[2, 1], kwargs...] = ψ[b] * ψ[b + 1]
+  ψ[b:(b + 1), orthocenter = orthocenter, perm = [2, 1], kwargs...] = ψ[b] * ψ[b + 1]
   return ψ
 end
 
@@ -2147,15 +2147,15 @@ function apply(A::ITensor, B::ITensor; apply_dag::Bool=false)
       return i
     end
     if apply_dag
-      AB′ = prime(AB; inds=!danglings_inds)
-      Adag = swapprime(dag(A), 0 => 1; inds=!danglings_inds)
-      return mapprime(AB′ * Adag, 2 => 1; inds=!danglings_inds)
+      AB′ = prime(AB; inds=(!danglings_inds))
+      Adag = swapprime(dag(A), 0 => 1; inds=(!danglings_inds))
+      return mapprime(AB′ * Adag, 2 => 1; inds=(!danglings_inds))
     end
     return AB
   elseif isempty(common_paired_indsA) && !isempty(common_paired_indsB)
     # vector-matrix product
     apply_dag && error("apply_dag not supported for matrix-vector product")
-    A′ = prime(A; inds=!danglings_inds)
+    A′ = prime(A; inds=(!danglings_inds))
     return A′ * B
   elseif !isempty(common_paired_indsA) && isempty(common_paired_indsB)
     # matrix-vector product

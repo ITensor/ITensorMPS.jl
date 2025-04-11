@@ -1,5 +1,5 @@
 using Adapt: adapt
-using GradedUnitRanges: dual
+using GradedArrays: dual
 using ITensors: hasqns
 using LinearAlgebra: qr
 using QuantumOperatorDefinitions: QuantumOperatorDefinitions, state

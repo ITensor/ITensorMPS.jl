@@ -1335,7 +1335,7 @@ end
     ψ = orthogonalize(ψ0, 2)
     A = prod(ITensorMPS.data(ψ)[2:(N - 1)])
     randn!(A)
-    ψ[2:(N - 1), orthocenter=3] = A
+    ψ[2:(N - 1), orthocenter = 3] = A
     @test prod(ψ) ≈ ψ[1] * A * ψ[N]
     @test maxlinkdim(ψ) == 4
     @test ITensorMPS.orthocenter(ψ) == 3

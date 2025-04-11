@@ -1,4 +1,4 @@
-using GradedUnitRanges: dag
+using GradedArrays: dag
 
 mutable struct ProjMPS
   lpos::Int
