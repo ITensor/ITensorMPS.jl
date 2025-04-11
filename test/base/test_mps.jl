@@ -1425,6 +1425,18 @@ end
     end
   end
 
+  @testset "movesites tags" begin
+    N = 4
+    s0 = siteinds("S=1/2", N)
+    ψ0 = random_mps(s0; linkdims=1)
+    for perm in permutations(1:N)
+      s = s0[perm]
+      ns′ = [findfirst(==(i), s0) for i in s]
+      ψ = movesites(ψ0, 1:N .=> ns′; cutoff=1e-15)
+      @test ITensorMPS.hasdefaultlinktags(ψ)
+    end
+  end
+
   @testset "product(::Vector{ITensor}, ::MPS)" begin
     N = 6
     s = siteinds("Qubit", N)
