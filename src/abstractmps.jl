@@ -694,7 +694,7 @@ end
 # TODO: change kwarg from `set_limits` to `preserve_ortho`
 function map!(f::Function, M::AbstractMPS; set_limits::Bool=true)
   for i in eachindex(M)
-    M[i, set_limits=set_limits] = f(M[i])
+    M[i, set_limits = set_limits] = f(M[i])
   end
   return M
 end
@@ -1306,7 +1306,7 @@ of the orthogonality center to avoid numerical overflow in the case of diverging
 See also [`normalize!`](@ref), [`norm`](@ref), [`lognorm`](@ref).
 """
 function normalize(M::AbstractMPS; (lognorm!)=[])
-  return normalize!(deepcopy_ortho_center(M); (lognorm!)=lognorm!)
+  return normalize!(deepcopy_ortho_center(M); (lognorm!)=(lognorm!))
 end
 
 """
@@ -2001,7 +2001,7 @@ function swapbondsites(ψ::AbstractMPS, b::Integer; ortho="right", kwargs...)
   elseif rightlim(ψ) > b + 2
     ψ = orthogonalize(ψ, b + 1)
   end
-  ψ[b:(b + 1), orthocenter=orthocenter, perm=[2, 1], kwargs...] = ψ[b] * ψ[b + 1]
+  ψ[b:(b + 1), orthocenter = orthocenter, perm = [2, 1], kwargs...] = ψ[b] * ψ[b + 1]
   return ψ
 end
 

@@ -104,7 +104,7 @@ function alternating_update(
       flush(stdout)
     end
     isdone = checkdone(;
-      state, sweep, outputlevel, observer=observer!, sweep_observer=sweep_observer!
+      state, sweep, outputlevel, observer=(observer!), sweep_observer=(sweep_observer!)
     )
     isdone && break
   end

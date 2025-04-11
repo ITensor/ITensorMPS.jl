@@ -337,6 +337,7 @@ test_combos = [(make_heisenberg_opsum, "S=1/2"), (make_hubbard_opsum, "Electron"
 
 @testset "QR/QL MPO tensors with complex block structures, H=$(test_combo[1])" for test_combo in
                                                                                    test_combos
+
   N, NNN = 10, 7 #10 lattice site, up 7th neight interactions
   sites = siteinds(test_combo[2], N; conserve_qns=true)
   H = test_combo[1](sites, NNN)
