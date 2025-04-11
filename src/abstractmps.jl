@@ -1925,7 +1925,7 @@ function setindex!(
   ## end
 
   # use the first link index if present, otherwise use the default tag
-  linktags = TagSet[
+  linktags = [
     (b=linkind(ψ, i); isnothing(b) ? defaultlinkindtags(i) : tags(b)) for
     i in firstsite:(lastsite - 1)
   ]
@@ -1933,7 +1933,7 @@ function setindex!(
   ψA = MPST(
     A,
     sites;
-    leftinds=lind,
+    leftinds=linds,
     orthocenter=orthocenter - first(r) + 1,
     tags=linktags,
     kwargs...,
