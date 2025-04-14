@@ -1,4 +1,5 @@
-using ITensors: ITensors, permute
+using ITensors: ITensors
+using VectorInterface: scalartype
 
 function _extend_sweeps_param(param, nsweeps)
   if param isa Number
@@ -39,7 +40,7 @@ function alternating_update(
   normalize=default_normalize(),
   maxdim=default_maxdim(),
   mindim=default_mindim(),
-  cutoff=default_cutoff(ITensors.scalartype(init)),
+  cutoff=default_cutoff(scalartype(init)),
   noise=default_noise(),
 )
   reduced_operator = ITensorMPS.reduced_operator(operator)

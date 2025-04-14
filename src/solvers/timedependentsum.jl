@@ -1,4 +1,6 @@
-using ITensors: ITensor, inds, permute
+using ITensors: ITensor, inds
+using NamedDimsArrays: aligndims
+using QuantumOperatorAlgebra: QuantumOperatorAlgebra
 
 # Represents a time-dependent sum of terms:
 #
@@ -10,7 +12,7 @@ struct TimeDependentSum{Coefficients,Terms}
 end
 
 coefficients(expr::TimeDependentSum) = expr.coefficients
-terms(expr::TimeDependentSum) = expr.terms
+QuantumOperatorAlgebra.terms(expr::TimeDependentSum) = expr.terms
 function Base.copy(expr::TimeDependentSum)
   return TimeDependentSum(coefficients(expr), copy.(terms(expr)))
 end
@@ -51,7 +53,7 @@ struct ScaledSum{Coefficients,Terms}
 end
 
 coefficients(expr::ScaledSum) = expr.coefficients
-terms(expr::ScaledSum) = expr.terms
+QuantumOperatorAlgebra.terms(expr::ScaledSum) = expr.terms
 
 # Apply the scaled sum of terms:
 #
@@ -65,4 +67,4 @@ function scaledsum_apply(expr, x)
   end
 end
 (expr::ScaledSum)(x) = scaledsum_apply(expr, x)
-(expr::ScaledSum)(x::ITensor) = permute(scaledsum_apply(expr, x), inds(x))
+(expr::ScaledSum)(x::ITensor) = aligndims(scaledsum_apply(expr, x), inds(x))
