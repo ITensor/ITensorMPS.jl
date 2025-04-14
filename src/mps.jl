@@ -238,7 +238,8 @@ function replacebond!(
     sbp1 = siteind(M, b + 1)
     indsMb = replaceind(indsMb, sb, sbp1)
   end
-  L, R, spec = factorize(
+  indsMb = indsMb ∩ inds(phi)
+  L, R = factorize(
     phi,
     indsMb;
     mindim,
@@ -268,7 +269,7 @@ function replacebond!(
       "In replacebond!, got ortho = $ortho, only currently supports `left` and `right`."
     )
   end
-  return spec
+  return nothing
 end
 
 """

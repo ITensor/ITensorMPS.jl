@@ -2,6 +2,23 @@ using ITensors, ITensorMPS
 using Printf
 using Random
 
+using Adapt: adapt
+using JLArrays: JLArray
+using Metal: MtlArray
+using SerializedArrays: SerializedArray
+
+dev = adapt(SerializedArray)
+
+using ConstructionBase: constructorof
+using GPUArraysCore: AbstractGPUArray
+using TensorAlgebra: TensorAlgebra, factorize
+function TensorAlgebra.factorize(
+  a::AbstractGPUArray, labels, codomain_labels, domain_labels; kwargs...
+)
+  x, y = factorize(Array(a), labels, codomain_labels, domain_labels; kwargs...)
+  return constructorof(typeof(a)).((x, y))
+end
+
 function heisenberg(N)
   os = OpSum()
   for j in 1:(N - 1)
@@ -25,10 +42,10 @@ os = heisenberg(N)
 
 # Input operator terms which define a Hamiltonian
 # Convert these terms to an MPO tensor network
-H = MPO(os, sites)
+H = dev(MPO(os, sites))
 
 # Create an initial random matrix product state
-psi0 = random_mps(sites; maxdim=10)
+psi0 = dev(random_mps(sites; maxdim=10))
 # psi0 = random_mps(j -> isodd(j) ? "↑" : "↓", sites; maxdim=10)
 # psi0 = MPS(j -> isodd(j) ? "↑" : "↓", sites)
 

@@ -295,7 +295,7 @@ function dmrg(
           which_decomp,
           svd_alg,
         )
-        maxtruncerr = max(maxtruncerr, spec.truncerr)
+        # maxtruncerr = max(maxtruncerr, spec.truncerr)
 
         ## TODO: Add back `@debug_check`, `checkflux`.
         ## @debug_check begin
