@@ -1,8 +1,12 @@
 using Adapt: adapt
+using BackendSelection: @Algorithm_str, Algorithm
+using DiagonalArrays: δ
+using GradedArrays: dag
 using LinearAlgebra: dot
-using Random: Random
-using ITensors.Ops: OpSum
-using ITensors.SiteTypes: SiteTypes, siteind, siteinds
+# TODO: Add this back?
+# using ITensors: outer
+using QuantumOperatorAlgebra: OpSum
+using Random: Random, AbstractRNG
 
 """
     MPO
@@ -42,7 +46,7 @@ function MPO(::Type{ElT}, sites::Vector{<:Index}) where {ElT<:Number}
     return MPO(v)
   end
   space_ii = all(hasqns, sites) ? [QN() => 1] : 1
-  l = [Index(space_ii, "Link,l=$ii") for ii in 1:(N - 1)]
+  l = [settag(Index(space_ii), "l", "$ii") for ii in 1:(N - 1)]
   for ii in eachindex(sites)
     s = sites[ii]
     if ii == 1
@@ -146,6 +150,8 @@ function outer_mps_mps_deprecation_warning()
   return "Calling `outer(ψ::MPS, ϕ::MPS)` for MPS `ψ` and `ϕ` with shared indices is deprecated. Currently, we automatically prime `ψ` to make sure the site indices don't clash, but that will no longer be the case in ITensors v0.4. To upgrade your code, call `outer(ψ', ϕ)`. Although the new interface seems less convenient, it will allow `outer` to accept more general outer products going forward, such as outer products where some indices are shared (a batched outer product) or outer products of MPS between site indices that aren't just related by a single prime level."
 end
 
+function outer end
+
 function deprecate_make_inds_unmatch(::typeof(outer), ψ::MPS, ϕ::MPS; kw...)
   if hassameinds(siteinds, ψ, ϕ)
     ITensors.warn_once(outer_mps_mps_deprecation_warning(), :outer_mps_mps)
@@ -241,7 +247,7 @@ end
 Get the first site Index of the MPO found, by
 default with prime level 0.
 """
-SiteTypes.siteind(M::MPO, j::Int; kwargs...) = siteind(first, M, j; plev=0, kwargs...)
+siteind(M::MPO, j::Int; kwargs...) = siteind(first, M, j; plev=0, kwargs...)
 
 # TODO: make this return the site indices that would have
 # been used to create the MPO? I.e.:
@@ -251,9 +257,9 @@ SiteTypes.siteind(M::MPO, j::Int; kwargs...) = siteind(first, M, j; plev=0, kwar
 
 Get a Vector of IndexSets of all the site indices of M.
 """
-SiteTypes.siteinds(M::MPO; kwargs...) = siteinds(all, M; kwargs...)
+siteinds(M::MPO; kwargs...) = siteinds(all, M; kwargs...)
 
-function SiteTypes.siteinds(Mψ::Tuple{MPO,MPS}, n::Int; kwargs...)
+function siteinds(Mψ::Tuple{MPO,MPS}, n::Int; kwargs...)
   return siteinds(uniqueinds, Mψ[1], Mψ[2], n; kwargs...)
 end
 
@@ -264,7 +270,7 @@ function nsites(Mψ::Tuple{MPO,MPS})
   return N
 end
 
-function SiteTypes.siteinds(Mψ::Tuple{MPO,MPS}; kwargs...)
+function siteinds(Mψ::Tuple{MPO,MPS}; kwargs...)
   return [siteinds(Mψ, n; kwargs...) for n in 1:nsites(Mψ)]
 end
 
@@ -282,7 +288,7 @@ function hassameinds(::typeof(siteinds), ψ::MPS, Hϕ::Tuple{MPO,MPS})
   N = length(ψ)
   @assert N == length(Hϕ[1]) == length(Hϕ[1])
   for n in 1:N
-    !hassameinds(siteinds(Hϕ, n), siteinds(ψ, n)) && return false
+    !issetequal(siteinds(Hϕ, n), siteinds(ψ, n)) && return false
   end
   return true
 end
@@ -449,9 +455,10 @@ Same as [`dot`](@ref).
 """
 inner(y::MPS, A::MPO, x::MPS; kwargs...) = dot(y, A, x; kwargs...)
 
-function inner(y::MPS, Ax::Apply{Tuple{MPO,MPS}})
-  return inner(y', Ax.args[1], Ax.args[2])
-end
+## TODO: Add this back?
+## function inner(y::MPS, Ax::Apply{Tuple{MPO,MPS}})
+##   return inner(y', Ax.args[1], Ax.args[2])
+## end
 
 """
     loginner(y::MPS, A::MPO, x::MPS)
@@ -540,7 +547,7 @@ function logdot(M1::MPO, M2::MPO; make_inds_match::Bool=false, kwargs...)
   return _log_or_not_dot(M1, M2, true; make_inds_match=make_inds_match)
 end
 
-function LinearAlgebra.tr(M::MPO; plev::Pair{Int,Int}=0 => 1, tags::Pair=ts"" => ts"")
+function LinearAlgebra.tr(M::MPO; plev::Pair{Int,Int}=0 => 1, tags::Pair="" => "")
   N = length(M)
   #
   # TODO: choose whether to contract or trace
@@ -551,10 +558,10 @@ function LinearAlgebra.tr(M::MPO; plev::Pair{Int,Int}=0 => 1, tags::Pair=ts"" =>
   #
   # So tracing first is better if d > √χ.
   #
-  L = tr(M[1]; plev=plev, tags=tags)
+  L = tr(M[1]; plev, tags)
   for j in 2:N
     L *= M[j]
-    L = tr(L; plev=plev, tags=tags)
+    L = tr(L; plev, tags)
   end
   return L
 end
@@ -608,13 +615,14 @@ end
 
 (A::MPO)(ψ::MPS; kwargs...) = apply(A, ψ; kwargs...)
 
-function Apply(A::MPO, ψ::MPS; kwargs...)
-  return ITensors.LazyApply.Applied(apply, (A, ψ), NamedTuple(kwargs))
-end
+## TODO: Decide what to do about this.
+## function Apply(A::MPO, ψ::MPS; kwargs...)
+##   return ITensors.LazyApply.Applied(apply, (A, ψ), NamedTuple(kwargs))
+## end
 
 function ITensors.contract(A::MPO, ψ::MPS; alg=nothing, method=alg, kwargs...)
   # TODO: Delete `method` since it is deprecated.
-  alg = NDTensors.replace_nothing(method, "densitymatrix")
+  alg = replace_nothing(method, "densitymatrix")
 
   # Keyword argument deprecations
   # TODO: Delete these.
