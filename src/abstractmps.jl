@@ -1,5 +1,5 @@
 using BackendSelection: @Algorithm_str, Algorithm
-using GradedArrays: GradedUnitRanges, dag
+using GradedArrays: GradedArrays, dag
 using IsApprox: Approx, IsApprox
 using ITensors:
   ITensors,
@@ -725,7 +725,7 @@ function Base.map(f::Function, M::AbstractMPS; set_limits::Bool=true)
 end
 
 for (fname, fname!) in [
-  (:(GradedUnitRanges.dag), :(dag!)),
+  (:(GradedArrays.dag), :(dag!)),
   (:(ITensors.prime), :(prime!)),
   (:(ITensors.setprime), :(setprime!)),
   (:(ITensors.noprime), :(noprime!)),

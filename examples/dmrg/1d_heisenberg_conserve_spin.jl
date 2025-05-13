@@ -1,8 +1,8 @@
 using BlockSparseArrays
+using GradedArrays
 using ITensors, ITensorMPS
 using Printf
 using Random
-using SymmetrySectors
 
 function heisenberg(N)
   os = OpSum()
