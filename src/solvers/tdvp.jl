@@ -1,4 +1,4 @@
-using ITensors: Algorithm, @Algorithm_str
+using BackendSelection: @Algorithm_str, Algorithm
 using KrylovKit: exponentiate
 
 function exponentiate_updater(operator, init; internal_kwargs, kwargs...)
