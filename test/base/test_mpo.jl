@@ -51,7 +51,7 @@ end
   @test hasind(P[1], prime(sites[1]))
   # test constructor from Vector{ITensor}
   K = random_mpo(sites)
-  @test ITensors.data(MPO(copy(ITensors.data(K)))) == ITensors.data(K)
+  @test ITensorMPS.data(MPO(copy(ITensorMPS.data(K)))) == ITensorMPS.data(K)
 
   @testset "orthogonalize!" begin
     phi = random_mps(sites)
@@ -546,7 +546,7 @@ end
     ψ0 = random_mpo(s)
 
     ψ = orthogonalize(ψ0, 2)
-    A = prod(ITensors.data(ψ)[2:(N - 1)])
+    A = prod(ITensorMPS.data(ψ)[2:(N - 1)])
     randn!(A)
     ϕ = MPO(A, s[2:(N - 1)]; orthocenter=1)
     ψ[2:(N - 1)] = ϕ
@@ -555,12 +555,12 @@ end
     @test ITensorMPS.orthocenter(ψ) == 2
 
     ψ = orthogonalize(ψ0, 1)
-    A = prod(ITensors.data(ψ)[2:(N - 1)])
+    A = prod(ITensorMPS.data(ψ)[2:(N - 1)])
     randn!(A)
     @test_throws AssertionError ψ[2:(N - 1)] = A
 
     ψ = orthogonalize(ψ0, 2)
-    A = prod(ITensors.data(ψ)[2:(N - 1)])
+    A = prod(ITensorMPS.data(ψ)[2:(N - 1)])
     randn!(A)
     ψ[2:(N - 1), orthocenter = 3] = A
     @test prod(ψ) ≈ ψ[1] * A * ψ[N]

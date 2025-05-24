@@ -78,7 +78,7 @@ function convert_leaf_eltype(eltype::Type, ψ::AbstractMPS)
 end
 
 """
-    ITensors.data(::MPS/MPO)
+    ITensorMPS.data(::MPS/MPO)
 
 Returns a view of the Vector storage of an MPS/MPO.
 
@@ -127,7 +127,7 @@ function ortho_lims(ψ::AbstractMPS)
 end
 
 """
-    ITensors.set_ortho_lims!(::MPS/MPO, r::UnitRange{Int})
+    ITensorMPS.set_ortho_lims!(::MPS/MPO, r::UnitRange{Int})
 
 Sets the range of sites of the orthogonality center of the MPS/MPO.
 
@@ -378,14 +378,14 @@ end
 #
 
 """
-    ITensors.defaultlinktags(b::Integer)
+    ITensorMPS.defaultlinktags(b::Integer)
 
 Default link tags for link index connecting sites `b` to `b+1`.
 """
 defaultlinktags(b::Integer) = TagSet("Link,l=$b")
 
 """
-    ITensors.hasdefaultlinktags(ψ::MPS/MPO)
+    ITensorMPS.hasdefaultlinktags(ψ::MPS/MPO)
 
 Return true if the MPS/MPO has default link tags.
 """
@@ -400,21 +400,21 @@ function hasdefaultlinktags(ψ::AbstractMPS)
 end
 
 """
-    ITensors.eachlinkinds(ψ::MPS/MPO)
+    ITensorMPS.eachlinkinds(ψ::MPS/MPO)
 
 Return an iterator over each of the sets of link indices of the MPS/MPO.
 """
 eachlinkinds(ψ::AbstractMPS) = (linkinds(ψ, n) for n in eachindex(ψ)[1:(end - 1)])
 
 """
-    ITensors.eachsiteinds(ψ::MPS/MPO)
+    ITensorMPS.eachsiteinds(ψ::MPS/MPO)
 
 Return an iterator over each of the sets of site indices of the MPS/MPO.
 """
 eachsiteinds(ψ::AbstractMPS) = (siteinds(ψ, n) for n in eachindex(ψ))
 
 """
-    ITensors.hasnolinkinds(ψ::MPS/MPO)
+    ITensorMPS.hasnolinkinds(ψ::MPS/MPO)
 
 Return true if the MPS/MPO has no link indices.
 """
@@ -428,7 +428,7 @@ function hasnolinkinds(ψ::AbstractMPS)
 end
 
 """
-    ITensors.insertlinkinds(ψ::MPS/MPO)
+    ITensorMPS.insertlinkinds(ψ::MPS/MPO)
 
 If any link indices are missing, insert default ones.
 """
@@ -1827,7 +1827,7 @@ from decomposing `A` into an MPS or MPO.
 
 The MPS or MPO must be orthogonalized such that
 ```
-firstsite ≤ ITensors.orthocenter(ψ) ≤ lastsite
+firstsite ≤ ITensorMPS.orthocenter(ψ) ≤ lastsite
 ```
 
 Choose the new orthogonality center with `orthocenter`, which
