@@ -89,7 +89,7 @@ Random.seed!(1234)
     @test norm(d_args[1] - 2 * args[1]) ≈ 0 atol = 1e-13
 
     ψ = random_mps(ComplexF64, s)
-    ψtensors = ITensors.data(ψ)
+    ψtensors = ITensorMPS.data(ψ)
     ϕ = random_mps(ComplexF64, s)
     f = function (x)
       ψ̃tensors = [x^j * ψtensors[j] for j in 1:length(ψtensors)]

@@ -150,7 +150,7 @@ Optional keyword arguments:
 
 [^krylovkit]:
 
-    The `dmrg` function in `ITensors.jl` currently uses the `eigsolve`
+    The `dmrg` function in `ITensorMPS.jl` currently uses the `eigsolve`
     function in `KrylovKit.jl` as the internal the eigensolver.
     See the `KrylovKit.jl` documention on the `eigsolve` function for more details:
     [KrylovKit.eigsolve](https://jutho.github.io/KrylovKit.jl/stable/man/eig/#KrylovKit.eigsolve).

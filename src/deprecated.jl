@@ -12,7 +12,7 @@
 @deprecate multmpo(args...; kwargs...) contract(args...; kwargs...)
 @deprecate set_leftlim!(args...; kwargs...) ITensors.setleftlim!(args...; kwargs...)
 @deprecate set_rightlim!(args...; kwargs...) ITensors.setrightlim!(args...; kwargs...)
-@deprecate tensors(args...; kwargs...) ITensors.data(args...; kwargs...)
+@deprecate tensors(args...; kwargs...) ITensorMPS.data(args...; kwargs...)
 @deprecate primelinks!(args...; kwargs...) ITensors.prime_linkinds!(args...; kwargs...)
 @deprecate simlinks!(args...; kwargs...) ITensors.sim_linkinds!(args...; kwargs...)
 @deprecate mul(A::AbstractMPS, B::AbstractMPS; kwargs...) contract(A, B; kwargs...)

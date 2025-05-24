@@ -53,8 +53,8 @@ include(joinpath(@__DIR__, "utils", "circuit.jl"))
     Random.seed!(1234)
     ψ₀mps = random_mps(s, n -> isodd(n) ? "↑" : "↓"; linkdims=χ)
 
-    H = ITensors.data(Hmpo)
-    ψ₀ = ITensors.data(ψ₀mps)
+    H = ITensorMPS.data(Hmpo)
+    ψ₀ = ITensorMPS.data(ψ₀mps)
     # The Rayleigh quotient to minimize
     function E(H::Vector{ITensor}, ψ::Vector{ITensor})
       N = length(ψ)

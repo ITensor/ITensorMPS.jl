@@ -84,8 +84,8 @@ end
 ```
 
 (Recall that in order to properly overload the default behavior,
-the `checkdone!` method has to be imported from the ITensors module
-or preceded with `ITensors.`)
+the `checkdone!` method has to be imported from the ITensorMPS module
+or preceded with `ITensorsMPS.`)
 
 
 ### Overloading the `measure!` method

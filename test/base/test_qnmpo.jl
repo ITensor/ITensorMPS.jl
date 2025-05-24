@@ -52,7 +52,7 @@ end
   L[N] = random_itensor(QN(), dag(sites[N]), sites[N]', dag(links[N - 1]))
 
   @test length(K) == N
-  @test ITensors.data(MPO(copy(ITensors.data(K)))) == ITensors.data(K)
+  @test ITensorMPS.data(MPO(copy(ITensorMPS.data(K)))) == ITensorMPS.data(K)
 
   phi = MPS(N)
   phi[1] = random_itensor(QN(-1), sites[1], links[1])
