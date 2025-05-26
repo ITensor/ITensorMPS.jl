@@ -1,3 +1,6 @@
+using FillArrays: Ones
+using ITensors: ITensor
+using SerializedElementArrays: SerializedElementVector
 
 """
 A DiskProjMPO computes and stores the projection of an
@@ -26,10 +29,10 @@ mutable struct DiskProjMPO <: AbstractProjMPO
   rpos::Int
   nsite::Int
   H::MPO
-  LR::DiskVector{ITensor}
-  Lcache::Union{ITensor,OneITensor}
+  LR::SerializedElementVector{ITensor}
+  Lcache::ITensor
   lposcache::Union{Int,Nothing}
-  Rcache::Union{ITensor,OneITensor}
+  Rcache::ITensor
   rposcache::Union{Int,Nothing}
 end
 
@@ -59,9 +62,9 @@ function DiskProjMPO(H::MPO)
     2,
     H,
     disk(Vector{ITensor}(undef, length(H))),
-    OneITensor,
+    ITensor,
     nothing,
-    OneITensor,
+    ITensor,
     nothing,
   )
 end
@@ -84,8 +87,8 @@ disk(pm::DiskProjMPO; kwargs...) = pm
 # Special overload of lproj which uses the cached
 # version of the left projected MPO, and if the
 # cache doesn't exist it loads it from disk.
-function lproj(P::DiskProjMPO)::Union{ITensor,OneITensor}
-  (P.lpos <= 0) && return OneITensor()
+function lproj(P::DiskProjMPO)
+  (P.lpos <= 0) && return ITensor(Ones{Bool}())
   if (P.lpos ≠ P.lposcache) || (P.lpos == 1)
     # Need to update the cache
     P.Lcache = P.LR[P.lpos]
@@ -97,8 +100,8 @@ end
 # Special overload of rproj which uses the cached
 # version of the right projected MPO, and if the
 # cache doesn't exist it loads it from disk.
-function rproj(P::DiskProjMPO)::Union{ITensor,OneITensor}
-  (P.rpos >= length(P) + 1) && return OneITensor()
+function rproj(P::DiskProjMPO)
+  (P.rpos >= length(P) + 1) && return ITensor(Ones{Bool}())
   if (P.rpos ≠ P.rposcache) || (P.rpos == length(P))
     # Need to update the cache
     P.Rcache = P.LR[P.rpos]
