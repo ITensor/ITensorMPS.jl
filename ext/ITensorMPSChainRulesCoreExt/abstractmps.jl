@@ -179,7 +179,7 @@ function ChainRulesCore.rrule(
   x::Union{MPS,MPO};
   set_limits::Bool=true,
 )
-  y_data, pullback_data = rrule_via_ad(config, map, f, ITensors.data(x))
+  y_data, pullback_data = rrule_via_ad(config, map, f, ITensorMPS.data(x))
   function map_pullback(ȳ)
     dmap, df, dx_data = pullback_data(ȳ)
     return dmap, df, MPS(dx_data)

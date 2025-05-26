@@ -30,9 +30,9 @@ J = 1.0
 h = 0.5
 
 # Loss function only works with `Vector{ITensor}`,
-# extract with `ITensors.data`.
-ψ0 = ITensors.data(random_mps(s; linkdims=10))
-H = ITensors.data(MPO(ising(n; J, h), s))
+# extract with `ITensorMPS.data`.
+ψ0 = ITensorMPS.data(random_mps(s; linkdims=10))
+H = ITensorMPS.data(MPO(ising(n; J, h), s))
 
 loss(ψ) = loss(H, ψ)
 
@@ -46,4 +46,4 @@ Edmrg, ψdmrg = dmrg(MPO(H), MPS(ψ0); nsweeps=10, cutoff=1e-8)
 
 @show loss(ψ0), norm(loss'(ψ0))
 @show loss(ψ), norm(loss'(ψ))
-@show loss(ITensors.data(ψdmrg)), norm(loss'(ITensors.data(ψdmrg)))
+@show loss(ITensorMPS.data(ψdmrg)), norm(loss'(ITensorMPS.data(ψdmrg)))
