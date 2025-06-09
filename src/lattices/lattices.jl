@@ -138,3 +138,116 @@ function triangular_lattice(Nx::Int, Ny::Int; yperiodic=false)::Lattice
   end
   return latt
 end
+
+"""
+Honeycomb_XC: if your 2D cylinder has a zigzag edge.
+Open boundaries, but can be made periodic in the y direction
+by specifying the keyword argument `yperiodic=true`.
+"""
+function Honeycomb_XC(Nx::Int, Ny::Int; kwargs...)::Lattice
+  mod(Ny, 4) == 0 ||
+    throw(ArgumentError("Ny must be a multiple of 4 for Honeycomb_XC lattice."))
+  yperiodic = get(kwargs, :yperiodic, false)
+  yperiodic = yperiodic && (Ny > 2) && (Ny % 2 == 0)
+  N = Nx * Ny
+  if (Ny % 2 == 0)
+    Nbond = N + (yperiodic ? 0 : -Nx) + (Nx - 1) * Ny / 2
+  end
+  if (Ny % 2 == 1)
+    if (Nx % 2 == 1)
+      Nbond = N + (yperiodic ? 0 : -Nx) + (2 * floor(Ny / 2) + 1) * (Nx + 1) / 2
+    end
+    if (Nx % 2 == 0)
+      Nbond =
+        N +
+        (yperiodic ? 0 : -Nx) +
+        (Nx / 2) * (floor(Ny / 2) + 1) +
+        (Nx / 2 - 1) * (floor(Ny / 2))
+    end
+  end
+  Nbond = floor(Int64, Nbond)
+  latt = Lattice(undef, Nbond)
+  b = 0
+
+  for n in 1:N
+    x = div(n - 1, Ny) + 1
+    y = mod(n - 1, Ny) + 1
+
+    if x < Nx
+      if ((x % 2 == 1) && (y % 2 == 1)) || ((x % 2 == 0) && (y % 2 == 0))
+        latt[b += 1] = LatticeBond(n, n + Ny, x, y, x + 1, y)
+      end
+    end
+
+    if Ny > 1
+      if y < Ny
+        if ((x % 2 == 0) && (y % 2 == 0)) || ((x % 2 == 1) && (y % 2 == 1))
+          latt[b += 1] = LatticeBond(n, n + 1, x, y, x, y + 1)
+        end
+        if ((x % 2 == 1) && (y % 2 == 0)) || ((x % 2 == 0) && (y % 2 == 1))
+          latt[b += 1] = LatticeBond(n, n + 1, x, y, x, y + 1)
+        end
+      end
+      if yperiodic && y == 1
+        if x % 2 == 1
+          latt[b += 1] = LatticeBond(n, n + Ny - 1, x, y, x, y + Ny - 1)
+        end
+        if x % 2 == 0
+          latt[b += 1] = LatticeBond(n, n + Ny - 1, x, y, x, y + Ny - 1)
+        end
+      end
+    end
+  end
+  return latt
+end
+
+"""
+Honeycomb_YC: if your cylinder has a armchair edge.
+Open boundaries, but can be made periodic in the y direction
+by specifying the keyword argument `yperiodic=true`.
+"""
+function Honeycomb_YC(Nx::Int, Ny::Int; kwargs...)::Lattice
+  mod(Ny, 4) == 0 ||
+    throw(ArgumentError("Ny must be a multiple of 4 for Honeycomb_YC lattice."))
+  Nx > 3 || throw(ArgumentError("Nx must be at least 4 for Honeycomb_YC lattice."))
+  yperiodic = get(kwargs, :yperiodic, false)
+  yperiodic = yperiodic && (Ny > 2) && (Ny % 2 == 0)
+  N = Nx * Ny
+  Nbond =
+    N - Ny +
+    ((Nx % 2 == 0) ? Nx * (Ny - 1) / 2 : (Nx - 1) * (Ny - 1) / 2 + floor(Nx / 2)) +
+    (yperiodic ? floor(Nx / 2) : 0)
+
+  Nbond = floor(Int64, Nbond)
+  latt = Lattice(undef, Nbond)
+  b = 0
+
+  for n in 1:N
+    x = div(n - 1, Ny) + 1
+    y = mod(n - 1, Ny) + 1
+
+    if x < Nx
+      if ((x % 2 == 1) && (y % 2 == 1)) || ((x % 2 == 0) && (y % 2 == 0))
+        latt[b += 1] = LatticeBond(n, n + Ny, x, y, x + 1, y)
+      end
+      if ((x % 2 == 0) && (y % 2 == 1)) || ((x % 2 == 1) && (y % 2 == 0))
+        latt[b += 1] = LatticeBond(n, n + Ny, x, y, x + 1, y)
+      end
+    end
+
+    if Ny > 1
+      if y < Ny
+        if ((x % 2 == 0) && (y % 2 == 0)) || ((x % 2 == 1) && (y % 2 == 1))
+          latt[b += 1] = LatticeBond(n, n + 1, x, y, x, y + 1)
+        end
+      end
+      if yperiodic && y == 1
+        if ((x % 2 == 0))
+          latt[b += 1] = LatticeBond(n, n + Ny - 1, x, y, x, y + Ny - 1)
+        end
+      end
+    end
+  end
+
+  return latt
+end
