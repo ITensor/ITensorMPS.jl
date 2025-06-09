@@ -209,7 +209,7 @@ by specifying the keyword argument `yperiodic=true`.
 function Honeycomb_YC(Nx::Int, Ny::Int; kwargs...)::Lattice
   mod(Ny, 4) == 0 ||
     throw(ArgumentError("Ny must be a multiple of 4 for Honeycomb_YC lattice."))
-  Nx < 4 || throw(ArgumentError("Nx must be at least 4 for Honeycomb_YC lattice."))
+  Nx > 3 || throw(ArgumentError("Nx must be at least 4 for Honeycomb_YC lattice."))
   yperiodic = get(kwargs, :yperiodic, false)
   yperiodic = yperiodic && (Ny > 2) && (Ny % 2 == 0)
   N = Nx * Ny

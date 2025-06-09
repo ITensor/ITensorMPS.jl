@@ -45,7 +45,7 @@ export
   triangular_lattice,
   Honeycomb_XC,
   Honeycomb_YC,
- 
+
   # solvers
   TimeDependentSum,
   dmrg_x,
