@@ -77,6 +77,7 @@ function sub_sweep_update(
   maxdim=default_maxdim(),
   mindim=default_mindim(),
   cutoff=default_cutoff(ITensors.scalartype(state)),
+  noise=default_noise(),
 )
   reduced_operator = copy(reduced_operator)
   state = copy(state)
@@ -116,6 +117,7 @@ function sub_sweep_update(
       time_step,
       normalize,
       direction,
+      noise,
       which_decomp,
       svd_alg,
       cutoff,
@@ -174,6 +176,7 @@ function region_update!(
   time_step,
   normalize,
   direction,
+  noise,
   which_decomp,
   svd_alg,
   cutoff,
@@ -194,6 +197,7 @@ function region_update!(
     time_step,
     normalize,
     direction,
+    noise,
     which_decomp,
     svd_alg,
     cutoff,
@@ -216,6 +220,7 @@ function region_update!(
   time_step,
   normalize,
   direction,
+  noise,
   which_decomp,
   svd_alg,
   cutoff,
@@ -260,6 +265,7 @@ function region_update!(
   time_step,
   normalize,
   direction,
+  noise,
   which_decomp,
   svd_alg,
   cutoff,
@@ -326,6 +332,7 @@ function region_update!(
   outputlevel,
   normalize,
   direction,
+  noise,
   which_decomp,
   svd_alg,
   cutoff,
@@ -350,6 +357,9 @@ function region_update!(
   spec = nothing
   ortho = isforward(direction) ? "left" : "right"
   drho = nothing
+  if noise > 0.0 && isforward(direction)
+    drho = noise * noiseterm(reduced_operator, reduced_state, ortho)
+  end
   spec = replacebond!(
     state,
     b,
@@ -380,6 +390,7 @@ function region_update!(
   outputlevel,
   normalize,
   direction,
+  noise,
   which_decomp,
   svd_alg,
   cutoff,
@@ -402,6 +413,9 @@ function region_update!(
   spec = nothing
   ortho = isforward(direction) ? "left" : "right"
   drho = nothing
+  if noise > 0.0 && isforward(direction)
+    drho = noise * noiseterm(reduced_operator, reduced_state, ortho)
+  end
   spec = replacebond!(
     state,
     b,
@@ -448,6 +462,7 @@ function region_!(
   time_step,
   normalize,
   direction,
+  noise,
   which_decomp,
   svd_alg,
   cutoff,
