@@ -80,8 +80,12 @@ function tdvp(
   nsteps=nsweeps,
   (step_observer!)=default_sweep_observer(),
   (sweep_observer!)=(step_observer!),
+  noise=nothing,
   kwargs...,
 )
+  if !isnothing(noise)
+    error("`noise` is not supported in `tdvp` right now.")
+  end
   time_step, nsteps = time_step_and_nsteps(t, time_step, nsteps)
   return alternating_update(
     operator,

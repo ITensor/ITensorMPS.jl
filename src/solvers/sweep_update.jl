@@ -414,7 +414,7 @@ function region_update!(
   ortho = isforward(direction) ? "left" : "right"
   drho = nothing
   if noise > 0.0 && isforward(direction)
-    drho = noise * noiseterm(reduced_operator, phi, ortho)
+    drho = noise * noiseterm(reduced_operator, reduced_state, ortho)
   end
   spec = replacebond!(
     state,

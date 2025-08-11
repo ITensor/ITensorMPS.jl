@@ -1,5 +1,32 @@
 using ITensors, Test, Random
-using ITensorMPS: dmrg, nsite, set_nsite!, siteinds, site_range
+using ITensorMPS:
+  DMRGObserver,
+  MPO,
+  MPS,
+  OpSum,
+  ProjMPO,
+  ProjMPOSum,
+  Sweeps,
+  add!,
+  cutoff!,
+  dmrg,
+  energies,
+  linkdim,
+  maxdim!,
+  measurements,
+  mindim!,
+  noise!,
+  nsite,
+  op,
+  orthogonalize!,
+  position!,
+  random_mps,
+  rproj,
+  set_nsite!,
+  siteind,
+  siteinds,
+  site_range,
+  truncerrors
 
 @testset "Basic DMRG" begin
   @testset "Spin-one Heisenberg" begin
