@@ -977,6 +977,9 @@ end
       @test inner(psi', MPO(a, s), psi) ≈ Cpm[i - ss + 1, j - ss + 1]
     end
 
+    # Test sites argument (also regression test for issue #105)
+    Cxz = correlation_matrix(psi, "X", "Z"; sites=2:2:6)
+
     # Electron case
     s = siteinds("Electron", 8)
     psi = random_mps(s; linkdims=m)
