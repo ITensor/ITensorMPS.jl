@@ -13,14 +13,14 @@ CX = ops(s, [("CX", n, m) for n in 1:N, m in 1:N])
 
 # Change to the state |1010...⟩
 gates = [X[n] for n in 1:2:N]
-ψ = apply(gates, ψ0; cutoff=1e-15)
+ψ = apply(gates, ψ0; cutoff = 1.0e-15)
 @assert inner(ψ, MPS(s, n -> isodd(n) ? "1" : "0")) ≈ 1
 
 # Change to the state |10111011...⟩
 append!(gates, [CX[n, n + 3] for n in 1:4:(N - 3)])
-ψ = apply(gates, ψ0; cutoff=1e-15)
+ψ = apply(gates, ψ0; cutoff = 1.0e-15)
 @assert inner(ψ, MPS(s, ["1", "0", "1", "1", "1", "0", "1", "1", "1", "0"])) ≈ 1
 
 # Change the state |10111011...⟩ to the (|+⟩, |-⟩) basis
 append!(gates, [H[n] for n in 1:N])
-ψ = apply(gates, ψ0; cutoff=1e-15)
+ψ = apply(gates, ψ0; cutoff = 1.0e-15)

@@ -25,20 +25,20 @@ Base.size(m::AbstractMPS) = size(data(m))
 Base.ndims(m::AbstractMPS) = ndims(data(m))
 
 function promote_itensor_eltype(m::Vector{ITensor})
-  T = isassigned(m, 1) ? eltype(m[1]) : Number
-  for n in 2:length(m)
-    Tn = isassigned(m, n) ? eltype(m[n]) : Number
-    T = promote_type(T, Tn)
-  end
-  return T
+    T = isassigned(m, 1) ? eltype(m[1]) : Number
+    for n in 2:length(m)
+        Tn = isassigned(m, n) ? eltype(m[n]) : Number
+        T = promote_type(T, Tn)
+    end
+    return T
 end
 
 function LinearAlgebra.promote_leaf_eltypes(m::Vector{ITensor})
-  return promote_itensor_eltype(m)
+    return promote_itensor_eltype(m)
 end
 
 function LinearAlgebra.promote_leaf_eltypes(m::AbstractMPS)
-  return LinearAlgebra.promote_leaf_eltypes(data(m))
+    return LinearAlgebra.promote_leaf_eltypes(data(m))
 end
 
 """
@@ -74,7 +74,7 @@ Base.imag(ψ::AbstractMPS) = imag.(ψ)
 Base.conj(ψ::AbstractMPS) = conj.(ψ)
 
 function convert_leaf_eltype(eltype::Type, ψ::AbstractMPS)
-  return map(ψᵢ -> convert_leaf_eltype(eltype, ψᵢ), ψ; set_limits=false)
+    return map(ψᵢ -> convert_leaf_eltype(eltype, ψᵢ), ψ; set_limits = false)
 end
 
 """
@@ -94,11 +94,11 @@ leftlim(m::AbstractMPS) = m.llim
 rightlim(m::AbstractMPS) = m.rlim
 
 function setleftlim!(m::AbstractMPS, new_ll::Integer)
-  return m.llim = new_ll
+    return m.llim = new_ll
 end
 
 function setrightlim!(m::AbstractMPS, new_rl::Integer)
-  return m.rlim = new_rl
+    return m.rlim = new_rl
 end
 
 """
@@ -123,7 +123,7 @@ s = siteinds("S=½", 5)
 ```
 """
 function ortho_lims(ψ::AbstractMPS)
-  return (leftlim(ψ) + 1):(rightlim(ψ) - 1)
+    return (leftlim(ψ) + 1):(rightlim(ψ) - 1)
 end
 
 """
@@ -139,13 +139,13 @@ If you are modifying an MPS/MPO and want the orthogonality limits to be
 preserved, please see the `@preserve_ortho` macro.
 """
 function set_ortho_lims!(ψ::AbstractMPS, r::UnitRange{Int})
-  setleftlim!(ψ, first(r) - 1)
-  setrightlim!(ψ, last(r) + 1)
-  return ψ
+    setleftlim!(ψ, first(r) - 1)
+    setrightlim!(ψ, last(r) + 1)
+    return ψ
 end
 
 function set_ortho_lims(ψ::AbstractMPS, r::UnitRange{Int})
-  return set_ortho_lims!(copy(ψ), r)
+    return set_ortho_lims!(copy(ψ), r)
 end
 
 reset_ortho_lims!(ψ::AbstractMPS) = set_ortho_lims!(ψ, 1:length(ψ))
@@ -154,10 +154,10 @@ isortho(m::AbstractMPS) = leftlim(m) + 1 == rightlim(m) - 1
 
 # Could also define as `only(ortho_lims)`
 function orthocenter(m::AbstractMPS)
-  !isortho(m) && error(
-    "$(typeof(m)) has no well-defined orthogonality center, orthogonality center is on the range $(ortho_lims(m)).",
-  )
-  return leftlim(m) + 1
+    !isortho(m) && error(
+        "$(typeof(m)) has no well-defined orthogonality center, orthogonality center is on the range $(ortho_lims(m)).",
+    )
+    return leftlim(m) + 1
 end
 
 getindex(M::AbstractMPS, n) = getindex(data(M), n)
@@ -204,36 +204,36 @@ end
 ```
 """
 macro preserve_ortho(ψ, block)
-  quote
-    if $(esc(ψ)) isa AbstractMPS
-      local ortho_limsψ = ortho_lims($(esc(ψ)))
-    else
-      local ortho_limsψ = ortho_lims.($(esc(ψ)))
+    return quote
+        if $(esc(ψ)) isa AbstractMPS
+            local ortho_limsψ = ortho_lims($(esc(ψ)))
+        else
+            local ortho_limsψ = ortho_lims.($(esc(ψ)))
+        end
+        r = $(esc(block))
+        if $(esc(ψ)) isa AbstractMPS
+            set_ortho_lims!($(esc(ψ)), ortho_limsψ)
+        else
+            set_ortho_lims!.($(esc(ψ)), ortho_limsψ)
+        end
+        r
     end
-    r = $(esc(block))
-    if $(esc(ψ)) isa AbstractMPS
-      set_ortho_lims!($(esc(ψ)), ortho_limsψ)
-    else
-      set_ortho_lims!.($(esc(ψ)), ortho_limsψ)
-    end
-    r
-  end
 end
 
-function setindex!(M::AbstractMPS, T::ITensor, n::Integer; set_limits::Bool=true)
-  if set_limits
-    (n <= leftlim(M)) && setleftlim!(M, n - 1)
-    (n >= rightlim(M)) && setrightlim!(M, n + 1)
-  end
-  data(M)[n] = T
-  return M
+function setindex!(M::AbstractMPS, T::ITensor, n::Integer; set_limits::Bool = true)
+    if set_limits
+        (n <= leftlim(M)) && setleftlim!(M, n - 1)
+        (n >= rightlim(M)) && setrightlim!(M, n + 1)
+    end
+    data(M)[n] = T
+    return M
 end
 
-function setindex!(M::MPST, v::MPST, ::Colon) where {MPST<:AbstractMPS}
-  setleftlim!(M, leftlim(v))
-  setrightlim!(M, rightlim(v))
-  data(M)[:] = data(v)
-  return M
+function setindex!(M::MPST, v::MPST, ::Colon) where {MPST <: AbstractMPS}
+    setleftlim!(M, leftlim(v))
+    setrightlim!(M, rightlim(v))
+    data(M)[:] = data(v)
+    return M
 end
 
 setindex!(M::AbstractMPS, v::Vector{<:ITensor}, ::Colon) = setindex!(M, MPS(v), :)
@@ -349,9 +349,9 @@ MPS or MPO tensor on site j to site j+1.
 If there is no link Index, return `nothing`.
 """
 function linkind(M::AbstractMPS, j::Integer)
-  N = length(M)
-  (j ≥ length(M) || j < 1) && return nothing
-  return commonind(M[j], M[j + 1])
+    N = length(M)
+    (j ≥ length(M) || j < 1) && return nothing
+    return commonind(M[j], M[j + 1])
 end
 
 """
@@ -362,15 +362,15 @@ Get all of the link or bond Indices connecting the
 MPS or MPO tensor on site j to site j+1.
 """
 function linkinds(M::AbstractMPS, j::Integer)
-  N = length(M)
-  (j ≥ length(M) || j < 1) && return IndexSet()
-  return commoninds(M[j], M[j + 1])
+    N = length(M)
+    (j ≥ length(M) || j < 1) && return IndexSet()
+    return commoninds(M[j], M[j + 1])
 end
 
 linkinds(ψ::AbstractMPS) = [linkind(ψ, b) for b in 1:(length(ψ) - 1)]
 
 function linkinds(::typeof(all), ψ::AbstractMPS)
-  return IndexSet[linkinds(ψ, b) for b in 1:(length(ψ) - 1)]
+    return IndexSet[linkinds(ψ, b) for b in 1:(length(ψ) - 1)]
 end
 
 #
@@ -390,13 +390,13 @@ defaultlinktags(b::Integer) = TagSet("Link,l=$b")
 Return true if the MPS/MPO has default link tags.
 """
 function hasdefaultlinktags(ψ::AbstractMPS)
-  ls = linkinds(all, ψ)
-  for (b, lb) in enumerate(ls)
-    if length(lb) ≠ 1 || tags(only(lb)) ≠ defaultlinktags(b)
-      return false
+    ls = linkinds(all, ψ)
+    for (b, lb) in enumerate(ls)
+        if length(lb) ≠ 1 || tags(only(lb)) ≠ defaultlinktags(b)
+            return false
+        end
     end
-  end
-  return true
+    return true
 end
 
 """
@@ -419,12 +419,12 @@ eachsiteinds(ψ::AbstractMPS) = (siteinds(ψ, n) for n in eachindex(ψ))
 Return true if the MPS/MPO has no link indices.
 """
 function hasnolinkinds(ψ::AbstractMPS)
-  for l in eachlinkinds(ψ)
-    if length(l) > 0
-      return false
+    for l in eachlinkinds(ψ)
+        if length(l) > 0
+            return false
+        end
     end
-  end
-  return true
+    return true
 end
 
 """
@@ -433,19 +433,19 @@ end
 If any link indices are missing, insert default ones.
 """
 function insertlinkinds(ψ::AbstractMPS)
-  ψ = copy(ψ)
-  space = hasqns(ψ) ? [QN() => 1] : 1
-  linkind(b::Integer) = Index(space; tags=defaultlinktags(b))
-  for b in 1:(length(ψ) - 1)
-    if length(linkinds(ψ, b)) == 0
-      lb = ITensor(1, linkind(b))
-      @preserve_ortho ψ begin
-        ψ[b] = ψ[b] * lb
-        ψ[b + 1] = ψ[b + 1] * dag(lb)
-      end
+    ψ = copy(ψ)
+    space = hasqns(ψ) ? [QN() => 1] : 1
+    linkind(b::Integer) = Index(space; tags = defaultlinktags(b))
+    for b in 1:(length(ψ) - 1)
+        if length(linkinds(ψ, b)) == 0
+            lb = ITensor(1, linkind(b))
+            @preserve_ortho ψ begin
+                ψ[b] = ψ[b] * lb
+                ψ[b + 1] = ψ[b + 1] * dag(lb)
+            end
+        end
     end
-  end
-  return ψ
+    return ψ
 end
 
 """
@@ -457,9 +457,9 @@ tensor to use dense storage and remove any QN or other
 sparse structure information, if it is not dense already.
 """
 function dense(ψ::AbstractMPS)
-  ψ = copy(ψ)
-  @preserve_ortho ψ ψ .= dense.(ψ)
-  return ψ
+    ψ = copy(ψ)
+    @preserve_ortho ψ ψ .= dense.(ψ)
+    return ψ
 end
 
 """
@@ -469,17 +469,17 @@ end
 Get the site index (or indices) of MPO `A` that is unique to `A` (not shared with MPS/MPO `B`).
 """
 function SiteTypes.siteinds(
-  f::Union{typeof(uniqueinds),typeof(uniqueind)},
-  A::AbstractMPS,
-  B::AbstractMPS,
-  j::Integer;
-  kwargs...,
-)
-  N = length(A)
-  N == 1 && return f(A[j], B[j]; kwargs...)
-  j == 1 && return f(A[j], A[j + 1], B[j]; kwargs...)
-  j == N && return f(A[j], A[j - 1], B[j]; kwargs...)
-  return f(A[j], A[j - 1], A[j + 1], B[j]; kwargs...)
+        f::Union{typeof(uniqueinds), typeof(uniqueind)},
+        A::AbstractMPS,
+        B::AbstractMPS,
+        j::Integer;
+        kwargs...,
+    )
+    N = length(A)
+    N == 1 && return f(A[j], B[j]; kwargs...)
+    j == 1 && return f(A[j], A[j + 1], B[j]; kwargs...)
+    j == N && return f(A[j], A[j - 1], B[j]; kwargs...)
+    return f(A[j], A[j - 1], A[j + 1], B[j]; kwargs...)
 end
 
 """
@@ -489,9 +489,9 @@ end
 Get the site indices of MPO `A` that are unique to `A` (not shared with MPS/MPO `B`), as a `Vector{<:Index}`.
 """
 function SiteTypes.siteinds(
-  f::Union{typeof(uniqueinds),typeof(uniqueind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
-)
-  return [siteinds(f, A, B, j; kwargs...) for j in eachindex(A)]
+        f::Union{typeof(uniqueinds), typeof(uniqueind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
+    )
+    return [siteinds(f, A, B, j; kwargs...) for j in eachindex(A)]
 end
 
 """
@@ -501,13 +501,13 @@ end
 Get the site index (or indices) of  the `j`th MPO tensor of `A` that is shared with MPS/MPO `B`.
 """
 function SiteTypes.siteinds(
-  f::Union{typeof(commoninds),typeof(commonind)},
-  A::AbstractMPS,
-  B::AbstractMPS,
-  j::Integer;
-  kwargs...,
-)
-  return f(A[j], B[j]; kwargs...)
+        f::Union{typeof(commoninds), typeof(commonind)},
+        A::AbstractMPS,
+        B::AbstractMPS,
+        j::Integer;
+        kwargs...,
+    )
+    return f(A[j], B[j]; kwargs...)
 end
 
 """
@@ -517,9 +517,9 @@ end
 Get a vector of the site index (or indices) of MPO `A` that is shared with MPS/MPO `B`.
 """
 function SiteTypes.siteinds(
-  f::Union{typeof(commoninds),typeof(commonind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
-)
-  return [siteinds(f, A, B, j) for j in eachindex(A)]
+        f::Union{typeof(commoninds), typeof(commonind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
+    )
+    return [siteinds(f, A, B, j) for j in eachindex(A)]
 end
 
 keys(ψ::AbstractMPS) = keys(data(ψ))
@@ -623,16 +623,16 @@ You can choose different filters, like prime level
 and tags, with the `kwargs`.
 """
 function SiteTypes.siteind(::typeof(first), M::AbstractMPS, j::Integer; kwargs...)
-  N = length(M)
-  (N == 1) && return firstind(M[1]; kwargs...)
-  if j == 1
-    si = uniqueind(M[j], M[j + 1]; kwargs...)
-  elseif j == N
-    si = uniqueind(M[j], M[j - 1]; kwargs...)
-  else
-    si = uniqueind(M[j], M[j - 1], M[j + 1]; kwargs...)
-  end
-  return si
+    N = length(M)
+    (N == 1) && return firstind(M[1]; kwargs...)
+    if j == 1
+        si = uniqueind(M[j], M[j + 1]; kwargs...)
+    elseif j == N
+        si = uniqueind(M[j], M[j - 1]; kwargs...)
+    else
+        si = uniqueind(M[j], M[j - 1], M[j + 1]; kwargs...)
+    end
+    return si
 end
 
 """
@@ -645,313 +645,313 @@ Optionally filter prime tags and prime levels with
 keyword arguments like `plev` and `tags`.
 """
 function SiteTypes.siteinds(M::AbstractMPS, j::Integer; kwargs...)
-  N = length(M)
-  (N == 1) && return inds(M[1]; kwargs...)
-  if j == 1
-    si = uniqueinds(M[j], M[j + 1]; kwargs...)
-  elseif j == N
-    si = uniqueinds(M[j], M[j - 1]; kwargs...)
-  else
-    si = uniqueinds(M[j], M[j - 1], M[j + 1]; kwargs...)
-  end
-  return si
+    N = length(M)
+    (N == 1) && return inds(M[1]; kwargs...)
+    if j == 1
+        si = uniqueinds(M[j], M[j + 1]; kwargs...)
+    elseif j == N
+        si = uniqueinds(M[j], M[j - 1]; kwargs...)
+    else
+        si = uniqueinds(M[j], M[j - 1], M[j + 1]; kwargs...)
+    end
+    return si
 end
 
 function SiteTypes.siteinds(::typeof(all), ψ::AbstractMPS, n::Integer; kwargs...)
-  return siteinds(ψ, n; kwargs...)
+    return siteinds(ψ, n; kwargs...)
 end
 
 function SiteTypes.siteinds(::typeof(first), ψ::AbstractMPS; kwargs...)
-  return [siteind(first, ψ, j; kwargs...) for j in 1:length(ψ)]
+    return [siteind(first, ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
 function SiteTypes.siteinds(::typeof(only), ψ::AbstractMPS; kwargs...)
-  return [siteind(only, ψ, j; kwargs...) for j in 1:length(ψ)]
+    return [siteind(only, ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
 function SiteTypes.siteinds(::typeof(all), ψ::AbstractMPS; kwargs...)
-  return [siteinds(ψ, j; kwargs...) for j in 1:length(ψ)]
+    return [siteinds(ψ, j; kwargs...) for j in 1:length(ψ)]
 end
 
 function replaceinds!(::typeof(linkinds), M::AbstractMPS, l̃s::Vector{<:Index})
-  for i in eachindex(M)[1:(end - 1)]
-    l = linkind(M, i)
-    l̃ = l̃s[i]
-    if !isnothing(l)
-      @preserve_ortho M begin
-        M[i] = replaceinds(M[i], l => l̃)
-        M[i + 1] = replaceinds(M[i + 1], l => l̃)
-      end
+    for i in eachindex(M)[1:(end - 1)]
+        l = linkind(M, i)
+        l̃ = l̃s[i]
+        if !isnothing(l)
+            @preserve_ortho M begin
+                M[i] = replaceinds(M[i], l => l̃)
+                M[i + 1] = replaceinds(M[i + 1], l => l̃)
+            end
+        end
     end
-  end
-  return M
+    return M
 end
 
 function replaceinds(::typeof(linkinds), M::AbstractMPS, l̃s::Vector{<:Index})
-  return replaceinds!(linkinds, copy(M), l̃s)
+    return replaceinds!(linkinds, copy(M), l̃s)
 end
 
 # TODO: change kwarg from `set_limits` to `preserve_ortho`
-function map!(f::Function, M::AbstractMPS; set_limits::Bool=true)
-  for i in eachindex(M)
-    M[i, set_limits = set_limits] = f(M[i])
-  end
-  return M
+function map!(f::Function, M::AbstractMPS; set_limits::Bool = true)
+    for i in eachindex(M)
+        M[i, set_limits = set_limits] = f(M[i])
+    end
+    return M
 end
 
 # TODO: change kwarg from `set_limits` to `preserve_ortho`
-function map(f::Function, M::AbstractMPS; set_limits::Bool=true)
-  return map!(f, copy(M); set_limits=set_limits)
+function map(f::Function, M::AbstractMPS; set_limits::Bool = true)
+    return map!(f, copy(M); set_limits = set_limits)
 end
 
 for (fname, fname!) in [
-  (:(ITensors.dag), :(dag!)),
-  (:(ITensors.prime), :(ITensors.prime!)),
-  (:(ITensors.setprime), :(ITensors.setprime!)),
-  (:(ITensors.noprime), :(ITensors.noprime!)),
-  (:(ITensors.swapprime), :(ITensors.swapprime!)),
-  (:(ITensors.replaceprime), :(ITensors.replaceprime!)),
-  (:(TagSets.addtags), :(ITensors.addtags!)),
-  (:(TagSets.removetags), :(ITensors.removetags!)),
-  (:(TagSets.replacetags), :(ITensors.replacetags!)),
-  (:(ITensors.settags), :(ITensors.settags!)),
-]
-  @eval begin
-    """
-        $($fname)[!](M::MPS, args...; kwargs...)
-        $($fname)[!](M::MPO, args...; kwargs...)
+        (:(ITensors.dag), :(dag!)),
+        (:(ITensors.prime), :(ITensors.prime!)),
+        (:(ITensors.setprime), :(ITensors.setprime!)),
+        (:(ITensors.noprime), :(ITensors.noprime!)),
+        (:(ITensors.swapprime), :(ITensors.swapprime!)),
+        (:(ITensors.replaceprime), :(ITensors.replaceprime!)),
+        (:(TagSets.addtags), :(ITensors.addtags!)),
+        (:(TagSets.removetags), :(ITensors.removetags!)),
+        (:(TagSets.replacetags), :(ITensors.replacetags!)),
+        (:(ITensors.settags), :(ITensors.settags!)),
+    ]
+    @eval begin
+        """
+            $($fname)[!](M::MPS, args...; kwargs...)
+            $($fname)[!](M::MPO, args...; kwargs...)
 
-    Apply $($fname) to all ITensors of an MPS/MPO, returning a new MPS/MPO.
+        Apply $($fname) to all ITensors of an MPS/MPO, returning a new MPS/MPO.
 
-    The ITensors of the MPS/MPO will be a view of the storage of the original ITensors. Alternatively apply the function in-place.
-    """
-    function $fname(M::AbstractMPS, args...; set_limits::Bool=false, kwargs...)
-      return map(m -> $fname(m, args...; kwargs...), M; set_limits=set_limits)
+        The ITensors of the MPS/MPO will be a view of the storage of the original ITensors. Alternatively apply the function in-place.
+        """
+        function $fname(M::AbstractMPS, args...; set_limits::Bool = false, kwargs...)
+            return map(m -> $fname(m, args...; kwargs...), M; set_limits = set_limits)
+        end
+
+        function $(fname!)(M::AbstractMPS, args...; set_limits::Bool = false, kwargs...)
+            return map!(m -> $fname(m, args...; kwargs...), M; set_limits = set_limits)
+        end
     end
-
-    function $(fname!)(M::AbstractMPS, args...; set_limits::Bool=false, kwargs...)
-      return map!(m -> $fname(m, args...; kwargs...), M; set_limits=set_limits)
-    end
-  end
 end
 
 adjoint(M::AbstractMPS) = prime(M)
 
 function hascommoninds(::typeof(siteinds), A::AbstractMPS, B::AbstractMPS)
-  N = length(A)
-  for n in 1:N
-    !hascommoninds(siteinds(A, n), siteinds(B, n)) && return false
-  end
-  return true
+    N = length(A)
+    for n in 1:N
+        !hascommoninds(siteinds(A, n), siteinds(B, n)) && return false
+    end
+    return true
 end
 
 function check_hascommoninds(::typeof(siteinds), A::AbstractMPS, B::AbstractMPS)
-  N = length(A)
-  if length(B) ≠ N
-    throw(
-      DimensionMismatch(
-        "$(typeof(A)) and $(typeof(B)) have mismatched lengths $N and $(length(B))."
-      ),
-    )
-  end
-  for n in 1:N
-    !hascommoninds(siteinds(A, n), siteinds(B, n)) && error(
-      "$(typeof(A)) A and $(typeof(B)) B must share site indices. On site $n, A has site indices $(siteinds(A, n)) while B has site indices $(siteinds(B, n)).",
-    )
-  end
-  return nothing
+    N = length(A)
+    if length(B) ≠ N
+        throw(
+            DimensionMismatch(
+                "$(typeof(A)) and $(typeof(B)) have mismatched lengths $N and $(length(B))."
+            ),
+        )
+    end
+    for n in 1:N
+        !hascommoninds(siteinds(A, n), siteinds(B, n)) && error(
+            "$(typeof(A)) A and $(typeof(B)) B must share site indices. On site $n, A has site indices $(siteinds(A, n)) while B has site indices $(siteinds(B, n)).",
+        )
+    end
+    return nothing
 end
 
 function map!(f::Function, ::typeof(linkinds), M::AbstractMPS)
-  for i in eachindex(M)[1:(end - 1)]
-    l = linkinds(M, i)
-    if !isempty(l)
-      l̃ = f(l)
-      @preserve_ortho M begin
-        M[i] = replaceinds(M[i], l, l̃)
-        M[i + 1] = replaceinds(M[i + 1], l, l̃)
-      end
+    for i in eachindex(M)[1:(end - 1)]
+        l = linkinds(M, i)
+        if !isempty(l)
+            l̃ = f(l)
+            @preserve_ortho M begin
+                M[i] = replaceinds(M[i], l, l̃)
+                M[i + 1] = replaceinds(M[i + 1], l, l̃)
+            end
+        end
     end
-  end
-  return M
+    return M
 end
 
 map(f::Function, ::typeof(linkinds), M::AbstractMPS) = map!(f, linkinds, copy(M))
 
 function map!(f::Function, ::typeof(siteinds), M::AbstractMPS)
-  for i in eachindex(M)
-    s = siteinds(M, i)
-    if !isempty(s)
-      @preserve_ortho M begin
-        M[i] = replaceinds(M[i], s, f(s))
-      end
+    for i in eachindex(M)
+        s = siteinds(M, i)
+        if !isempty(s)
+            @preserve_ortho M begin
+                M[i] = replaceinds(M[i], s, f(s))
+            end
+        end
     end
-  end
-  return M
+    return M
 end
 
 map(f::Function, ::typeof(siteinds), M::AbstractMPS) = map!(f, siteinds, copy(M))
 
 function map!(
-  f::Function, ::typeof(siteinds), ::typeof(commoninds), M1::AbstractMPS, M2::AbstractMPS
-)
-  length(M1) != length(M2) && error("MPOs/MPSs must be the same length")
-  for i in eachindex(M1)
-    s = siteinds(commoninds, M1, M2, i)
-    if !isempty(s)
-      s̃ = f(s)
-      @preserve_ortho (M1, M2) begin
-        M1[i] = replaceinds(M1[i], s .=> s̃)
-        M2[i] = replaceinds(M2[i], s .=> s̃)
-      end
+        f::Function, ::typeof(siteinds), ::typeof(commoninds), M1::AbstractMPS, M2::AbstractMPS
+    )
+    length(M1) != length(M2) && error("MPOs/MPSs must be the same length")
+    for i in eachindex(M1)
+        s = siteinds(commoninds, M1, M2, i)
+        if !isempty(s)
+            s̃ = f(s)
+            @preserve_ortho (M1, M2) begin
+                M1[i] = replaceinds(M1[i], s .=> s̃)
+                M2[i] = replaceinds(M2[i], s .=> s̃)
+            end
+        end
     end
-  end
-  return M1, M2
+    return M1, M2
 end
 
 function map!(
-  f::Function, ::typeof(siteinds), ::typeof(uniqueinds), M1::AbstractMPS, M2::AbstractMPS
-)
-  length(M1) != length(M2) && error("MPOs/MPSs must be the same length")
-  for i in eachindex(M1)
-    s = siteinds(uniqueinds, M1, M2, i)
-    if !isempty(s)
-      @preserve_ortho M1 begin
-        M1[i] = replaceinds(M1[i], s .=> f(s))
-      end
+        f::Function, ::typeof(siteinds), ::typeof(uniqueinds), M1::AbstractMPS, M2::AbstractMPS
+    )
+    length(M1) != length(M2) && error("MPOs/MPSs must be the same length")
+    for i in eachindex(M1)
+        s = siteinds(uniqueinds, M1, M2, i)
+        if !isempty(s)
+            @preserve_ortho M1 begin
+                M1[i] = replaceinds(M1[i], s .=> f(s))
+            end
+        end
     end
-  end
-  return M1
+    return M1
 end
 
 function map(
-  f::Function,
-  ffilter::typeof(siteinds),
-  fsubset::Union{typeof(commoninds),typeof(uniqueinds)},
-  M1::AbstractMPS,
-  M2::AbstractMPS,
-)
-  return map!(f, ffilter, fsubset, copy(M1), copy(M2))
+        f::Function,
+        ffilter::typeof(siteinds),
+        fsubset::Union{typeof(commoninds), typeof(uniqueinds)},
+        M1::AbstractMPS,
+        M2::AbstractMPS,
+    )
+    return map!(f, ffilter, fsubset, copy(M1), copy(M2))
 end
 
 function hassameinds(::typeof(siteinds), M1::AbstractMPS, M2::AbstractMPS)
-  length(M1) ≠ length(M2) && return false
-  for n in 1:length(M1)
-    !hassameinds(siteinds(all, M1, n), siteinds(all, M2, n)) && return false
-  end
-  return true
+    length(M1) ≠ length(M2) && return false
+    for n in 1:length(M1)
+        !hassameinds(siteinds(all, M1, n), siteinds(all, M2, n)) && return false
+    end
+    return true
 end
 
 function hassamenuminds(::typeof(siteinds), M1::AbstractMPS, M2::AbstractMPS)
-  length(M1) ≠ length(M2) && return false
-  for n in 1:length(M1)
-    length(siteinds(M1, n)) ≠ length(siteinds(M2, n)) && return false
-  end
-  return true
+    length(M1) ≠ length(M2) && return false
+    for n in 1:length(M1)
+        length(siteinds(M1, n)) ≠ length(siteinds(M2, n)) && return false
+    end
+    return true
 end
 
 for (fname, fname!) in [
-  (:(NDTensors.sim), :(sim!)),
-  (:(ITensors.prime), :(ITensors.prime!)),
-  (:(ITensors.setprime), :(ITensors.setprime!)),
-  (:(ITensors.noprime), :(ITensors.noprime!)),
-  (:(TagSets.addtags), :(ITensors.addtags!)),
-  (:(TagSets.removetags), :(ITensors.removetags!)),
-  (:(TagSets.replacetags), :(ITensors.replacetags!)),
-  (:(ITensors.settags), :(ITensors.settags!)),
-]
-  @eval begin
-    """
-        $($fname)[!](linkinds, M::MPS, args...; kwargs...)
-        $($fname)[!](linkinds, M::MPO, args...; kwargs...)
+        (:(NDTensors.sim), :(sim!)),
+        (:(ITensors.prime), :(ITensors.prime!)),
+        (:(ITensors.setprime), :(ITensors.setprime!)),
+        (:(ITensors.noprime), :(ITensors.noprime!)),
+        (:(TagSets.addtags), :(ITensors.addtags!)),
+        (:(TagSets.removetags), :(ITensors.removetags!)),
+        (:(TagSets.replacetags), :(ITensors.replacetags!)),
+        (:(ITensors.settags), :(ITensors.settags!)),
+    ]
+    @eval begin
+        """
+            $($fname)[!](linkinds, M::MPS, args...; kwargs...)
+            $($fname)[!](linkinds, M::MPO, args...; kwargs...)
 
-    Apply $($fname) to all link indices of an MPS/MPO, returning a new MPS/MPO.
+        Apply $($fname) to all link indices of an MPS/MPO, returning a new MPS/MPO.
 
-    The ITensors of the MPS/MPO will be a view of the storage of the original ITensors.
-    """
-    function $fname(ffilter::typeof(linkinds), M::AbstractMPS, args...; kwargs...)
-      return map(i -> $fname(i, args...; kwargs...), ffilter, M)
+        The ITensors of the MPS/MPO will be a view of the storage of the original ITensors.
+        """
+        function $fname(ffilter::typeof(linkinds), M::AbstractMPS, args...; kwargs...)
+            return map(i -> $fname(i, args...; kwargs...), ffilter, M)
+        end
+
+        function $(fname!)(ffilter::typeof(linkinds), M::AbstractMPS, args...; kwargs...)
+            return map!(i -> $fname(i, args...; kwargs...), ffilter, M)
+        end
+
+        """
+            $($fname)[!](siteinds, M::MPS, args...; kwargs...)
+            $($fname)[!](siteinds, M::MPO, args...; kwargs...)
+
+        Apply $($fname) to all site indices of an MPS/MPO, returning a new MPS/MPO.
+
+        The ITensors of the MPS/MPO will be a view of the storage of the original ITensors.
+        """
+        function $fname(ffilter::typeof(siteinds), M::AbstractMPS, args...; kwargs...)
+            return map(i -> $fname(i, args...; kwargs...), ffilter, M)
+        end
+
+        function $(fname!)(ffilter::typeof(siteinds), M::AbstractMPS, args...; kwargs...)
+            return map!(i -> $fname(i, args...; kwargs...), ffilter, M)
+        end
+
+        """
+            $($fname)[!](siteinds, commoninds, M1::MPO, M2::MPS, args...; kwargs...)
+            $($fname)[!](siteinds, commoninds, M1::MPO, M2::MPO, args...; kwargs...)
+
+        Apply $($fname) to the site indices that are shared by `M1` and `M2`.
+
+        Returns new MPSs/MPOs. The ITensors of the MPSs/MPOs will be a view of the storage of the original ITensors.
+        """
+        function $fname(
+                ffilter::typeof(siteinds),
+                fsubset::typeof(commoninds),
+                M1::AbstractMPS,
+                M2::AbstractMPS,
+                args...;
+                kwargs...,
+            )
+            return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
+        end
+
+        function $(fname!)(
+                ffilter::typeof(siteinds),
+                fsubset::typeof(commoninds),
+                M1::AbstractMPS,
+                M2::AbstractMPS,
+                args...;
+                kwargs...,
+            )
+            return map!(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
+        end
+
+        """
+            $($fname)[!](siteinds, uniqueinds, M1::MPO, M2::MPS, args...; kwargs...)
+
+        Apply $($fname) to the site indices of `M1` that are not shared with `M2`. Returns new MPSs/MPOs.
+
+        The ITensors of the MPSs/MPOs will be a view of the storage of the original ITensors.
+        """
+        function $fname(
+                ffilter::typeof(siteinds),
+                fsubset::typeof(uniqueinds),
+                M1::AbstractMPS,
+                M2::AbstractMPS,
+                args...;
+                kwargs...,
+            )
+            return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
+        end
+
+        function $(fname!)(
+                ffilter::typeof(siteinds),
+                fsubset::typeof(uniqueinds),
+                M1::AbstractMPS,
+                M2::AbstractMPS,
+                args...;
+                kwargs...,
+            )
+            return map!(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
+        end
     end
-
-    function $(fname!)(ffilter::typeof(linkinds), M::AbstractMPS, args...; kwargs...)
-      return map!(i -> $fname(i, args...; kwargs...), ffilter, M)
-    end
-
-    """
-        $($fname)[!](siteinds, M::MPS, args...; kwargs...)
-        $($fname)[!](siteinds, M::MPO, args...; kwargs...)
-
-    Apply $($fname) to all site indices of an MPS/MPO, returning a new MPS/MPO.
-
-    The ITensors of the MPS/MPO will be a view of the storage of the original ITensors.
-    """
-    function $fname(ffilter::typeof(siteinds), M::AbstractMPS, args...; kwargs...)
-      return map(i -> $fname(i, args...; kwargs...), ffilter, M)
-    end
-
-    function $(fname!)(ffilter::typeof(siteinds), M::AbstractMPS, args...; kwargs...)
-      return map!(i -> $fname(i, args...; kwargs...), ffilter, M)
-    end
-
-    """
-        $($fname)[!](siteinds, commoninds, M1::MPO, M2::MPS, args...; kwargs...)
-        $($fname)[!](siteinds, commoninds, M1::MPO, M2::MPO, args...; kwargs...)
-
-    Apply $($fname) to the site indices that are shared by `M1` and `M2`.
-
-    Returns new MPSs/MPOs. The ITensors of the MPSs/MPOs will be a view of the storage of the original ITensors.
-    """
-    function $fname(
-      ffilter::typeof(siteinds),
-      fsubset::typeof(commoninds),
-      M1::AbstractMPS,
-      M2::AbstractMPS,
-      args...;
-      kwargs...,
-    )
-      return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
-    end
-
-    function $(fname!)(
-      ffilter::typeof(siteinds),
-      fsubset::typeof(commoninds),
-      M1::AbstractMPS,
-      M2::AbstractMPS,
-      args...;
-      kwargs...,
-    )
-      return map!(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
-    end
-
-    """
-        $($fname)[!](siteinds, uniqueinds, M1::MPO, M2::MPS, args...; kwargs...)
-
-    Apply $($fname) to the site indices of `M1` that are not shared with `M2`. Returns new MPSs/MPOs.
-
-    The ITensors of the MPSs/MPOs will be a view of the storage of the original ITensors.
-    """
-    function $fname(
-      ffilter::typeof(siteinds),
-      fsubset::typeof(uniqueinds),
-      M1::AbstractMPS,
-      M2::AbstractMPS,
-      args...;
-      kwargs...,
-    )
-      return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
-    end
-
-    function $(fname!)(
-      ffilter::typeof(siteinds),
-      fsubset::typeof(uniqueinds),
-      M1::AbstractMPS,
-      M2::AbstractMPS,
-      args...;
-      kwargs...,
-    )
-      return map!(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
-    end
-  end
 end
 
 """
@@ -964,13 +964,13 @@ The minimum this will return is `1`, even if there
 are no link indices.
 """
 function maxlinkdim(M::AbstractMPS)
-  md = 1
-  for b in eachindex(M)[1:(end - 1)]
-    l = linkind(M, b)
-    linkdim = isnothing(l) ? 1 : dim(l)
-    md = max(md, linkdim)
-  end
-  return md
+    md = 1
+    for b in eachindex(M)[1:(end - 1)]
+        l = linkind(M, b)
+        linkdim = isnothing(l) ? 1 : dim(l)
+        md = max(md, linkdim)
+    end
+    return md
 end
 
 """
@@ -983,167 +983,167 @@ MPS or MPO tensor on site j to site j+1.
 If there is no link Index, return `nothing`.
 """
 function linkdim(ψ::AbstractMPS, b::Integer)
-  l = linkind(ψ, b)
-  isnothing(l) && return nothing
-  return dim(l)
+    l = linkind(ψ, b)
+    isnothing(l) && return nothing
+    return dim(l)
 end
 
 linkdims(ψ::AbstractMPS) = [linkdim(ψ, b) for b in 1:(length(ψ) - 1)]
 
 function inner_mps_mps_deprecation_warning()
-  return """
- Calling `inner(x::MPS, y::MPS)` where the site indices of the `MPS` `x` and `y`
- don't match is deprecated as of ITensor v0.3 and will result in an error in ITensor
-v0.4. Likely you are attempting to take the inner product of MPS that have site indices
-with mismatched prime levels. The most common cause of this is something like the following:
+    return """
+     Calling `inner(x::MPS, y::MPS)` where the site indices of the `MPS` `x` and `y`
+     don't match is deprecated as of ITensor v0.3 and will result in an error in ITensor
+    v0.4. Likely you are attempting to take the inner product of MPS that have site indices
+    with mismatched prime levels. The most common cause of this is something like the following:
 
- ```julia
- s = siteinds("S=1/2")
- psi = random_mps(s)
- H = MPO(s, "Id")
- Hpsi = contract(H, psi; cutoff=1e-8) # or `Hpsi = *(H, psi; cutoff=1e-8)`
- inner(psi, Hpsi)
- ```
+     ```julia
+     s = siteinds("S=1/2")
+     psi = random_mps(s)
+     H = MPO(s, "Id")
+     Hpsi = contract(H, psi; cutoff=1e-8) # or `Hpsi = *(H, psi; cutoff=1e-8)`
+     inner(psi, Hpsi)
+     ```
 
- `psi` has the Index structure `-s-(psi)` and `H` has the Index structure
- `-s'-(H)-s-`, so the contraction follows as: `-s'-(H)-s-(psi) ≈ -s'-(Hpsi)`.
- Then, the prime levels of `Hpsi` and `psi` don't match in `inner(psi, Hpsi)`.
+     `psi` has the Index structure `-s-(psi)` and `H` has the Index structure
+     `-s'-(H)-s-`, so the contraction follows as: `-s'-(H)-s-(psi) ≈ -s'-(Hpsi)`.
+     Then, the prime levels of `Hpsi` and `psi` don't match in `inner(psi, Hpsi)`.
 
- There are a few ways to fix this. You can simply change:
+     There are a few ways to fix this. You can simply change:
 
- ```julia
- inner(psi, Hpsi)
- ```
+     ```julia
+     inner(psi, Hpsi)
+     ```
 
- to:
+     to:
 
- ```julia
- inner(psi', Hpsi)
- ```
+     ```julia
+     inner(psi', Hpsi)
+     ```
 
- in which case both `psi'` and `Hpsi` have primed site indices. Alternatively,
- you can use the `apply` function instead of the `contract` function, which
- calls `contract` and unprimes the resulting MPS:
+     in which case both `psi'` and `Hpsi` have primed site indices. Alternatively,
+     you can use the `apply` function instead of the `contract` function, which
+     calls `contract` and unprimes the resulting MPS:
 
- ```julia
- Hpsi = apply(H, psi; cutoff=1e-8) # or `Hpsi = H(psi; cutoff=1e-8)`
- inner(psi, Hpsi)
- ```
+     ```julia
+     Hpsi = apply(H, psi; cutoff=1e-8) # or `Hpsi = H(psi; cutoff=1e-8)`
+     inner(psi, Hpsi)
+     ```
 
- Finally, if you only compute `Hpsi` to pass to the `inner` function, consider using:
+     Finally, if you only compute `Hpsi` to pass to the `inner` function, consider using:
 
- ```julia
- inner(psi', H, psi)
- ```
+     ```julia
+     inner(psi', H, psi)
+     ```
 
- directly which is calculated exactly and is more efficient. Alternatively, you can use:
+     directly which is calculated exactly and is more efficient. Alternatively, you can use:
 
- ```julia
- inner(psi, Apply(H, psi))
- ```
+     ```julia
+     inner(psi, Apply(H, psi))
+     ```
 
- in which case `Apply(H, psi)` represents the "lazy" evaluation of
- `apply(H, psi)` and internally calls something equivalent to `inner(psi', H, psi)`.
+     in which case `Apply(H, psi)` represents the "lazy" evaluation of
+     `apply(H, psi)` and internally calls something equivalent to `inner(psi', H, psi)`.
 
- Although the new behavior seems less convenient, it makes it easier to
- generalize `inner(::MPS, ::MPS)` to other types of inputs, like `MPS` with
- different tag and prime conventions, multiple sites per tensor, `ITensor` inputs, etc.
- """
+     Although the new behavior seems less convenient, it makes it easier to
+     generalize `inner(::MPS, ::MPS)` to other types of inputs, like `MPS` with
+     different tag and prime conventions, multiple sites per tensor, `ITensor` inputs, etc.
+     """
 end
 
 # Implement below, define here so it can be used in `deprecate_make_inds_match!`.
 function _log_or_not_dot end
 
 function deprecate_make_inds_match!(
-  ::typeof(_log_or_not_dot),
-  M1dag::MPST,
-  M2::MPST,
-  loginner::Bool;
-  make_inds_match::Bool=true,
-) where {MPST<:AbstractMPS}
-  siteindsM1dag = siteinds(all, M1dag)
-  siteindsM2 = siteinds(all, M2)
-  N = length(M2)
-  if any(n -> length(n) > 1, siteindsM1dag) ||
-    any(n -> length(n) > 1, siteindsM2) ||
-    !hassamenuminds(siteinds, M1dag, M2)
-    # If the MPS have more than one site Indices on any site or they don't have
-    # the same number of site indices on each site, don't try to make the
-    # indices match
-    if !hassameinds(siteinds, M1dag, M2)
-      n = findfirst(n -> !hassameinds(siteinds(M1dag, n), siteinds(M2, n)), 1:N)
-      error(
-        """Calling `dot(ϕ::MPS/MPO, ψ::MPS/MPO)` with multiple site indices per
-        MPS/MPO tensor but the site indices don't match. Even with `make_inds_match = true`,
-        the case of multiple site indices per MPS/MPO is not handled automatically.
-        The sites with unmatched site indices are:
+        ::typeof(_log_or_not_dot),
+        M1dag::MPST,
+        M2::MPST,
+        loginner::Bool;
+        make_inds_match::Bool = true,
+    ) where {MPST <: AbstractMPS}
+    siteindsM1dag = siteinds(all, M1dag)
+    siteindsM2 = siteinds(all, M2)
+    N = length(M2)
+    if any(n -> length(n) > 1, siteindsM1dag) ||
+            any(n -> length(n) > 1, siteindsM2) ||
+            !hassamenuminds(siteinds, M1dag, M2)
+        # If the MPS have more than one site Indices on any site or they don't have
+        # the same number of site indices on each site, don't try to make the
+        # indices match
+        if !hassameinds(siteinds, M1dag, M2)
+            n = findfirst(n -> !hassameinds(siteinds(M1dag, n), siteinds(M2, n)), 1:N)
+            error(
+                """Calling `dot(ϕ::MPS/MPO, ψ::MPS/MPO)` with multiple site indices per
+                MPS/MPO tensor but the site indices don't match. Even with `make_inds_match = true`,
+                the case of multiple site indices per MPS/MPO is not handled automatically.
+                The sites with unmatched site indices are:
 
-            inds(ϕ[$n]) = $(inds(M1dag[n]))
+                    inds(ϕ[$n]) = $(inds(M1dag[n]))
 
-            inds(ψ[$n]) = $(inds(M2[n]))
+                    inds(ψ[$n]) = $(inds(M2[n]))
 
-        Make sure the site indices of your MPO/MPS match. You may need to prime
-        one of the MPS, such as `dot(ϕ', ψ)`."""
-      )
+                Make sure the site indices of your MPO/MPS match. You may need to prime
+                one of the MPS, such as `dot(ϕ', ψ)`."""
+            )
+        end
+        make_inds_match = false
     end
-    make_inds_match = false
-  end
-  if !hassameinds(siteinds, M1dag, M2) && make_inds_match
-    ITensors.warn_once(inner_mps_mpo_mps_deprecation_warning(), :inner_mps_mps)
-    replace_siteinds!(M1dag, siteindsM2)
-  end
-  return M1dag, M2
+    if !hassameinds(siteinds, M1dag, M2) && make_inds_match
+        ITensors.warn_once(inner_mps_mpo_mps_deprecation_warning(), :inner_mps_mps)
+        replace_siteinds!(M1dag, siteindsM2)
+    end
+    return M1dag, M2
 end
 
 function _log_or_not_dot(
-  M1::MPST, M2::MPST, loginner::Bool; make_inds_match::Bool=true
-)::Number where {MPST<:AbstractMPS}
-  N = length(M1)
-  if length(M2) != N
-    throw(DimensionMismatch("inner: mismatched lengths $N and $(length(M2))"))
-  end
-  M1dag = dag(M1)
-  sim!(linkinds, M1dag)
-  M1dag, M2 = deprecate_make_inds_match!(
-    _log_or_not_dot, M1dag, M2, loginner; make_inds_match
-  )
-  check_hascommoninds(siteinds, M1dag, M2)
-  O = M1dag[1] * M2[1]
-
-  if loginner
-    normO = norm(O)
-    log_inner_tot = log(normO)
-    O ./= normO
-  end
-
-  for j in eachindex(M1)[2:end]
-    O = (O * M1dag[j]) * M2[j]
+        M1::MPST, M2::MPST, loginner::Bool; make_inds_match::Bool = true
+    )::Number where {MPST <: AbstractMPS}
+    N = length(M1)
+    if length(M2) != N
+        throw(DimensionMismatch("inner: mismatched lengths $N and $(length(M2))"))
+    end
+    M1dag = dag(M1)
+    sim!(linkinds, M1dag)
+    M1dag, M2 = deprecate_make_inds_match!(
+        _log_or_not_dot, M1dag, M2, loginner; make_inds_match
+    )
+    check_hascommoninds(siteinds, M1dag, M2)
+    O = M1dag[1] * M2[1]
 
     if loginner
-      normO = norm(O)
-      log_inner_tot += log(normO)
-      O ./= normO
+        normO = norm(O)
+        log_inner_tot = log(normO)
+        O ./= normO
     end
-  end
 
-  if loginner
-    if !isreal(O[]) || real(O[]) < 0
-      log_inner_tot += log(complex(O[]))
+    for j in eachindex(M1)[2:end]
+        O = (O * M1dag[j]) * M2[j]
+
+        if loginner
+            normO = norm(O)
+            log_inner_tot += log(normO)
+            O ./= normO
+        end
     end
-    return log_inner_tot
-  end
 
-  dot_M1_M2 = O[]
+    if loginner
+        if !isreal(O[]) || real(O[]) < 0
+            log_inner_tot += log(complex(O[]))
+        end
+        return log_inner_tot
+    end
 
-  if !isfinite(dot_M1_M2)
-    @warn "The inner product (or norm²) you are computing is very large " *
-      "($dot_M1_M2). You should consider using `lognorm` or `loginner` instead, " *
-      "which will help avoid floating point errors. For example if you are trying " *
-      "to normalize your MPS/MPO `A`, the normalized MPS/MPO `B` would be given by " *
-      "`B = A ./ z` where `z = exp(lognorm(A) / length(A))`."
-  end
+    dot_M1_M2 = O[]
 
-  return dot_M1_M2
+    if !isfinite(dot_M1_M2)
+        @warn "The inner product (or norm²) you are computing is very large " *
+            "($dot_M1_M2). You should consider using `lognorm` or `loginner` instead, " *
+            "which will help avoid floating point errors. For example if you are trying " *
+            "to normalize your MPS/MPO `A`, the normalized MPS/MPO `B` would be given by " *
+            "`B = A ./ z` where `z = exp(lognorm(A) / length(A))`."
+    end
+
+    return dot_M1_M2
 end
 
 """
@@ -1154,8 +1154,8 @@ Same as [`inner`](@ref).
 
 See also [`loginner`](@ref), [`logdot`](@ref).
 """
-function LinearAlgebra.dot(M1::MPST, M2::MPST; kwargs...) where {MPST<:AbstractMPS}
-  return _log_or_not_dot(M1, M2, false; kwargs...)
+function LinearAlgebra.dot(M1::MPST, M2::MPST; kwargs...) where {MPST <: AbstractMPS}
+    return _log_or_not_dot(M1, M2, false; kwargs...)
 end
 
 """
@@ -1166,21 +1166,21 @@ Same as [`loginner`](@ref).
 
 See also [`inner`](@ref), [`dot`](@ref).
 """
-function logdot(M1::MPST, M2::MPST; kwargs...) where {MPST<:AbstractMPS}
-  return _log_or_not_dot(M1, M2, true; kwargs...)
+function logdot(M1::MPST, M2::MPST; kwargs...) where {MPST <: AbstractMPS}
+    return _log_or_not_dot(M1, M2, true; kwargs...)
 end
 
 function make_inds_match_docstring_warning()
-  return """
-  !!! compat "ITensors 0.3"
-    Before ITensors 0.3, `inner` had a keyword argument `make_inds_match` that default to `true`.
-    When true, the function attempted to make the site indices match before contracting. So for example, the
-    inputs could have different site indices, as long as they have the same dimensions or QN blocks.
-    This behavior was fragile since it only worked for MPS with single site indices per tensor,
-    and as of ITensors 0.3 has been deprecated. As of ITensors 0.3 you will need to make sure
-    the MPS or MPO you input have compatible site indices to contract over, such as by making
-    sure the prime levels match properly.
-  """
+    return """
+    !!! compat "ITensors 0.3"
+      Before ITensors 0.3, `inner` had a keyword argument `make_inds_match` that default to `true`.
+      When true, the function attempted to make the site indices match before contracting. So for example, the
+      inputs could have different site indices, as long as they have the same dimensions or QN blocks.
+      This behavior was fragile since it only worked for MPS with single site indices per tensor,
+      and as of ITensors 0.3 has been deprecated. As of ITensors 0.3 you will need to make sure
+      the MPS or MPO you input have compatible site indices to contract over, such as by making
+      sure the prime levels match properly.
+    """
 end
 
 """
@@ -1197,7 +1197,7 @@ Same as [`dot`](@ref).
 
 See also [`loginner`](@ref), [`logdot`](@ref).
 """
-inner(M1::MPST, M2::MPST; kwargs...) where {MPST<:AbstractMPS} = dot(M1, M2; kwargs...)
+inner(M1::MPST, M2::MPST; kwargs...) where {MPST <: AbstractMPS} = dot(M1, M2; kwargs...)
 
 """
     loginner(A::MPS, B::MPS)
@@ -1213,8 +1213,8 @@ Same as [`logdot`](@ref).
 
 See also [`inner`](@ref), [`dot`](@ref).
 """
-function loginner(M1::MPST, M2::MPST; kwargs...) where {MPST<:AbstractMPS}
-  return logdot(M1, M2; kwargs...)
+function loginner(M1::MPST, M2::MPST; kwargs...) where {MPST <: AbstractMPS}
+    return logdot(M1, M2; kwargs...)
 end
 
 """
@@ -1230,17 +1230,17 @@ the full inner product of the MPS/MPO with itself.
 See also [`lognorm`](@ref).
 """
 function norm(M::AbstractMPS)
-  if isortho(M)
-    return norm(M[orthocenter(M)])
-  end
-  norm2_M = dot(M, M)
-  rtol = eps(real(scalartype(M))) * 10
-  atol = rtol
-  if !IsApprox.isreal(norm2_M, Approx(; rtol=rtol, atol=atol))
-    @warn "norm² is $norm2_M, which is not real up to a relative tolerance of " *
-      "$rtol and an absolute tolerance of $atol. Taking the real part, which may not be accurate."
-  end
-  return sqrt(real(norm2_M))
+    if isortho(M)
+        return norm(M[orthocenter(M)])
+    end
+    norm2_M = dot(M, M)
+    rtol = eps(real(scalartype(M))) * 10
+    atol = rtol
+    if !IsApprox.isreal(norm2_M, Approx(; rtol = rtol, atol = atol))
+        @warn "norm² is $norm2_M, which is not real up to a relative tolerance of " *
+            "$rtol and an absolute tolerance of $atol. Taking the real part, which may not be accurate."
+    end
+    return sqrt(real(norm2_M))
 end
 
 """
@@ -1255,43 +1255,43 @@ large numbers of sites the norm can diverge or approach zero.
 See also [`norm`](@ref), [`logdot`](@ref).
 """
 function lognorm(M::AbstractMPS)
-  if isortho(M)
-    return log(norm(M[orthocenter(M)]))
-  end
-  lognorm2_M = logdot(M, M)
-  rtol = eps(real(scalartype(M))) * 10
-  atol = rtol
-  if !IsApprox.isreal(lognorm2_M, Approx(; rtol=rtol, atol=atol))
-    @warn "log(norm²) is $lognorm2_M, which is not real up to a relative tolerance " *
-      "of $rtol and an absolute tolerance of $atol. Taking the real part, which may not be accurate."
-  end
-  return real(lognorm2_M) / 2
+    if isortho(M)
+        return log(norm(M[orthocenter(M)]))
+    end
+    lognorm2_M = logdot(M, M)
+    rtol = eps(real(scalartype(M))) * 10
+    atol = rtol
+    if !IsApprox.isreal(lognorm2_M, Approx(; rtol = rtol, atol = atol))
+        @warn "log(norm²) is $lognorm2_M, which is not real up to a relative tolerance " *
+            "of $rtol and an absolute tolerance of $atol. Taking the real part, which may not be accurate."
+    end
+    return real(lognorm2_M) / 2
 end
 
 function isapprox(
-  x::AbstractMPS,
-  y::AbstractMPS;
-  atol::Real=0,
-  rtol::Real=Base.rtoldefault(
-    LinearAlgebra.promote_leaf_eltypes(x), LinearAlgebra.promote_leaf_eltypes(y), atol
-  ),
-)
-  d = norm(x - y)
-  if isfinite(d)
-    return d <= max(atol, rtol * max(norm(x), norm(y)))
-  else
-    error("In `isapprox(x::MPS, y::MPS)`, `norm(x - y)` is not finite")
-  end
+        x::AbstractMPS,
+        y::AbstractMPS;
+        atol::Real = 0,
+        rtol::Real = Base.rtoldefault(
+            LinearAlgebra.promote_leaf_eltypes(x), LinearAlgebra.promote_leaf_eltypes(y), atol
+        ),
+    )
+    d = norm(x - y)
+    if isfinite(d)
+        return d <= max(atol, rtol * max(norm(x), norm(y)))
+    else
+        error("In `isapprox(x::MPS, y::MPS)`, `norm(x - y)` is not finite")
+    end
 end
 
 # copy an MPS/MPO, but do a deep copy of the tensors in the
 # range of the orthogonality center.
 function deepcopy_ortho_center(M::AbstractMPS)
-  M = copy(M)
-  c = ortho_lims(M)
-  # TODO: define `getindex(::AbstractMPS, I)` to return `AbstractMPS`
-  M[c] = deepcopy(typeof(M)(M[c]))
-  return M
+    M = copy(M)
+    c = ortho_lims(M)
+    # TODO: define `getindex(::AbstractMPS, I)` to return `AbstractMPS`
+    M[c] = deepcopy(typeof(M)(M[c]))
+    return M
 end
 
 """
@@ -1305,8 +1305,8 @@ of the orthogonality center to avoid numerical overflow in the case of diverging
 
 See also [`normalize!`](@ref), [`norm`](@ref), [`lognorm`](@ref).
 """
-function normalize(M::AbstractMPS; (lognorm!)=[])
-  return normalize!(deepcopy_ortho_center(M); (lognorm!)=(lognorm!))
+function normalize(M::AbstractMPS; (lognorm!) = [])
+    return normalize!(deepcopy_ortho_center(M); (lognorm!) = (lognorm!))
 end
 
 """
@@ -1332,20 +1332,20 @@ lognorm_ψ[1] == -Inf # There was an infinite norm
 
 See also [`normalize`](@ref), [`norm`](@ref), [`lognorm`](@ref).
 """
-function LinearAlgebra.normalize!(M::AbstractMPS; (lognorm!)=[])
-  c = ortho_lims(M)
-  lognorm_M = lognorm(M)
-  push!(lognorm!, lognorm_M)
-  if lognorm_M == -Inf
+function LinearAlgebra.normalize!(M::AbstractMPS; (lognorm!) = [])
+    c = ortho_lims(M)
+    lognorm_M = lognorm(M)
+    push!(lognorm!, lognorm_M)
+    if lognorm_M == -Inf
+        return M
+    end
+    z = exp(lognorm_M / length(c))
+    # XXX: this is not modifying `M` in-place.
+    # M[c] ./= z
+    for n in c
+        M[n] ./= z
+    end
     return M
-  end
-  z = exp(lognorm_M / length(c))
-  # XXX: this is not modifying `M` in-place.
-  # M[c] ./= z
-  for n in c
-    M[n] ./= z
-  end
-  return M
 end
 
 """
@@ -1362,132 +1362,132 @@ Note that if the MPS/MPO are not normalized, the normalizations may diverge and
   directly (or `lognorm(A - B)` if you expect the result may be very large).
 """
 function dist(A::AbstractMPS, B::AbstractMPS)
-  return sqrt(abs(inner(A, A) + inner(B, B) - 2 * real(inner(A, B))))
+    return sqrt(abs(inner(A, A) + inner(B, B) - 2 * real(inner(A, B))))
 end
 
 function site_combiners(ψ::AbstractMPS)
-  N = length(ψ)
-  Cs = Vector{ITensor}(undef, N)
-  for n in 1:N
-    s = siteinds(all, ψ, n)
-    Cs[n] = combiner(s; tags=commontags(s))
-  end
-  return Cs
+    N = length(ψ)
+    Cs = Vector{ITensor}(undef, N)
+    for n in 1:N
+        s = siteinds(all, ψ, n)
+        Cs[n] = combiner(s; tags = commontags(s))
+    end
+    return Cs
 end
 
 # The maximum link dimensions when adding MPS/MPO
 function _add_maxlinkdims(ψ⃗::AbstractMPS...)
-  N = length(ψ⃗[1])
-  maxdims = Vector{Int}(undef, N - 1)
-  for b in 1:(N - 1)
-    maxdims[b] = sum(ψ -> linkdim(ψ, b), ψ⃗)
-  end
-  return maxdims
+    N = length(ψ⃗[1])
+    maxdims = Vector{Int}(undef, N - 1)
+    for b in 1:(N - 1)
+        maxdims[b] = sum(ψ -> linkdim(ψ, b), ψ⃗)
+    end
+    return maxdims
 end
 
 function +(
-  ::Algorithm"densitymatrix", ψ⃗::MPST...; cutoff=1e-15, kwargs...
-) where {MPST<:AbstractMPS}
-  if !all(ψ -> hassameinds(siteinds, first(ψ⃗), ψ), ψ⃗)
-    error("In `+(::MPS/MPO...)`, the input `MPS` or `MPO` do not have the same site
+        ::Algorithm"densitymatrix", ψ⃗::MPST...; cutoff = 1.0e-15, kwargs...
+    ) where {MPST <: AbstractMPS}
+    if !all(ψ -> hassameinds(siteinds, first(ψ⃗), ψ), ψ⃗)
+        error("In `+(::MPS/MPO...)`, the input `MPS` or `MPO` do not have the same site
       indices. For example, the site indices of the first site are $(siteinds.(ψ⃗, 1))")
-  end
+    end
 
-  Nₘₚₛ = length(ψ⃗)
+    Nₘₚₛ = length(ψ⃗)
 
-  @assert all(ψᵢ -> length(ψ⃗[1]) == length(ψᵢ), ψ⃗)
+    @assert all(ψᵢ -> length(ψ⃗[1]) == length(ψᵢ), ψ⃗)
 
-  N = length(ψ⃗[1])
+    N = length(ψ⃗[1])
 
-  ψ⃗ = copy.(ψ⃗)
+    ψ⃗ = copy.(ψ⃗)
 
-  X⃗ = site_combiners(ψ⃗[1])
+    X⃗ = site_combiners(ψ⃗[1])
 
-  for ψᵢ in ψ⃗
-    @preserve_ortho ψᵢ ψᵢ .*= X⃗
-  end
+    for ψᵢ in ψ⃗
+        @preserve_ortho ψᵢ ψᵢ .*= X⃗
+    end
 
-  ψ⃗ = convert.(MPS, ψ⃗)
+    ψ⃗ = convert.(MPS, ψ⃗)
 
-  s = siteinds(ψ⃗[1])
+    s = siteinds(ψ⃗[1])
 
-  ψ⃗ = orthogonalize.(ψ⃗, N)
+    ψ⃗ = orthogonalize.(ψ⃗, N)
 
-  ψ = MPS(N)
+    ψ = MPS(N)
 
-  ρ⃗ₙ = [prime(ψᵢ[N], s[N]) * dag(ψᵢ[N]) for ψᵢ in ψ⃗]
-  ρₙ = sum(ρ⃗ₙ)
+    ρ⃗ₙ = [prime(ψᵢ[N], s[N]) * dag(ψᵢ[N]) for ψᵢ in ψ⃗]
+    ρₙ = sum(ρ⃗ₙ)
 
-  # Maximum theoretical link dimensions
-  add_maxlinkdims = _add_maxlinkdims(ψ⃗...)
+    # Maximum theoretical link dimensions
+    add_maxlinkdims = _add_maxlinkdims(ψ⃗...)
 
-  C⃗ₙ = last.(ψ⃗)
-  for n in reverse(2:N)
-    Dₙ, Vₙ, spec = eigen(
-      ρₙ;
-      ishermitian=true,
-      tags=tags(linkind(ψ⃗[1], n - 1)),
-      cutoff=cutoff,
-      maxdim=add_maxlinkdims[n - 1],
-      kwargs...,
-    )
-    lₙ₋₁ = commonind(Dₙ, Vₙ)
+    C⃗ₙ = last.(ψ⃗)
+    for n in reverse(2:N)
+        Dₙ, Vₙ, spec = eigen(
+            ρₙ;
+            ishermitian = true,
+            tags = tags(linkind(ψ⃗[1], n - 1)),
+            cutoff = cutoff,
+            maxdim = add_maxlinkdims[n - 1],
+            kwargs...,
+        )
+        lₙ₋₁ = commonind(Dₙ, Vₙ)
 
-    # Update the total state
-    ψ[n] = Vₙ
+        # Update the total state
+        ψ[n] = Vₙ
 
-    # Compute the new density matrix
-    C⃗ₙ₋₁ = [ψ⃗[i][n - 1] * C⃗ₙ[i] * dag(Vₙ) for i in 1:Nₘₚₛ]
-    C⃗ₙ₋₁′ = [prime(Cₙ₋₁, (s[n - 1], lₙ₋₁)) for Cₙ₋₁ in C⃗ₙ₋₁]
-    ρ⃗ₙ₋₁ = C⃗ₙ₋₁′ .* dag.(C⃗ₙ₋₁)
-    ρₙ₋₁ = sum(ρ⃗ₙ₋₁)
+        # Compute the new density matrix
+        C⃗ₙ₋₁ = [ψ⃗[i][n - 1] * C⃗ₙ[i] * dag(Vₙ) for i in 1:Nₘₚₛ]
+        C⃗ₙ₋₁′ = [prime(Cₙ₋₁, (s[n - 1], lₙ₋₁)) for Cₙ₋₁ in C⃗ₙ₋₁]
+        ρ⃗ₙ₋₁ = C⃗ₙ₋₁′ .* dag.(C⃗ₙ₋₁)
+        ρₙ₋₁ = sum(ρ⃗ₙ₋₁)
 
-    C⃗ₙ = C⃗ₙ₋₁
-    ρₙ = ρₙ₋₁
-  end
+        C⃗ₙ = C⃗ₙ₋₁
+        ρₙ = ρₙ₋₁
+    end
 
-  ψ[1] = sum(C⃗ₙ)
-  ψ .*= dag.(X⃗)
+    ψ[1] = sum(C⃗ₙ)
+    ψ .*= dag.(X⃗)
 
-  set_ortho_lims!(ψ, 1:1)
+    set_ortho_lims!(ψ, 1:1)
 
-  return convert(MPST, ψ)
+    return convert(MPST, ψ)
 end
 
-function +(::Algorithm"directsum", ψ⃗::MPST...) where {MPST<:AbstractMPS}
-  n = length(first(ψ⃗))
-  @assert all(ψᵢ -> length(first(ψ⃗)) == length(ψᵢ), ψ⃗)
+function +(::Algorithm"directsum", ψ⃗::MPST...) where {MPST <: AbstractMPS}
+    n = length(first(ψ⃗))
+    @assert all(ψᵢ -> length(first(ψ⃗)) == length(ψᵢ), ψ⃗)
 
-  # Output tensor
-  ϕ = MPST(n)
+    # Output tensor
+    ϕ = MPST(n)
 
-  # Direct sum first tensor
-  j = 1
-  l⃗j = map(ψᵢ -> linkind(ψᵢ, j), ψ⃗)
-  ϕj, (lj,) = directsum(
-    (ψ⃗[i][j] => (l⃗j[i],) for i in 1:length(ψ⃗))...; tags=[tags(first(l⃗j))]
-  )
-  ljm_prev = lj
-  ϕ[j] = ϕj
-  for j in 2:(n - 1)
-    l⃗jm = map(ψᵢ -> linkind(ψᵢ, j - 1), ψ⃗)
+    # Direct sum first tensor
+    j = 1
     l⃗j = map(ψᵢ -> linkind(ψᵢ, j), ψ⃗)
-    ϕj, (ljm, lj) = directsum(
-      (ψ⃗[i][j] => (l⃗jm[i], l⃗j[i]) for i in 1:length(ψ⃗))...;
-      tags=[tags(first(l⃗jm)), tags(first(l⃗j))],
+    ϕj, (lj,) = directsum(
+        (ψ⃗[i][j] => (l⃗j[i],) for i in 1:length(ψ⃗))...; tags = [tags(first(l⃗j))]
     )
-    ϕj = replaceind(ϕj, ljm => dag(ljm_prev))
     ljm_prev = lj
     ϕ[j] = ϕj
-  end
-  j = n
-  l⃗jm = map(ψᵢ -> linkind(ψᵢ, j - 1), ψ⃗)
-  ϕj, (ljm,) = directsum(
-    (ψ⃗[i][j] => (l⃗jm[i],) for i in 1:length(ψ⃗))...; tags=[tags(first(l⃗jm))]
-  )
-  ϕj = replaceind(ϕj, ljm => dag(ljm_prev))
-  ϕ[j] = ϕj
-  return ϕ
+    for j in 2:(n - 1)
+        l⃗jm = map(ψᵢ -> linkind(ψᵢ, j - 1), ψ⃗)
+        l⃗j = map(ψᵢ -> linkind(ψᵢ, j), ψ⃗)
+        ϕj, (ljm, lj) = directsum(
+            (ψ⃗[i][j] => (l⃗jm[i], l⃗j[i]) for i in 1:length(ψ⃗))...;
+            tags = [tags(first(l⃗jm)), tags(first(l⃗j))],
+        )
+        ϕj = replaceind(ϕj, ljm => dag(ljm_prev))
+        ljm_prev = lj
+        ϕ[j] = ϕj
+    end
+    j = n
+    l⃗jm = map(ψᵢ -> linkind(ψᵢ, j - 1), ψ⃗)
+    ϕj, (ljm,) = directsum(
+        (ψ⃗[i][j] => (l⃗jm[i],) for i in 1:length(ψ⃗))...; tags = [tags(first(l⃗jm))]
+    )
+    ϕj = replaceind(ϕj, ljm => dag(ljm_prev))
+    ϕ[j] = ϕj
+    return ϕ
 end
 
 """
@@ -1552,8 +1552,8 @@ println()
       inner(ψ₃, ψ₁) + 2 * inner(ψ₃, ψ₂) + inner(ψ₃, ψ₃)
 ```
 """
-function +(ψ⃗::AbstractMPS...; alg=Algorithm"densitymatrix"(), kwargs...)
-  return +(Algorithm(alg), ψ⃗...; kwargs...)
+function +(ψ⃗::AbstractMPS...; alg = Algorithm"densitymatrix"(), kwargs...)
+    return +(Algorithm(alg), ψ⃗...; kwargs...)
 end
 
 +(ψ::AbstractMPS) = ψ
@@ -1562,7 +1562,7 @@ add(ψ⃗::AbstractMPS...; kwargs...) = +(ψ⃗...; kwargs...)
 
 -(ψ₁::AbstractMPS, ψ₂::AbstractMPS; kwargs...) = +(ψ₁, -ψ₂; kwargs...)
 
-add(A::T, B::T; kwargs...) where {T<:AbstractMPS} = +(A, B; kwargs...)
+add(A::T, B::T; kwargs...) where {T <: AbstractMPS} = +(A, B; kwargs...)
 
 """
     sum(A::Vector{MPS}; kwargs...)
@@ -1577,10 +1577,10 @@ truncation.
 - `cutoff::Real`: singular value truncation cutoff
 - `maxdim::Int`: maximum MPS/MPO bond dimension
 """
-function sum(ψ⃗::Vector{T}; kwargs...) where {T<:AbstractMPS}
-  iszero(length(ψ⃗)) && return T()
-  isone(length(ψ⃗)) && return copy(only(ψ⃗))
-  return +(ψ⃗...; kwargs...)
+function sum(ψ⃗::Vector{T}; kwargs...) where {T <: AbstractMPS}
+    iszero(length(ψ⃗)) && return T()
+    isone(length(ψ⃗)) && return copy(only(ψ⃗))
+    return +(ψ⃗...; kwargs...)
 end
 
 """
@@ -1600,66 +1600,66 @@ bond indices is performed. Afterward, tensors
 Either modify in-place with `orthogonalize!` or
 out-of-place with `orthogonalize`.
 """
-function orthogonalize!(M::AbstractMPS, j::Int; maxdim=nothing, normalize=nothing)
-  # TODO: Delete `maxdim` and `normalize` keyword arguments.
-  @debug_check begin
-    if !(1 <= j <= length(M))
-      error("Input j=$j to `orthogonalize!` out of range (valid range = 1:$(length(M)))")
+function orthogonalize!(M::AbstractMPS, j::Int; maxdim = nothing, normalize = nothing)
+    # TODO: Delete `maxdim` and `normalize` keyword arguments.
+    @debug_check begin
+        if !(1 <= j <= length(M))
+            error("Input j=$j to `orthogonalize!` out of range (valid range = 1:$(length(M)))")
+        end
     end
-  end
-  while leftlim(M) < (j - 1)
-    (leftlim(M) < 0) && setleftlim!(M, 0)
-    b = leftlim(M) + 1
-    linds = uniqueinds(M[b], M[b + 1])
-    lb = linkind(M, b)
-    if !isnothing(lb)
-      ltags = tags(lb)
-    else
-      ltags = TagSet("Link,l=$b")
+    while leftlim(M) < (j - 1)
+        (leftlim(M) < 0) && setleftlim!(M, 0)
+        b = leftlim(M) + 1
+        linds = uniqueinds(M[b], M[b + 1])
+        lb = linkind(M, b)
+        if !isnothing(lb)
+            ltags = tags(lb)
+        else
+            ltags = TagSet("Link,l=$b")
+        end
+        L, R = factorize(M[b], linds; tags = ltags, maxdim)
+        M[b] = L
+        M[b + 1] *= R
+        setleftlim!(M, b)
+        if rightlim(M) < leftlim(M) + 2
+            setrightlim!(M, leftlim(M) + 2)
+        end
     end
-    L, R = factorize(M[b], linds; tags=ltags, maxdim)
-    M[b] = L
-    M[b + 1] *= R
-    setleftlim!(M, b)
-    if rightlim(M) < leftlim(M) + 2
-      setrightlim!(M, leftlim(M) + 2)
-    end
-  end
 
-  N = length(M)
+    N = length(M)
 
-  while rightlim(M) > (j + 1)
-    (rightlim(M) > (N + 1)) && setrightlim!(M, N + 1)
-    b = rightlim(M) - 2
-    rinds = uniqueinds(M[b + 1], M[b])
-    lb = linkind(M, b)
-    if !isnothing(lb)
-      ltags = tags(lb)
-    else
-      ltags = TagSet("Link,l=$b")
-    end
-    L, R = factorize(M[b + 1], rinds; tags=ltags, maxdim)
-    M[b + 1] = L
-    M[b] *= R
+    while rightlim(M) > (j + 1)
+        (rightlim(M) > (N + 1)) && setrightlim!(M, N + 1)
+        b = rightlim(M) - 2
+        rinds = uniqueinds(M[b + 1], M[b])
+        lb = linkind(M, b)
+        if !isnothing(lb)
+            ltags = tags(lb)
+        else
+            ltags = TagSet("Link,l=$b")
+        end
+        L, R = factorize(M[b + 1], rinds; tags = ltags, maxdim)
+        M[b + 1] = L
+        M[b] *= R
 
-    setrightlim!(M, b + 1)
-    if leftlim(M) > rightlim(M) - 2
-      setleftlim!(M, rightlim(M) - 2)
+        setrightlim!(M, b + 1)
+        if leftlim(M) > rightlim(M) - 2
+            setleftlim!(M, rightlim(M) - 2)
+        end
     end
-  end
-  return M
+    return M
 end
 
 # Allows overloading `orthogonalize!` based on the projected
 # MPO type. By default just calls `orthogonalize!` on the MPS.
 function orthogonalize!(PH, M::AbstractMPS, j::Int; kwargs...)
-  return orthogonalize!(M, j; kwargs...)
+    return orthogonalize!(M, j; kwargs...)
 end
 
 function orthogonalize(ψ0::AbstractMPS, args...; kwargs...)
-  ψ = copy(ψ0)
-  orthogonalize!(ψ, args...; kwargs...)
-  return ψ
+    ψ = copy(ψ0)
+    orthogonalize!(ψ, args...; kwargs...)
+    return ψ
 end
 
 """
@@ -1685,52 +1685,52 @@ end
 truncate!(ψ; maxdim=5, cutoff=1E-7, callback)
 ```
 """
-function truncate!(M::AbstractMPS; alg="frobenius", kwargs...)
-  return truncate!(Algorithm(alg), M; kwargs...)
+function truncate!(M::AbstractMPS; alg = "frobenius", kwargs...)
+    return truncate!(Algorithm(alg), M; kwargs...)
 end
 
 function truncate!(
-  ::Algorithm"frobenius",
-  M::AbstractMPS;
-  site_range=1:length(M),
-  callback=Returns(nothing),
-  kwargs...,
-)
-  # Left-orthogonalize all tensors to make
-  # truncations controlled
-  orthogonalize!(M, last(site_range))
+        ::Algorithm"frobenius",
+        M::AbstractMPS;
+        site_range = 1:length(M),
+        callback = Returns(nothing),
+        kwargs...,
+    )
+    # Left-orthogonalize all tensors to make
+    # truncations controlled
+    orthogonalize!(M, last(site_range))
 
-  # Perform truncations in a right-to-left sweep
-  for j in reverse((first(site_range) + 1):last(site_range))
-    rinds = uniqueinds(M[j], M[j - 1])
-    ltags = tags(commonind(M[j], M[j - 1]))
-    U, S, V, spec = svd(M[j], rinds; lefttags=ltags, kwargs...)
-    M[j] = U
-    M[j - 1] *= (S * V)
-    setrightlim!(M, j)
-    callback(; link=(j => j - 1), truncation_error=spec.truncerr)
-  end
-  return M
+    # Perform truncations in a right-to-left sweep
+    for j in reverse((first(site_range) + 1):last(site_range))
+        rinds = uniqueinds(M[j], M[j - 1])
+        ltags = tags(commonind(M[j], M[j - 1]))
+        U, S, V, spec = svd(M[j], rinds; lefttags = ltags, kwargs...)
+        M[j] = U
+        M[j - 1] *= (S * V)
+        setrightlim!(M, j)
+        callback(; link = (j => j - 1), truncation_error = spec.truncerr)
+    end
+    return M
 end
 
 function truncate(ψ0::AbstractMPS; kwargs...)
-  ψ = copy(ψ0)
-  truncate!(ψ; kwargs...)
-  return ψ
+    ψ = copy(ψ0)
+    truncate!(ψ; kwargs...)
+    return ψ
 end
 
 # Make `*` an alias for `contract` of two `AbstractMPS`
 *(A::AbstractMPS, B::AbstractMPS; kwargs...) = contract(A, B; kwargs...)
 
 function _apply_to_orthocenter!(f, ψ::AbstractMPS, x)
-  limsψ = ortho_lims(ψ)
-  n = first(limsψ)
-  ψ[n] = f(ψ[n], x)
-  return ψ
+    limsψ = ortho_lims(ψ)
+    n = first(limsψ)
+    ψ[n] = f(ψ[n], x)
+    return ψ
 end
 
 function _apply_to_orthocenter(f, ψ::AbstractMPS, x)
-  return _apply_to_orthocenter!(f, copy(ψ), x)
+    return _apply_to_orthocenter!(f, copy(ψ), x)
 end
 
 """
@@ -1763,55 +1763,55 @@ LinearAlgebra.rmul!(ψ::AbstractMPS, α::Number) = _apply_to_orthocenter!(*, ψ,
 
 Sets a contiguous range of MPS/MPO tensors
 """
-function setindex!(ψ::MPST, ϕ::MPST, r::UnitRange{Int64}) where {MPST<:AbstractMPS}
-  @assert length(r) == length(ϕ)
-  # TODO: accept r::Union{AbstractRange{Int}, Vector{Int}}
-  # if r isa AbstractRange
-  #   @assert step(r) = 1
-  # else
-  #   all(==(1), diff(r))
-  # end
-  llim = leftlim(ψ)
-  rlim = rightlim(ψ)
-  for (j, n) in enumerate(r)
-    ψ[n] = ϕ[j]
-  end
-  if llim + 1 ≥ r[1]
-    setleftlim!(ψ, leftlim(ϕ) + r[1] - 1)
-  end
-  if rlim - 1 ≤ r[end]
-    setrightlim!(ψ, rightlim(ϕ) + r[1] - 1)
-  end
-  return ψ
+function setindex!(ψ::MPST, ϕ::MPST, r::UnitRange{Int64}) where {MPST <: AbstractMPS}
+    @assert length(r) == length(ϕ)
+    # TODO: accept r::Union{AbstractRange{Int}, Vector{Int}}
+    # if r isa AbstractRange
+    #   @assert step(r) = 1
+    # else
+    #   all(==(1), diff(r))
+    # end
+    llim = leftlim(ψ)
+    rlim = rightlim(ψ)
+    for (j, n) in enumerate(r)
+        ψ[n] = ϕ[j]
+    end
+    if llim + 1 ≥ r[1]
+        setleftlim!(ψ, leftlim(ϕ) + r[1] - 1)
+    end
+    if rlim - 1 ≤ r[end]
+        setrightlim!(ψ, rightlim(ϕ) + r[1] - 1)
+    end
+    return ψ
 end
 
 _isodd_fermionic_parity(s::Index, ::Integer) = false
 
 function _isodd_fermionic_parity(s::QNIndex, n::Integer)
-  qn_n = qn(space(s)[n])
-  fermionic_qn_pos = findfirst(q -> isfermionic(q), qn_n)
-  isnothing(fermionic_qn_pos) && return false
-  return isodd(val(qn_n[fermionic_qn_pos]))
+    qn_n = qn(space(s)[n])
+    fermionic_qn_pos = findfirst(q -> isfermionic(q), qn_n)
+    isnothing(fermionic_qn_pos) && return false
+    return isodd(val(qn_n[fermionic_qn_pos]))
 end
 
 function _fermionic_swap(s1::Index, s2::Index)
-  T = ITensor(QN(), s1', s2', dag(s1), dag(s2))
-  for b in nzblocks(T)
-    dval = 1.0
-    # Must be a diagonal block
-    ((b[1] ≠ b[3]) || (b[2] ≠ b[4])) && continue
-    n1, n2 = b[1], b[2]
-    if _isodd_fermionic_parity(s1, n1) && _isodd_fermionic_parity(s2, n2)
-      dval = -1.0
+    T = ITensor(QN(), s1', s2', dag(s1), dag(s2))
+    for b in nzblocks(T)
+        dval = 1.0
+        # Must be a diagonal block
+        ((b[1] ≠ b[3]) || (b[2] ≠ b[4])) && continue
+        n1, n2 = b[1], b[2]
+        if _isodd_fermionic_parity(s1, n1) && _isodd_fermionic_parity(s2, n2)
+            dval = -1.0
+        end
+        Tb = ITensors.blockview(tensor(T), b)
+        mat_dim = prod(dims(Tb)[1:2])
+        Tbr = reshape(Tb, mat_dim, mat_dim)
+        for i in diagind(Tbr)
+            NDTensors.setdiagindex!(Tbr, dval, i)
+        end
     end
-    Tb = ITensors.blockview(tensor(T), b)
-    mat_dim = prod(dims(Tb)[1:2])
-    Tbr = reshape(Tb, mat_dim, mat_dim)
-    for i in diagind(Tbr)
-      NDTensors.setdiagindex!(Tbr, dval, i)
-    end
-  end
-  return T
+    return T
 end
 
 # TODO: add a version that determines the sites
@@ -1836,102 +1836,102 @@ should be within `r`.
 Optionally, permute the order of the sites with `perm`.
 """
 function setindex!(
-  ψ::MPST,
-  A::ITensor,
-  r::UnitRange{Int};
-  orthocenter::Integer=last(r),
-  perm=nothing,
-  kwargs...,
-) where {MPST<:AbstractMPS}
-  # Replace the sites of ITensor ψ
-  # with the tensor A, splitting up A
-  # into MPS tensors
-  firstsite = first(r)
-  lastsite = last(r)
-  @assert firstsite ≤ ITensorMPS.orthocenter(ψ) ≤ lastsite
-  @assert firstsite ≤ leftlim(ψ) + 1
-  @assert rightlim(ψ) - 1 ≤ lastsite
+        ψ::MPST,
+        A::ITensor,
+        r::UnitRange{Int};
+        orthocenter::Integer = last(r),
+        perm = nothing,
+        kwargs...,
+    ) where {MPST <: AbstractMPS}
+    # Replace the sites of ITensor ψ
+    # with the tensor A, splitting up A
+    # into MPS tensors
+    firstsite = first(r)
+    lastsite = last(r)
+    @assert firstsite ≤ ITensorMPS.orthocenter(ψ) ≤ lastsite
+    @assert firstsite ≤ leftlim(ψ) + 1
+    @assert rightlim(ψ) - 1 ≤ lastsite
 
-  # TODO: allow orthocenter outside of this
-  # range, and orthogonalize/truncate as needed
-  @assert firstsite ≤ orthocenter ≤ lastsite
+    # TODO: allow orthocenter outside of this
+    # range, and orthogonalize/truncate as needed
+    @assert firstsite ≤ orthocenter ≤ lastsite
 
-  # Check that A has the proper common
-  # indices with ψ
-  lind = linkind(ψ, firstsite - 1)
-  rind = linkind(ψ, lastsite)
+    # Check that A has the proper common
+    # indices with ψ
+    lind = linkind(ψ, firstsite - 1)
+    rind = linkind(ψ, lastsite)
 
-  sites = [siteinds(ψ, j) for j in firstsite:lastsite]
+    sites = [siteinds(ψ, j) for j in firstsite:lastsite]
 
-  #s = collect(Iterators.flatten(sites))
-  indsA = filter(x -> !isnothing(x), [lind, Iterators.flatten(sites)..., rind])
-  @assert hassameinds(A, indsA)
+    #s = collect(Iterators.flatten(sites))
+    indsA = filter(x -> !isnothing(x), [lind, Iterators.flatten(sites)..., rind])
+    @assert hassameinds(A, indsA)
 
-  # For MPO case, restrict to 0 prime level
-  #sites = filter(hasplev(0), sites)
+    # For MPO case, restrict to 0 prime level
+    #sites = filter(hasplev(0), sites)
 
-  if !isnothing(perm)
-    sites0 = sites
-    sites = sites0[[perm...]]
-    # Check if the site indices
-    # are fermionic
-    if !using_auto_fermion() && any(ITensors.anyfermionic, sites)
-      if length(sites) == 2 && ψ isa MPS
-        if all(ITensors.allfermionic, sites)
-          s0 = Index.(sites0)
+    if !isnothing(perm)
+        sites0 = sites
+        sites = sites0[[perm...]]
+        # Check if the site indices
+        # are fermionic
+        if !using_auto_fermion() && any(ITensors.anyfermionic, sites)
+            if length(sites) == 2 && ψ isa MPS
+                if all(ITensors.allfermionic, sites)
+                    s0 = Index.(sites0)
 
-          # TODO: the Fermionic swap is could be diagonal,
-          # if we combine the site indices
-          #C = combiner(s0[1], s0[2])
-          #c = combinedind(C)
-          #AC = A * C
-          #AC = noprime(AC * _fermionic_swap(c))
-          #A = AC * dag(C)
+                    # TODO: the Fermionic swap is could be diagonal,
+                    # if we combine the site indices
+                    #C = combiner(s0[1], s0[2])
+                    #c = combinedind(C)
+                    #AC = A * C
+                    #AC = noprime(AC * _fermionic_swap(c))
+                    #A = AC * dag(C)
 
-          FSWAP = adapt(datatype(A), _fermionic_swap(s0[1], s0[2]))
-          A = noprime(A * FSWAP)
+                    FSWAP = adapt(datatype(A), _fermionic_swap(s0[1], s0[2]))
+                    A = noprime(A * FSWAP)
+                end
+            elseif ψ isa MPO
+                @warn "In setindex!(MPO, ::ITensor, ::UnitRange), " *
+                    "fermionic signs are only not handled properly for non-trivial " *
+                    "permutations of sites. Please inform the developers of ITensors " *
+                    "if you require this feature (otherwise, fermionic signs can be " *
+                    "put in manually with fermionic swap gates)."
+            else
+                @warn "In setindex!(::Union{MPS, MPO}, ::ITensor, ::UnitRange), " *
+                    "fermionic signs are only handled properly for permutations involving 2 sites. " *
+                    "The original sites are $sites0, with a permutation $perm. " *
+                    "To have the fermion sign handled correctly, we recommend performing your permutation " *
+                    "pairwise."
+            end
         end
-      elseif ψ isa MPO
-        @warn "In setindex!(MPO, ::ITensor, ::UnitRange), " *
-          "fermionic signs are only not handled properly for non-trivial " *
-          "permutations of sites. Please inform the developers of ITensors " *
-          "if you require this feature (otherwise, fermionic signs can be " *
-          "put in manually with fermionic swap gates)."
-      else
-        @warn "In setindex!(::Union{MPS, MPO}, ::ITensor, ::UnitRange), " *
-          "fermionic signs are only handled properly for permutations involving 2 sites. " *
-          "The original sites are $sites0, with a permutation $perm. " *
-          "To have the fermion sign handled correctly, we recommend performing your permutation " *
-          "pairwise."
-      end
     end
-  end
 
-  # use the first link index if present, otherwise use the default tag
-  linktags = TagSet[
-    (b=linkind(ψ, i); isnothing(b) ? defaultlinkindtags(i) : tags(b)) for
-    i in firstsite:(lastsite - 1)
-  ]
+    # use the first link index if present, otherwise use the default tag
+    linktags = TagSet[
+        (b = linkind(ψ, i); isnothing(b) ? defaultlinkindtags(i) : tags(b)) for
+            i in firstsite:(lastsite - 1)
+    ]
 
-  ψA = MPST(
-    A,
-    sites;
-    leftinds=lind,
-    orthocenter=orthocenter - first(r) + 1,
-    tags=linktags,
-    kwargs...,
-  )
-  #@assert prod(ψA) ≈ A
+    ψA = MPST(
+        A,
+        sites;
+        leftinds = lind,
+        orthocenter = orthocenter - first(r) + 1,
+        tags = linktags,
+        kwargs...,
+    )
+    #@assert prod(ψA) ≈ A
 
-  ψ[firstsite:lastsite] = ψA
+    ψ[firstsite:lastsite] = ψA
 
-  return ψ
+    return ψ
 end
 
 function setindex!(
-  ψ::MPST, A::ITensor, r::UnitRange{Int}, args::Pair{Symbol}...; kwargs...
-) where {MPST<:AbstractMPS}
-  return setindex!(ψ, A, r; args..., kwargs...)
+        ψ::MPST, A::ITensor, r::UnitRange{Int}, args::Pair{Symbol}...; kwargs...
+    ) where {MPST <: AbstractMPS}
+    return setindex!(ψ, A, r; args..., kwargs...)
 end
 
 replacesites!(ψ::AbstractMPS, args...; kwargs...) = setindex!(ψ, args...; kwargs...)
@@ -1963,47 +1963,47 @@ by site according to the site indices `sites`.
 - `maxdim`: the maximum link dimension.
 """
 function (::Type{MPST})(
-  A::ITensor,
-  sites;
-  leftinds=nothing,
-  orthocenter::Integer=length(sites),
-  tags=[defaultlinktags(i) for i in 1:(length(sites) - 1)],
-  kwargs...,
-) where {MPST<:AbstractMPS}
-  N = length(sites)
-  for s in sites
-    @assert hasinds(A, s)
-  end
-  @assert isnothing(leftinds) || hasinds(A, leftinds)
-
-  @assert 1 ≤ orthocenter ≤ N
-
-  ψ = Vector{ITensor}(undef, N)
-  Ã = A
-  l = leftinds
-  # TODO: To minimize work, loop from
-  # 1:orthocenter and reverse(orthocenter:N)
-  # so the orthogonality center is set correctly.
-  for n in 1:(N - 1)
-    Lis = IndexSet(sites[n])
-    if !isnothing(l)
-      Lis = unioninds(Lis, l)
+        A::ITensor,
+        sites;
+        leftinds = nothing,
+        orthocenter::Integer = length(sites),
+        tags = [defaultlinktags(i) for i in 1:(length(sites) - 1)],
+        kwargs...,
+    ) where {MPST <: AbstractMPS}
+    N = length(sites)
+    for s in sites
+        @assert hasinds(A, s)
     end
-    L, R = factorize(Ã, Lis; kwargs..., tags=tags[n], ortho="left")
-    l = commonind(L, R)
-    ψ[n] = L
-    Ã = R
-  end
-  ψ[N] = Ã
-  M = MPST(ψ)
-  setleftlim!(M, N - 1)
-  setrightlim!(M, N + 1)
-  M = orthogonalize(M, orthocenter)
-  return M
+    @assert isnothing(leftinds) || hasinds(A, leftinds)
+
+    @assert 1 ≤ orthocenter ≤ N
+
+    ψ = Vector{ITensor}(undef, N)
+    Ã = A
+    l = leftinds
+    # TODO: To minimize work, loop from
+    # 1:orthocenter and reverse(orthocenter:N)
+    # so the orthogonality center is set correctly.
+    for n in 1:(N - 1)
+        Lis = IndexSet(sites[n])
+        if !isnothing(l)
+            Lis = unioninds(Lis, l)
+        end
+        L, R = factorize(Ã, Lis; kwargs..., tags = tags[n], ortho = "left")
+        l = commonind(L, R)
+        ψ[n] = L
+        Ã = R
+    end
+    ψ[N] = Ã
+    M = MPST(ψ)
+    setleftlim!(M, N - 1)
+    setrightlim!(M, N + 1)
+    M = orthogonalize(M, orthocenter)
+    return M
 end
 
-function (::Type{MPST})(A::AbstractArray, sites; kwargs...) where {MPST<:AbstractMPS}
-  return MPST(itensor(A, sites...), sites; kwargs...)
+function (::Type{MPST})(A::AbstractArray, sites; kwargs...) where {MPST <: AbstractMPS}
+    return MPST(itensor(A, sites...), sites; kwargs...)
 end
 
 """
@@ -2011,20 +2011,20 @@ end
 
 Swap the sites `b` and `b+1`.
 """
-function swapbondsites(ψ::AbstractMPS, b::Integer; ortho="right", kwargs...)
-  ψ = copy(ψ)
-  if ortho == "left"
-    orthocenter = b + 1
-  elseif ortho == "right"
-    orthocenter = b
-  end
-  if leftlim(ψ) < b - 1
-    ψ = orthogonalize(ψ, b)
-  elseif rightlim(ψ) > b + 2
-    ψ = orthogonalize(ψ, b + 1)
-  end
-  ψ[b:(b + 1), orthocenter = orthocenter, perm = [2, 1], kwargs...] = ψ[b] * ψ[b + 1]
-  return ψ
+function swapbondsites(ψ::AbstractMPS, b::Integer; ortho = "right", kwargs...)
+    ψ = copy(ψ)
+    if ortho == "left"
+        orthocenter = b + 1
+    elseif ortho == "right"
+        orthocenter = b
+    end
+    if leftlim(ψ) < b - 1
+        ψ = orthogonalize(ψ, b)
+    elseif rightlim(ψ) > b + 2
+        ψ = orthogonalize(ψ, b + 1)
+    end
+    ψ[b:(b + 1), orthocenter = orthocenter, perm = [2, 1], kwargs...] = ψ[b] * ψ[b + 1]
+    return ψ
 end
 
 """
@@ -2037,83 +2037,83 @@ This is done with a series a pairwise swaps, and can introduce
 a lot of entanglement into your state, so use with caution.
 """
 function movesite(
-  ψ::AbstractMPS, n1n2::Pair{Int,Int}; orthocenter::Integer=last(n1n2), kwargs...
-)
-  n1, n2 = n1n2
-  n1 == n2 && return copy(ψ)
-  ψ = orthogonalize(ψ, n2)
-  r = n1:(n2 - 1)
-  ortho = "left"
-  if n1 > n2
-    r = reverse(n2:(n1 - 1))
-    ortho = "right"
-  end
-  for n in r
-    ψ = swapbondsites(ψ, n; ortho=ortho, kwargs...)
-  end
-  ψ = orthogonalize(ψ, orthocenter)
-  return ψ
+        ψ::AbstractMPS, n1n2::Pair{Int, Int}; orthocenter::Integer = last(n1n2), kwargs...
+    )
+    n1, n2 = n1n2
+    n1 == n2 && return copy(ψ)
+    ψ = orthogonalize(ψ, n2)
+    r = n1:(n2 - 1)
+    ortho = "left"
+    if n1 > n2
+        r = reverse(n2:(n1 - 1))
+        ortho = "right"
+    end
+    for n in r
+        ψ = swapbondsites(ψ, n; ortho = ortho, kwargs...)
+    end
+    ψ = orthogonalize(ψ, orthocenter)
+    return ψ
 end
 
 # Helper function for permuting a vector for the
 # movesites function.
-function _movesite(ns::Vector{Int}, n1n2::Pair{Int,Int})
-  n1, n2 = n1n2
-  n1 == n2 && return copy(ns)
-  r = n1:(n2 - 1)
-  if n1 > n2
-    r = reverse(n2:(n1 - 1))
-  end
-  for n in r
-    ns = replace(ns, n => n + 1, n + 1 => n)
-  end
-  return ns
+function _movesite(ns::Vector{Int}, n1n2::Pair{Int, Int})
+    n1, n2 = n1n2
+    n1 == n2 && return copy(ns)
+    r = n1:(n2 - 1)
+    if n1 > n2
+        r = reverse(n2:(n1 - 1))
+    end
+    for n in r
+        ns = replace(ns, n => n + 1, n + 1 => n)
+    end
+    return ns
 end
 
 function _movesites(ψ::AbstractMPS, ns::Vector{Int}, ns′::Vector{Int}; kwargs...)
-  ψ = copy(ψ)
-  N = length(ns)
-  @assert N == length(ns′)
-  for i in 1:N
-    ψ = movesite(ψ, ns[i] => ns′[i]; kwargs...)
-    ns = _movesite(ns, ns[i] => ns′[i])
-  end
-  return ψ, ns
+    ψ = copy(ψ)
+    N = length(ns)
+    @assert N == length(ns′)
+    for i in 1:N
+        ψ = movesite(ψ, ns[i] => ns′[i]; kwargs...)
+        ns = _movesite(ns, ns[i] => ns′[i])
+    end
+    return ψ, ns
 end
 
 # TODO: make a permutesites(::MPS/MPO, perm)
 # function that takes a permutation of the sites
 # p(1:N) for N sites
-function movesites(ψ::AbstractMPS, nsns′::Vector{Pair{Int,Int}}; kwargs...)
-  ns = first.(nsns′)
-  ns′ = last.(nsns′)
-  ψ = copy(ψ)
-  N = length(ns)
-  @assert N == length(ns′)
-  p = sortperm(ns′)
-  ns = ns[p]
-  ns′ = ns′[p]
-  ns = collect(ns)
-  while ns ≠ ns′
-    ψ, ns = _movesites(ψ, ns, ns′; kwargs...)
-  end
-  return ψ
+function movesites(ψ::AbstractMPS, nsns′::Vector{Pair{Int, Int}}; kwargs...)
+    ns = first.(nsns′)
+    ns′ = last.(nsns′)
+    ψ = copy(ψ)
+    N = length(ns)
+    @assert N == length(ns′)
+    p = sortperm(ns′)
+    ns = ns[p]
+    ns′ = ns′[p]
+    ns = collect(ns)
+    while ns ≠ ns′
+        ψ, ns = _movesites(ψ, ns, ns′; kwargs...)
+    end
+    return ψ
 end
 
 # TODO: call the Vector{Pair{Int, Int}} version
 function movesites(ψ::AbstractMPS, ns, ns′; kwargs...)
-  ψ = copy(ψ)
-  N = length(ns)
-  @assert N == length(ns′)
-  p = sortperm(ns′)
-  ns = ns[p]
-  ns′ = ns′[p]
-  ns = collect(ns)
-  for i in 1:N
-    ψ = movesite(ψ, ns[i] => ns′[i]; kwargs...)
-    ns = _movesite(ns, ns[i] => ns′[i])
-  end
-  return ψ
+    ψ = copy(ψ)
+    N = length(ns)
+    @assert N == length(ns′)
+    p = sortperm(ns′)
+    ns = ns[p]
+    ns′ = ns′[p]
+    ns = collect(ns)
+    for i in 1:N
+        ψ = movesite(ψ, ns[i] => ns′[i]; kwargs...)
+        ns = _movesite(ns, ns[i] => ns′[i])
+    end
+    return ψ
 end
 
 """
@@ -2141,38 +2141,38 @@ to false.
    MPO, move the sites of the MPS or MPO back to their original locations.
 """
 function product(
-  o::ITensor,
-  ψ::AbstractMPS,
-  ns=findsites(ψ, o);
-  move_sites_back::Bool=true,
-  apply_dag::Bool=false,
-  kwargs...,
-)
-  N = length(ns)
-  ns = sort(ns)
+        o::ITensor,
+        ψ::AbstractMPS,
+        ns = findsites(ψ, o);
+        move_sites_back::Bool = true,
+        apply_dag::Bool = false,
+        kwargs...,
+    )
+    N = length(ns)
+    ns = sort(ns)
 
-  # TODO: make this smarter by minimizing
-  # distance to orthogonalization.
-  # For example, if ITensors.orthocenter(ψ) > ns[end],
-  # set to ns[end].
-  ψ = orthogonalize(ψ, ns[1])
-  diff_ns = diff(ns)
-  ns′ = ns
-  if any(!=(1), diff_ns)
-    ns′ = [ns[1] + n - 1 for n in 1:N]
-    ψ = movesites(ψ, ns .=> ns′; kwargs...)
-  end
-  ϕ = ψ[ns′[1]]
-  for n in 2:N
-    ϕ *= ψ[ns′[n]]
-  end
-  ϕ = product(o, ϕ; apply_dag=apply_dag)
-  ψ[ns′[1]:ns′[end], kwargs...] = ϕ
-  if move_sites_back
-    # Move the sites back to their original positions
-    ψ = movesites(ψ, ns′ .=> ns; kwargs...)
-  end
-  return ψ
+    # TODO: make this smarter by minimizing
+    # distance to orthogonalization.
+    # For example, if ITensors.orthocenter(ψ) > ns[end],
+    # set to ns[end].
+    ψ = orthogonalize(ψ, ns[1])
+    diff_ns = diff(ns)
+    ns′ = ns
+    if any(!=(1), diff_ns)
+        ns′ = [ns[1] + n - 1 for n in 1:N]
+        ψ = movesites(ψ, ns .=> ns′; kwargs...)
+    end
+    ϕ = ψ[ns′[1]]
+    for n in 2:N
+        ϕ *= ψ[ns′[n]]
+    end
+    ϕ = product(o, ϕ; apply_dag = apply_dag)
+    ψ[ns′[1]:ns′[end], kwargs...] = ϕ
+    if move_sites_back
+        # Move the sites back to their original positions
+        ψ = movesites(ψ, ns′ .=> ns; kwargs...)
+    end
+    return ψ
 end
 
 """
@@ -2274,23 +2274,23 @@ expτH = ops(os, s)
 ```
 """
 function product(
-  As::Vector{ITensor},
-  ψ::AbstractMPS;
-  move_sites_back_between_gates::Bool=true,
-  move_sites_back::Bool=true,
-  kwargs...,
-)
-  Aψ = ψ
-  for A in As
-    Aψ = product(A, Aψ; move_sites_back=move_sites_back_between_gates, kwargs...)
-  end
-  if !move_sites_back_between_gates && move_sites_back
-    s = siteinds(Aψ)
-    ns = 1:length(ψ)
-    ñs = [findsite(ψ, i) for i in s]
-    Aψ = movesites(Aψ, ns .=> ñs; kwargs...)
-  end
-  return Aψ
+        As::Vector{ITensor},
+        ψ::AbstractMPS;
+        move_sites_back_between_gates::Bool = true,
+        move_sites_back::Bool = true,
+        kwargs...,
+    )
+    Aψ = ψ
+    for A in As
+        Aψ = product(A, Aψ; move_sites_back = move_sites_back_between_gates, kwargs...)
+    end
+    if !move_sites_back_between_gates && move_sites_back
+        s = siteinds(Aψ)
+        ns = 1:length(ψ)
+        ñs = [findsite(ψ, i) for i in s]
+        Aψ = movesites(Aψ, ns .=> ñs; kwargs...)
+    end
+    return Aψ
 end
 
 # Apply in the reverse order for proper order of operations
@@ -2307,11 +2307,11 @@ end
 # # U|ψ⟩ = Z₁X₁|ψ⟩
 # apply(U,
 function product(o::Prod{ITensor}, ψ::AbstractMPS; kwargs...)
-  return product(reverse(terms(o)), ψ; kwargs...)
+    return product(reverse(terms(o)), ψ; kwargs...)
 end
 
 function (o::Prod{ITensor})(ψ::AbstractMPS; kwargs...)
-  return apply(o, ψ; kwargs...)
+    return apply(o, ψ; kwargs...)
 end
 
 #
@@ -2349,21 +2349,21 @@ the tensors in the network. The name
 `totalqn` is an alias for `flux`.
 """
 function flux(M::AbstractMPS)
-  hasqns(M) || return nothing
-  q = QN()
-  for j in (M.llim + 1):(M.rlim - 1)
-    q += flux(M[j])
-  end
-  return q
+    hasqns(M) || return nothing
+    q = QN()
+    for j in (M.llim + 1):(M.rlim - 1)
+        q += flux(M[j])
+    end
+    return q
 end
 
 totalqn(M::AbstractMPS) = flux(M)
 
 function checkflux(M::AbstractMPS)
-  for m in M
-    checkflux(m)
-  end
-  return nothing
+    for m in M
+        checkflux(m)
+    end
+    return nothing
 end
 
 """
@@ -2375,26 +2375,26 @@ Then, only keep the blocks with `norm(b) > tol`.
 This can make the ITensors of the MPS/MPO more sparse, and is particularly
 helpful as a preprocessing step on a local Hamiltonian MPO for DMRG.
 """
-function splitblocks!(::typeof(linkinds), M::AbstractMPS; tol=0)
-  for i in eachindex(M)[1:(end - 1)]
-    l = linkind(M, i)
-    if !isnothing(l)
-      @preserve_ortho M begin
-        M[i] = splitblocks(M[i], l)
-        M[i + 1] = splitblocks(M[i + 1], l)
-      end
+function splitblocks!(::typeof(linkinds), M::AbstractMPS; tol = 0)
+    for i in eachindex(M)[1:(end - 1)]
+        l = linkind(M, i)
+        if !isnothing(l)
+            @preserve_ortho M begin
+                M[i] = splitblocks(M[i], l)
+                M[i + 1] = splitblocks(M[i + 1], l)
+            end
+        end
     end
-  end
-  return M
+    return M
 end
 
-function splitblocks(::typeof(linkinds), M::AbstractMPS; tol=0)
-  return splitblocks!(linkinds, copy(M); tol=0)
+function splitblocks(::typeof(linkinds), M::AbstractMPS; tol = 0)
+    return splitblocks!(linkinds, copy(M); tol = 0)
 end
 
-removeqns(M::AbstractMPS) = map(removeqns, M; set_limits=false)
+removeqns(M::AbstractMPS) = map(removeqns, M; set_limits = false)
 function QuantumNumbers.removeqn(M::AbstractMPS, qn_name::String)
-  return map(m -> removeqn(m, qn_name), M; set_limits=false)
+    return map(m -> removeqn(m, qn_name), M; set_limits = false)
 end
 
 #
@@ -2402,32 +2402,32 @@ end
 #
 
 BroadcastStyle(MPST::Type{<:AbstractMPS}) = Style{MPST}()
-function BroadcastStyle(::Style{MPST}, ::DefaultArrayStyle{N}) where {N,MPST<:AbstractMPS}
-  return Style{MPST}()
+function BroadcastStyle(::Style{MPST}, ::DefaultArrayStyle{N}) where {N, MPST <: AbstractMPS}
+    return Style{MPST}()
 end
 
 broadcastable(ψ::AbstractMPS) = ψ
 function copyto!(ψ::AbstractMPS, b::Broadcasted)
-  copyto!(data(ψ), b)
-  # In general, we assume the broadcast operation
-  # will mess up the orthogonality
-  # TODO: special case for `prime`, `settags`, etc.
-  reset_ortho_lims!(ψ)
-  return ψ
+    copyto!(data(ψ), b)
+    # In general, we assume the broadcast operation
+    # will mess up the orthogonality
+    # TODO: special case for `prime`, `settags`, etc.
+    reset_ortho_lims!(ψ)
+    return ψ
 end
 
-function Base.similar(bc::Broadcasted{Style{MPST}}, ElType::Type) where {MPST<:AbstractMPS}
-  return similar(Array{ElType}, axes(bc))
+function Base.similar(bc::Broadcasted{Style{MPST}}, ElType::Type) where {MPST <: AbstractMPS}
+    return similar(Array{ElType}, axes(bc))
 end
 
 function Base.similar(
-  bc::Broadcasted{Style{MPST}}, ::Type{ITensor}
-) where {MPST<:AbstractMPS}
-  # In general, we assume the broadcast operation
-  # will mess up the orthogonality so we use
-  # a generic constructor where we don't specify
-  # the orthogonality limits.
-  return MPST(similar(Array{ITensor}, axes(bc)))
+        bc::Broadcasted{Style{MPST}}, ::Type{ITensor}
+    ) where {MPST <: AbstractMPS}
+    # In general, we assume the broadcast operation
+    # will mess up the orthogonality so we use
+    # a generic constructor where we don't specify
+    # the orthogonality limits.
+    return MPST(similar(Array{ITensor}, axes(bc)))
 end
 
 #
@@ -2435,18 +2435,19 @@ end
 #
 
 function Base.show(io::IO, M::AbstractMPS)
-  print(io, "$(typeof(M))")
-  (length(M) > 0) && print(io, "\n")
-  for i in eachindex(M)
-    if !isassigned(M, i)
-      println(io, "#undef")
-    else
-      A = M[i]
-      if order(A) != 0
-        println(io, "[$i] $(inds(A))")
-      else
-        println(io, "[$i] ITensor()")
-      end
+    print(io, "$(typeof(M))")
+    (length(M) > 0) && print(io, "\n")
+    for i in eachindex(M)
+        if !isassigned(M, i)
+            println(io, "#undef")
+        else
+            A = M[i]
+            if order(A) != 0
+                println(io, "[$i] $(inds(A))")
+            else
+                println(io, "[$i] ITensor()")
+            end
+        end
     end
-  end
+    return
 end

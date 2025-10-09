@@ -16,20 +16,20 @@ parameters are:
   - `noise(sw,n)` -- noise term coefficient for sweep n
 """
 mutable struct Sweeps
-  nsweep::Int
-  maxdim::Vector{Int}
-  cutoff::Vector{Float64}
-  mindim::Vector{Int}
-  noise::Vector{Float64}
+    nsweep::Int
+    maxdim::Vector{Int}
+    cutoff::Vector{Float64}
+    mindim::Vector{Int}
+    noise::Vector{Float64}
 
-  function Sweeps(nsw::Int; maxdim=typemax(Int), cutoff=1E-16, mindim=1, noise=0.0)
-    sw = new(nsw, fill(typemax(Int), nsw), fill(1E-16, nsw), fill(1, nsw), fill(0.0, nsw))
-    setmaxdim!(sw, maxdim...)
-    setmindim!(sw, mindim...)
-    setcutoff!(sw, cutoff...)
-    setnoise!(sw, noise...)
-    return sw
-  end
+    function Sweeps(nsw::Int; maxdim = typemax(Int), cutoff = 1.0e-16, mindim = 1, noise = 0.0)
+        sw = new(nsw, fill(typemax(Int), nsw), fill(1.0e-16, nsw), fill(1, nsw), fill(0.0, nsw))
+        setmaxdim!(sw, maxdim...)
+        setmindim!(sw, mindim...)
+        setcutoff!(sw, cutoff...)
+        setnoise!(sw, noise...)
+        return sw
+    end
 end
 
 Sweeps() = Sweeps(0)
@@ -71,23 +71,23 @@ Sweeps
 ```
 """
 function Sweeps(nsw::Int, d::AbstractMatrix)
-  sw = Sweeps(nsw)
-  vars = d[1, :]
-  for (n, var) in enumerate(vars)
-    inputs = d[2:end, n]
-    if var == "maxdim"
-      maxdim!(sw, inputs...)
-    elseif var == "cutoff"
-      cutoff!(sw, inputs...)
-    elseif var == "mindim"
-      mindim!(sw, inputs...)
-    elseif var == "noise"
-      noise!(sw, float.(inputs)...)
-    else
-      error("Sweeps object does not have the field $var")
+    sw = Sweeps(nsw)
+    vars = d[1, :]
+    for (n, var) in enumerate(vars)
+        inputs = d[2:end, n]
+        if var == "maxdim"
+            maxdim!(sw, inputs...)
+        elseif var == "cutoff"
+            cutoff!(sw, inputs...)
+        elseif var == "mindim"
+            mindim!(sw, inputs...)
+        elseif var == "noise"
+            noise!(sw, float.(inputs)...)
+        else
+            error("Sweeps object does not have the field $var")
+        end
     end
-  end
-  return sw
+    return sw
 end
 
 Sweeps(d::AbstractMatrix) = Sweeps(size(d, 1) - 1, d)
@@ -151,10 +151,11 @@ If fewer values are provided, the last value
 is repeated for the remaining sweeps.
 """
 function setmaxdim!(sw::Sweeps, maxdims::Int...)::Nothing
-  mdims = collect(maxdims)
-  for i in 1:nsweep(sw)
-    sw.maxdim[i] = get(mdims, i, maxdims[end])
-  end
+    mdims = collect(maxdims)
+    for i in 1:nsweep(sw)
+        sw.maxdim[i] = get(mdims, i, maxdims[end])
+    end
+    return
 end
 maxdim!(sw::Sweeps, maxdims::Int...) = setmaxdim!(sw, maxdims...)
 
@@ -167,10 +168,11 @@ If fewer values are provided, the last value
 is repeated for the remaining sweeps.
 """
 function setmindim!(sw::Sweeps, mindims::Int...)::Nothing
-  mdims = collect(mindims)
-  for i in 1:nsweep(sw)
-    sw.mindim[i] = get(mdims, i, mindims[end])
-  end
+    mdims = collect(mindims)
+    for i in 1:nsweep(sw)
+        sw.mindim[i] = get(mdims, i, mindims[end])
+    end
+    return
 end
 mindim!(sw::Sweeps, mindims::Int...) = setmindim!(sw, mindims...)
 
@@ -183,10 +185,11 @@ If fewer values are provided, the last value
 is repeated for the remaining sweeps.
 """
 function setcutoff!(sw::Sweeps, cutoffs::Real...)::Nothing
-  cuts = collect(cutoffs)
-  for i in 1:nsweep(sw)
-    sw.cutoff[i] = get(cuts, i, cutoffs[end])
-  end
+    cuts = collect(cutoffs)
+    for i in 1:nsweep(sw)
+        sw.cutoff[i] = get(cuts, i, cutoffs[end])
+    end
+    return
 end
 cutoff!(sw::Sweeps, cutoffs::Real...) = setcutoff!(sw, cutoffs...)
 
@@ -199,31 +202,33 @@ If fewer values are provided, the last value
 is repeated for the remaining sweeps.
 """
 function setnoise!(sw::Sweeps, noises::Real...)::Nothing
-  nvals = collect(noises)
-  for i in 1:nsweep(sw)
-    sw.noise[i] = get(nvals, i, noises[end])
-  end
+    nvals = collect(noises)
+    for i in 1:nsweep(sw)
+        sw.noise[i] = get(nvals, i, noises[end])
+    end
+    return
 end
 noise!(sw::Sweeps, noises::Real...) = setnoise!(sw, noises...)
 
 function Base.show(io::IO, sw::Sweeps)
-  println(io, "Sweeps")
-  for n in 1:nsweep(sw)
-    @printf(
-      io,
-      "%d cutoff=%.1E, maxdim=%d, mindim=%d, noise=%.1E\n",
-      n,
-      cutoff(sw, n),
-      maxdim(sw, n),
-      mindim(sw, n),
-      noise(sw, n)
-    )
-  end
+    println(io, "Sweeps")
+    for n in 1:nsweep(sw)
+        @printf(
+            io,
+            "%d cutoff=%.1E, maxdim=%d, mindim=%d, noise=%.1E\n",
+            n,
+            cutoff(sw, n),
+            maxdim(sw, n),
+            mindim(sw, n),
+            noise(sw, n)
+        )
+    end
+    return
 end
 
 struct SweepNext
-  N::Int
-  ncenter::Int
+    N::Int
+    ncenter::Int
 end
 
 """
@@ -236,31 +241,31 @@ number. Takes an optional named argument
 `ncenter` for use with an n-site MPS or DMRG
 algorithm, with a default of 2-site.
 """
-function sweepnext(N::Int; ncenter::Int=2)::SweepNext
-  if ncenter < 0
-    error("ncenter must be non-negative")
-  end
-  return SweepNext(N, ncenter)
+function sweepnext(N::Int; ncenter::Int = 2)::SweepNext
+    if ncenter < 0
+        error("ncenter must be non-negative")
+    end
+    return SweepNext(N, ncenter)
 end
 
-function Base.iterate(sn::SweepNext, state=(0, 1))
-  b, ha = state
-  if ha == 1
-    inc = 1
-    bstop = sn.N - sn.ncenter + 2
-  else
-    inc = -1
-    bstop = 0
-  end
-  new_b = b + inc
-  new_ha = ha
-  done = false
-  if new_b == bstop
-    new_b -= inc
-    new_ha += 1
-    if ha == 2
-      return nothing
+function Base.iterate(sn::SweepNext, state = (0, 1))
+    b, ha = state
+    if ha == 1
+        inc = 1
+        bstop = sn.N - sn.ncenter + 2
+    else
+        inc = -1
+        bstop = 0
     end
-  end
-  return ((new_b, new_ha), (new_b, new_ha))
+    new_b = b + inc
+    new_ha = ha
+    done = false
+    if new_b == bstop
+        new_b -= inc
+        new_ha += 1
+        if ha == 2
+            return nothing
+        end
+    end
+    return ((new_b, new_ha), (new_b, new_ha))
 end

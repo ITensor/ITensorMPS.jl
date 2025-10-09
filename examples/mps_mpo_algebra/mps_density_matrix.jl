@@ -2,9 +2,9 @@ using ITensors, ITensorMPS
 
 N = 4
 nmps = 3
-cutoff = 1e-8
+cutoff = 1.0e-8
 s = siteinds("S=1/2", N)
-ψs = [random_mps(s; linkdims=2) for _ in 1:nmps]
+ψs = [random_mps(s; linkdims = 2) for _ in 1:nmps]
 ρs = [outer(ψ, ψ; cutoff) for ψ in ψs]
 ρ = sum(ρs; cutoff)
 
