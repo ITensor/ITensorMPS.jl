@@ -1,4 +1,3 @@
-
 """
 A ProjMPO computes and stores the projection of an
 MPO into a basis defined by an MPS, leaving a
@@ -19,17 +18,17 @@ o--o--o-      -o--o--o--o--o--o |psi>
 ```
 """
 mutable struct ProjMPO <: AbstractProjMPO
-  lpos::Int
-  rpos::Int
-  nsite::Int
-  H::MPO
-  LR::Vector{ITensor}
+    lpos::Int
+    rpos::Int
+    nsite::Int
+    H::MPO
+    LR::Vector{ITensor}
 end
 ProjMPO(H::MPO) = ProjMPO(0, length(H) + 1, 2, H, Vector{ITensor}(undef, length(H)))
 
 copy(P::ProjMPO) = ProjMPO(P.lpos, P.rpos, P.nsite, copy(P.H), copy(P.LR))
 
 function set_nsite!(P::ProjMPO, nsite)
-  P.nsite = nsite
-  return P
+    P.nsite = nsite
+    return P
 end

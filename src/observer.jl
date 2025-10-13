@@ -1,4 +1,3 @@
-
 abstract type AbstractObserver end
 
 measure!(o::AbstractObserver; kwargs...) = nothing
@@ -28,13 +27,13 @@ the `dmrg` function to return early if an
 energy convergence criterion is met.
 """
 struct DMRGObserver{T} <: AbstractObserver
-  ops::Vector{String}
-  sites::Vector{<:Index}
-  measurements::Dict{String,DMRGMeasurement}
-  energies::Vector{T}
-  truncerrs::Vector{Float64}
-  etol::Float64
-  minsweeps::Int64
+    ops::Vector{String}
+    sites::Vector{<:Index}
+    measurements::Dict{String, DMRGMeasurement}
+    energies::Vector{T}
+    truncerrs::Vector{Float64}
+    etol::Float64
+    minsweeps::Int64
 end
 
 """
@@ -54,16 +53,16 @@ Optional keyword arguments:
   - minsweeps: do at least this many sweeps
   - energy_type: type to use when storing energies at each step
 """
-function DMRGObserver(; energy_tol=0.0, minsweeps=2, energy_type=Float64)
-  return DMRGObserver(
-    String[],
-    Index[],
-    Dict{String,DMRGMeasurement}(),
-    energy_type[],
-    Float64[],
-    energy_tol,
-    minsweeps,
-  )
+function DMRGObserver(; energy_tol = 0.0, minsweeps = 2, energy_type = Float64)
+    return DMRGObserver(
+        String[],
+        Index[],
+        Dict{String, DMRGMeasurement}(),
+        energy_type[],
+        Float64[],
+        energy_tol,
+        minsweeps,
+    )
 end
 
 """
@@ -96,16 +95,16 @@ Optional keyword arguments:
   - energy_type: type to use when storing energies at each step
 """
 function DMRGObserver(
-  ops::Vector{String},
-  sites::Vector{<:Index};
-  energy_tol=0.0,
-  minsweeps=2,
-  energy_type=Float64,
-)
-  measurements = Dict(o => DMRGMeasurement() for o in ops)
-  return DMRGObserver{energy_type}(
-    ops, sites, measurements, energy_type[], Float64[], energy_tol, minsweeps
-  )
+        ops::Vector{String},
+        sites::Vector{<:Index};
+        energy_tol = 0.0,
+        minsweeps = 2,
+        energy_type = Float64,
+    )
+    measurements = Dict(o => DMRGMeasurement() for o in ops)
+    return DMRGObserver{energy_type}(
+        ops, sites, measurements, energy_type[], Float64[], energy_tol, minsweeps
+    )
 end
 
 """
@@ -135,56 +134,57 @@ observer_ops(obs::DMRGObserver) = obs.ops
 truncerrors(obs::DMRGObserver) = obs.truncerrs
 
 function measurelocalops!(obs::DMRGObserver, wf::ITensor, i::Int)
-  for o in observer_ops(obs)
-    # Moves to GPU if needed
-    oⱼ = adapt(datatype(wf), op(observer_sites(obs), o, i))
-    m = dot(wf, apply(oⱼ, wf))
-    imag(m) > 1e-8 && (@warn "encountered finite imaginary part when measuring $o")
-    measurements(obs)[o][end][i] = real(m)
-  end
+    for o in observer_ops(obs)
+        # Moves to GPU if needed
+        oⱼ = adapt(datatype(wf), op(observer_sites(obs), o, i))
+        m = dot(wf, apply(oⱼ, wf))
+        imag(m) > 1.0e-8 && (@warn "encountered finite imaginary part when measuring $o")
+        measurements(obs)[o][end][i] = real(m)
+    end
+    return
 end
 
 function measure!(obs::DMRGObserver; kwargs...)
-  half_sweep = kwargs[:half_sweep]
-  b = kwargs[:bond]
-  energy = kwargs[:energy]
-  psi = kwargs[:psi]
-  truncerr = truncerror(kwargs[:spec])
+    half_sweep = kwargs[:half_sweep]
+    b = kwargs[:bond]
+    energy = kwargs[:energy]
+    psi = kwargs[:psi]
+    truncerr = truncerror(kwargs[:spec])
 
-  if half_sweep == 2
-    N = length(psi)
+    return if half_sweep == 2
+        N = length(psi)
 
-    if b == (N - 1)
-      for o in observer_ops(obs)
-        push!(measurements(obs)[o], zeros(N))
-      end
-      push!(truncerrors(obs), 0.0)
+        if b == (N - 1)
+            for o in observer_ops(obs)
+                push!(measurements(obs)[o], zeros(N))
+            end
+            push!(truncerrors(obs), 0.0)
+        end
+
+        # when sweeping left the orthogonality center is located
+        # at site n=b after the bond update.
+        # We want to measure at n=b+1 because there the tensor has been
+        # already fully updated (by the right and left pass of the sweep).
+        wf = psi[b] * psi[b + 1]
+        measurelocalops!(obs, wf, b + 1)
+
+        if b == 1
+            push!(energies(obs), energy)
+            measurelocalops!(obs, wf, b)
+        end
+        truncerr > truncerrors(obs)[end] && (truncerrors(obs)[end] = truncerr)
     end
-
-    # when sweeping left the orthogonality center is located
-    # at site n=b after the bond update.
-    # We want to measure at n=b+1 because there the tensor has been
-    # already fully updated (by the right and left pass of the sweep).
-    wf = psi[b] * psi[b + 1]
-    measurelocalops!(obs, wf, b + 1)
-
-    if b == 1
-      push!(energies(obs), energy)
-      measurelocalops!(obs, wf, b)
-    end
-    truncerr > truncerrors(obs)[end] && (truncerrors(obs)[end] = truncerr)
-  end
 end
 
 function checkdone!(
-  o::DMRGObserver; outputlevel=false, energy=nothing, psi=nothing, sweep=nothing
-)
-  if (
-    length(real(energies(o))) > o.minsweeps &&
-    abs(real(energies(o))[end] - real(energies(o))[end - 1]) < o.etol
-  )
-    outputlevel > 0 && println("Energy difference less than $(o.etol), stopping DMRG")
-    return true
-  end
-  return false
+        o::DMRGObserver; outputlevel = false, energy = nothing, psi = nothing, sweep = nothing
+    )
+    if (
+            length(real(energies(o))) > o.minsweeps &&
+                abs(real(energies(o))[end] - real(energies(o))[end - 1]) < o.etol
+        )
+        outputlevel > 0 && println("Energy difference less than $(o.etol), stopping DMRG")
+        return true
+    end
+    return false
 end

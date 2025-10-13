@@ -27,13 +27,13 @@
 
 # Deprecated syntax for specifying link dimensions.
 @deprecate randomMPS(elt::Type{<:Number}, sites::Vector{<:Index}, state, linkdims::Integer) random_mps(
-  elt, sites, state; linkdims
+    elt, sites, state; linkdims
 )
 @deprecate randomMPS(elt::Type{<:Number}, sites::Vector{<:Index}, linkdims::Integer) random_mps(
-  elt, sites; linkdims
+    elt, sites; linkdims
 )
 @deprecate randomMPS(sites::Vector{<:Index}, state, linkdims::Integer) random_mps(
-  sites, state; linkdims
+    sites, state; linkdims
 )
 @deprecate randomMPS(sites::Vector{<:Index}, linkdims::Integer) random_mps(sites; linkdims)
 
@@ -58,49 +58,49 @@ map_linkinds!(f::Function, M::AbstractMPS) = map!(f, linkinds, M)
 map_linkinds(f::Function, M::AbstractMPS) = map(f, linkinds, M)
 
 function map_common_siteinds!(f::Function, M1::AbstractMPS, M2::AbstractMPS)
-  return map!(f, siteinds, commoninds, M1, M2)
+    return map!(f, siteinds, commoninds, M1, M2)
 end
 
 function map_common_siteinds(f::Function, M1::AbstractMPS, M2::AbstractMPS)
-  return map(f, siteinds, commoninds, M1, M2)
+    return map(f, siteinds, commoninds, M1, M2)
 end
 
 function map_unique_siteinds!(f::Function, M1::AbstractMPS, M2::AbstractMPS)
-  return map!(f, siteinds, uniqueinds, M1, M2)
+    return map!(f, siteinds, uniqueinds, M1, M2)
 end
 
 function map_unique_siteinds(f::Function, M1::AbstractMPS, M2::AbstractMPS)
-  return map(f, siteinds, uniqueinds, M1, M2)
+    return map(f, siteinds, uniqueinds, M1, M2)
 end
 
 for fname in
     (:sim, :prime, :setprime, :noprime, :addtags, :removetags, :replacetags, :settags)
-  @eval begin
-    function $(Symbol(fname, :_linkinds))(M::AbstractMPS, args...; kwargs...)
-      return map(i -> $fname(i, args...; kwargs...), linkinds, M)
+    @eval begin
+        function $(Symbol(fname, :_linkinds))(M::AbstractMPS, args...; kwargs...)
+            return map(i -> $fname(i, args...; kwargs...), linkinds, M)
+        end
+        function $(Symbol(fname, :_linkinds!))(M::AbstractMPS, args...; kwargs...)
+            return map!(i -> $fname(i, args...; kwargs...), linkinds, M)
+        end
+        function $(Symbol(fname, :_common_siteinds))(
+                M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
+            )
+            return map(i -> $fname(i, args...; kwargs...), siteinds, commoninds, M1, M2)
+        end
+        function $(Symbol(fname, :_common_siteinds!))(
+                M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
+            )
+            return map!(i -> $fname(i, args...; kwargs...), siteinds, commoninds, M1, M2)
+        end
+        function $(Symbol(fname, :_unique_siteinds))(
+                M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
+            )
+            return map(i -> $fname(i, args...; kwargs...), siteinds, uniqueinds, M1, M2)
+        end
+        function $(Symbol(fname, :_unique_siteinds!))(
+                M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
+            )
+            return map!(i -> $fname(i, args...; kwargs...), siteinds, uniqueinds, M1, M2)
+        end
     end
-    function $(Symbol(fname, :_linkinds!))(M::AbstractMPS, args...; kwargs...)
-      return map!(i -> $fname(i, args...; kwargs...), linkinds, M)
-    end
-    function $(Symbol(fname, :_common_siteinds))(
-      M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
-    )
-      return map(i -> $fname(i, args...; kwargs...), siteinds, commoninds, M1, M2)
-    end
-    function $(Symbol(fname, :_common_siteinds!))(
-      M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
-    )
-      return map!(i -> $fname(i, args...; kwargs...), siteinds, commoninds, M1, M2)
-    end
-    function $(Symbol(fname, :_unique_siteinds))(
-      M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
-    )
-      return map(i -> $fname(i, args...; kwargs...), siteinds, uniqueinds, M1, M2)
-    end
-    function $(Symbol(fname, :_unique_siteinds!))(
-      M1::AbstractMPS, M2::AbstractMPS, args...; kwargs...
-    )
-      return map!(i -> $fname(i, args...; kwargs...), siteinds, uniqueinds, M1, M2)
-    end
-  end
 end
