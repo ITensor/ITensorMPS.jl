@@ -57,12 +57,12 @@ opsum += (0.5,"S+",4,"S-",5)
 opsum .+= (0.5,"S+",5,"S-",6)
 ```
 """
-function add!(os::OpSum, o::Scaled{C,Prod{Op}}) where {C}
-  push!(terms(os), o)
-  return os
+function add!(os::OpSum, o::Scaled{C, Prod{Op}}) where {C}
+    push!(terms(os), o)
+    return os
 end
 add!(os::OpSum, o::Op) = add!(os, Prod{Op}() * o)
-add!(os::OpSum, o::Scaled{C,Op}) where {C} = add!(os, Prod{Op}() * o)
+add!(os::OpSum, o::Scaled{C, Op}) where {C} = add!(os, Prod{Op}() * o)
 add!(os::OpSum, o::Prod{Op}) = add!(os, one(Float64) * o)
 add!(os::OpSum, o::Tuple) = add!(os, Ops.op_term(o))
 add!(os::OpSum, a1::String, args...) = add!(os, (a1, args...))
@@ -70,13 +70,13 @@ add!(os::OpSum, a1::Number, args...) = add!(os, (a1, args...))
 subtract!(os::OpSum, o::Tuple) = add!(os, -Ops.op_term(o))
 
 function isfermionic(t::Vector{Op}, sites)
-  p = +1
-  for op in t
-    if has_fermion_string(ITensors.name(op), sites[site(op)])
-      p *= -1
+    p = +1
+    for op in t
+        if has_fermion_string(ITensors.name(op), sites[site(op)])
+            p *= -1
+        end
     end
-  end
-  return (p == -1)
+    return (p == -1)
 end
 
 #
@@ -99,146 +99,146 @@ Base.BroadcastStyle(::OpSumStyle, ::Broadcast.Style{Tuple}) = OpSumAddTermStyle(
 
 Broadcast.instantiate(bc::Broadcast.Broadcasted{OpSumAddTermStyle}) = bc
 
-function Base.copyto!(os, bc::Broadcast.Broadcasted{OpSumAddTermStyle,<:Any,typeof(+)})
-  add!(os, bc.args[2])
-  return os
+function Base.copyto!(os, bc::Broadcast.Broadcasted{OpSumAddTermStyle, <:Any, typeof(+)})
+    add!(os, bc.args[2])
+    return os
 end
 
-function Base.copyto!(os, bc::Broadcast.Broadcasted{OpSumAddTermStyle,<:Any,typeof(-)})
-  subtract!(os, bc.args[2])
-  return os
+function Base.copyto!(os, bc::Broadcast.Broadcasted{OpSumAddTermStyle, <:Any, typeof(-)})
+    subtract!(os, bc.args[2])
+    return os
 end
 
 # XXX: Create a new function name for this.
-isempty(op_qn::Pair{Vector{Op},QN}) = isempty(op_qn.first)
+isempty(op_qn::Pair{Vector{Op}, QN}) = isempty(op_qn.first)
 
 # the key type is Prod{Op} for the dense case
 # and is Pair{Prod{Op},QN} for the QN conserving case
-function posInLink!(linkmap::Dict{K,Int}, k::K)::Int where {K}
-  isempty(k) && return -1
-  pos = get(linkmap, k, -1)
-  if pos == -1
-    pos = length(linkmap) + 1
-    linkmap[k] = pos
-  end
-  return pos
+function posInLink!(linkmap::Dict{K, Int}, k::K)::Int where {K}
+    isempty(k) && return -1
+    pos = get(linkmap, k, -1)
+    if pos == -1
+        pos = length(linkmap) + 1
+        linkmap[k] = pos
+    end
+    return pos
 end
 
 # TODO: Define as `C`. Rename `coefficient_type`.
-function determineValType(terms::Vector{Scaled{C,Prod{Op}}}) where {C}
-  for t in terms
-    (!isreal(coefficient(t))) && return ComplexF64
-  end
-  return Float64
+function determineValType(terms::Vector{Scaled{C, Prod{Op}}}) where {C}
+    for t in terms
+        (!isreal(coefficient(t))) && return ComplexF64
+    end
+    return Float64
 end
 
 function computeSiteProd(sites, ops::Prod{Op})::ITensor
-  i = only(site(ops[1]))
-  T = op(sites[i], which_op(ops[1]); params(ops[1])...)
-  for j in 2:length(ops)
-    (only(site(ops[j])) != i) && error("Mismatch of site number in computeSiteProd")
-    opj = op(sites[i], which_op(ops[j]); params(ops[j])...)
-    T = product(T, opj)
-  end
-  return T
+    i = only(site(ops[1]))
+    T = op(sites[i], which_op(ops[1]); params(ops[1])...)
+    for j in 2:length(ops)
+        (only(site(ops[j])) != i) && error("Mismatch of site number in computeSiteProd")
+        opj = op(sites[i], which_op(ops[j]); params(ops[j])...)
+        T = product(T, opj)
+    end
+    return T
 end
 
 function remove_dups!(v::Vector{T}) where {T}
-  N = length(v)
-  (N == 0) && return nothing
-  sort!(v)
-  n = 1
-  u = 2
-  while u <= N
-    while u < N && v[u] == v[n]
-      u += 1
+    N = length(v)
+    (N == 0) && return nothing
+    sort!(v)
+    n = 1
+    u = 2
+    while u <= N
+        while u < N && v[u] == v[n]
+            u += 1
+        end
+        if v[u] != v[n]
+            v[n + 1] = v[u]
+            n += 1
+        end
+        u += 1
     end
-    if v[u] != v[n]
-      v[n + 1] = v[u]
-      n += 1
-    end
-    u += 1
-  end
-  resize!(v, n)
-  return nothing
+    resize!(v, n)
+    return nothing
 end #remove_dups!
 
 function sorteachterm(os::OpSum, sites)
-  os = copy(os)
+    os = copy(os)
 
-  for (j, t) in enumerate(os)
-    if maximum(ITensors.sites(t)) > length(sites)
-      error(
-        "The OpSum contains a term $t that extends beyond the number of sites $(length(sites)).",
-      )
+    for (j, t) in enumerate(os)
+        if maximum(ITensors.sites(t)) > length(sites)
+            error(
+                "The OpSum contains a term $t that extends beyond the number of sites $(length(sites)).",
+            )
+        end
+
+        # Sort operators in t by site order and
+        # save the permutation used, "perm", for analysis below
+        Nt = length(t)
+        perm = Vector{Int}(undef, Nt)
+        sortperm!(perm, terms(t); alg = InsertionSort, lt = (o1, o2) -> (site(o1) < site(o2)))
+        # Apply permutation:
+        t = coefficient(t) * Prod(terms(t)[perm])
+
+        # prevsite keeps track of whether we are switching
+        # to a new site to make sure F string
+        # is only placed at most once for each site
+        prevsite = typemax(Int)
+        t_parity = +1
+        for n in reverse(1:Nt)
+            site_n = only(site(t[n]))
+            if !using_auto_fermion() && (t_parity == -1) && (site_n < prevsite)
+                # Insert local piece of Jordan-Wigner string emanating
+                # from fermionic operators to the right
+                # (Remaining F operators will be put in by svdMPO)
+                terms(t)[n] = Op("$(which_op(t[n])) * F", site_n)
+            end
+            prevsite = site_n
+
+            if has_fermion_string(which_op(t[n]), sites[site_n])
+                t_parity = -t_parity
+            else
+                # Ignore bosonic operators in perm
+                # by zeroing corresponding entries
+                perm[n] = 0
+            end
+        end
+
+        (t_parity == -1) &&
+            error("Parity-odd fermionic terms not yet supported by OpSum to MPO conversion")
+
+        # Keep only fermionic op positions (non-zero entries)
+        filter!(!iszero, perm)
+        # and account for anti-commuting, fermionic operators
+        # during above sort; put resulting sign into coef
+        t *= ITensors.parity_sign(perm)
+        terms(os)[j] = t
     end
 
-    # Sort operators in t by site order and
-    # save the permutation used, "perm", for analysis below
-    Nt = length(t)
-    perm = Vector{Int}(undef, Nt)
-    sortperm!(perm, terms(t); alg=InsertionSort, lt=(o1, o2) -> (site(o1) < site(o2)))
-    # Apply permutation:
-    t = coefficient(t) * Prod(terms(t)[perm])
-
-    # prevsite keeps track of whether we are switching
-    # to a new site to make sure F string
-    # is only placed at most once for each site
-    prevsite = typemax(Int)
-    t_parity = +1
-    for n in reverse(1:Nt)
-      site_n = only(site(t[n]))
-      if !using_auto_fermion() && (t_parity == -1) && (site_n < prevsite)
-        # Insert local piece of Jordan-Wigner string emanating
-        # from fermionic operators to the right
-        # (Remaining F operators will be put in by svdMPO)
-        terms(t)[n] = Op("$(which_op(t[n])) * F", site_n)
-      end
-      prevsite = site_n
-
-      if has_fermion_string(which_op(t[n]), sites[site_n])
-        t_parity = -t_parity
-      else
-        # Ignore bosonic operators in perm
-        # by zeroing corresponding entries
-        perm[n] = 0
-      end
-    end
-
-    (t_parity == -1) &&
-      error("Parity-odd fermionic terms not yet supported by OpSum to MPO conversion")
-
-    # Keep only fermionic op positions (non-zero entries)
-    filter!(!iszero, perm)
-    # and account for anti-commuting, fermionic operators
-    # during above sort; put resulting sign into coef
-    t *= ITensors.parity_sign(perm)
-    terms(os)[j] = t
-  end
-
-  return os
+    return os
 end
 
 function sortmergeterms(os::OpSum{C}) where {C}
-  os_sorted_terms = sort(terms(os))
-  os = Sum(os_sorted_terms)
-  # Merge (add) terms with same operators
-  merge_os_data = Scaled{C,Prod{Op}}[]
-  last_term = copy(os[1])
-  last_term_coef = coefficient(last_term)
-  for n in 2:length(os)
-    if argument(os[n]) == argument(last_term)
-      last_term_coef += coefficient(os[n])
-      last_term = last_term_coef * argument(last_term)
-    else
-      push!(merge_os_data, last_term)
-      last_term = os[n]
-      last_term_coef = coefficient(last_term)
+    os_sorted_terms = sort(terms(os))
+    os = Sum(os_sorted_terms)
+    # Merge (add) terms with same operators
+    merge_os_data = Scaled{C, Prod{Op}}[]
+    last_term = copy(os[1])
+    last_term_coef = coefficient(last_term)
+    for n in 2:length(os)
+        if argument(os[n]) == argument(last_term)
+            last_term_coef += coefficient(os[n])
+            last_term = last_term_coef * argument(last_term)
+        else
+            push!(merge_os_data, last_term)
+            last_term = os[n]
+            last_term_coef = coefficient(last_term)
+        end
     end
-  end
-  push!(merge_os_data, last_term)
-  os = Sum(merge_os_data)
-  return os
+    push!(merge_os_data, last_term)
+    os = Sum(merge_os_data)
+    return os
 end
 
 """
@@ -287,63 +287,63 @@ H = MPO(Float32,os,sites)
 H = MPO(os,sites; splitblocks=false)
 ```
 """
-function MPO(os::OpSum, sites::Vector{<:Index}; splitblocks=true, kwargs...)::MPO
-  length(terms(os)) == 0 && error("OpSum has no terms")
+function MPO(os::OpSum, sites::Vector{<:Index}; splitblocks = true, kwargs...)::MPO
+    length(terms(os)) == 0 && error("OpSum has no terms")
 
-  os = deepcopy(os)
-  os = sorteachterm(os, sites)
-  os = sortmergeterms(os)
+    os = deepcopy(os)
+    os = sorteachterm(os, sites)
+    os = sortmergeterms(os)
 
-  if hasqns(sites[1])
-    return qn_svdMPO(os, sites; kwargs...)
-  end
-  M = svdMPO(os, sites; kwargs...)
-  if splitblocks
-    M = ITensors.splitblocks(linkinds, M)
-  end
-  return M
+    if hasqns(sites[1])
+        return qn_svdMPO(os, sites; kwargs...)
+    end
+    M = svdMPO(os, sites; kwargs...)
+    if splitblocks
+        M = ITensors.splitblocks(linkinds, M)
+    end
+    return M
 end
 
 function MPO(elt::Type{<:Number}, os::OpSum, sites::Vector{<:Index}; kwargs...)
-  return NDTensors.convert_scalartype(elt, MPO(os, sites; kwargs...))
+    return NDTensors.convert_scalartype(elt, MPO(os, sites; kwargs...))
 end
 
 # Conversion from other formats
 function MPO(eltype::Type{<:Number}, o::Op, s::Vector{<:Index}; kwargs...)
-  return MPO(eltype, OpSum{Float64}() + o, s; kwargs...)
+    return MPO(eltype, OpSum{Float64}() + o, s; kwargs...)
 end
 
 function MPO(
-  eltype::Type{<:Number}, o::Scaled{C,Op}, s::Vector{<:Index}; kwargs...
-) where {C}
-  return MPO(eltype, OpSum{C}() + o, s; kwargs...)
+        eltype::Type{<:Number}, o::Scaled{C, Op}, s::Vector{<:Index}; kwargs...
+    ) where {C}
+    return MPO(eltype, OpSum{C}() + o, s; kwargs...)
 end
 
 function MPO(eltype::Type{<:Number}, o::Sum{Op}, s::Vector{<:Index}; kwargs...)
-  return MPO(eltype, OpSum{Float64}() + o, s; kwargs...)
+    return MPO(eltype, OpSum{Float64}() + o, s; kwargs...)
 end
 
 function MPO(eltype::Type{<:Number}, o::Prod{Op}, s::Vector{<:Index}; kwargs...)
-  return MPO(eltype, OpSum{Float64}() + o, s; kwargs...)
+    return MPO(eltype, OpSum{Float64}() + o, s; kwargs...)
 end
 
 function MPO(
-  eltype::Type{<:Number}, o::Scaled{C,Prod{Op}}, s::Vector{<:Index}; kwargs...
-) where {C}
-  return MPO(eltype, OpSum{C}() + o, s; kwargs...)
+        eltype::Type{<:Number}, o::Scaled{C, Prod{Op}}, s::Vector{<:Index}; kwargs...
+    ) where {C}
+    return MPO(eltype, OpSum{C}() + o, s; kwargs...)
 end
 
 function MPO(
-  eltype::Type{<:Number}, o::Sum{Scaled{C,Op}}, s::Vector{<:Index}; kwargs...
-) where {C}
-  return MPO(eltype, OpSum{C}() + o, s; kwargs...)
+        eltype::Type{<:Number}, o::Sum{Scaled{C, Op}}, s::Vector{<:Index}; kwargs...
+    ) where {C}
+    return MPO(eltype, OpSum{C}() + o, s; kwargs...)
 end
 
 # Like `Ops.OpSumLike` but without `OpSum` included.
 const OpSumLikeWithoutOpSum{C} = Union{
-  Op,Scaled{C,Op},Sum{Op},Prod{Op},Scaled{C,Prod{Op}},Sum{Scaled{C,Op}}
+    Op, Scaled{C, Op}, Sum{Op}, Prod{Op}, Scaled{C, Prod{Op}}, Sum{Scaled{C, Op}},
 }
 
 function MPO(o::OpSumLikeWithoutOpSum, s::Vector{<:Index}; kwargs...)
-  return MPO(Float64, o, s; kwargs...)
+    return MPO(Float64, o, s; kwargs...)
 end
