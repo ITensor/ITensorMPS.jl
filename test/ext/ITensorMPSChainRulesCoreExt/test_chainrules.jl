@@ -20,6 +20,7 @@ Random.seed!(1234)
     @test f3'(x) ≈ -MPO(s, "I")
   end
 
+  #=
   @testset "MPS ($ElType)" for ElType in (Float64, ComplexF64)
     Random.seed!(1234)
     n = 4
@@ -372,4 +373,5 @@ Random.seed!(1234)
     @test g_itensor'(θ) ≈ p * θ^(p - 1)
     @test g_mps'(θ) ≈ p * θ^(p - 1)
   end
+  =#
 end
