@@ -43,6 +43,8 @@ export
   LatticeBond,
   square_lattice,
   triangular_lattice,
+  Honeycomb_XC,
+  Honeycomb_YC,
 
   # solvers
   TimeDependentSum,
