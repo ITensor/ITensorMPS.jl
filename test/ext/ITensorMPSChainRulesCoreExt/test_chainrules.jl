@@ -275,29 +275,29 @@ Random.seed!(1234)
     @test contract(f'(x)) ≈ f'(x_itensor)
   end
 
-  if VERSION ≤ v"1.12-"
-    # Broken in Julia v1.12. See:
+  @testset "contract/apply MPOs on MPSs" begin
+    n = 2
+    s = siteinds("S=1/2", n)
+    x = (x -> outer(x', x))(random_mps(s; linkdims=4))
+    x_itensor = contract(x)
+    y = random_mps(s; linkdims=4)
+    y_itensor = contract(y)
+
+    f = x -> inner(apply(x, y), apply(x, y))
+    g = x -> inner(apply(x, y_itensor), apply(x, y_itensor))
+    @test f(x) ≈ g(x_itensor)
+    @test contract(f'(x)) ≈ g'(x_itensor)
+
+    f = y -> inner(apply(x, y), apply(x, y))
+    g = y -> inner(apply(x_itensor, y), apply(x_itensor, y))
+    @test f(y) ≈ g(y_itensor)
+    @test contract(f'(y)) ≈ g'(y_itensor)
+
+    # These tests are broken in Julia v1.12. See:
     # https://github.com/ITensor/ITensorMPS.jl/pull/161
     # https://github.com/JuliaLang/julia/issues/59138
     # https://github.com/FluxML/Zygote.jl/issues/1580
-    @testset "contract/apply MPOs on MPSs" begin
-      n = 2
-      s = siteinds("S=1/2", n)
-      x = (x -> outer(x', x))(random_mps(s; linkdims=4))
-      x_itensor = contract(x)
-      y = random_mps(s; linkdims=4)
-      y_itensor = contract(y)
-
-      f = x -> inner(apply(x, y), apply(x, y))
-      g = x -> inner(apply(x, y_itensor), apply(x, y_itensor))
-      @test f(x) ≈ g(x_itensor)
-      @test contract(f'(x)) ≈ g'(x_itensor)
-
-      f = y -> inner(apply(x, y), apply(x, y))
-      g = y -> inner(apply(x_itensor, y), apply(x_itensor, y))
-      @test f(y) ≈ g(y_itensor)
-      @test contract(f'(y)) ≈ g'(y_itensor)
-
+    if VERSION ≤ v"1.12-"
       f =
         x ->
           inner(replaceprime(contract(x, y), 2 => 1), replaceprime(contract(x, y), 2 => 1))
