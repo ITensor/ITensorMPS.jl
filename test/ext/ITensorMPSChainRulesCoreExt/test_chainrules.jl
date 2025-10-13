@@ -293,39 +293,49 @@ Random.seed!(1234)
     @test f(y) ≈ g(y_itensor)
     @test contract(f'(y)) ≈ g'(y_itensor)
 
-    f =
-      x -> inner(replaceprime(contract(x, y), 2 => 1), replaceprime(contract(x, y), 2 => 1))
-    g =
-      x -> inner(
-        replaceprime(contract(x, y_itensor), 2 => 1),
-        replaceprime(contract(x, y_itensor), 2 => 1),
-      )
-    @test f(x) ≈ g(x_itensor)
-    @test contract(f'(x)) ≈ g'(x_itensor)
+    # These tests are broken in Julia v1.12. See:
+    # https://github.com/ITensor/ITensorMPS.jl/pull/161
+    # https://github.com/JuliaLang/julia/issues/59138
+    # https://github.com/FluxML/Zygote.jl/issues/1580
+    if VERSION ≤ v"1.12-"
+      f =
+        x ->
+          inner(replaceprime(contract(x, y), 2 => 1), replaceprime(contract(x, y), 2 => 1))
+      g =
+        x -> inner(
+          replaceprime(contract(x, y_itensor), 2 => 1),
+          replaceprime(contract(x, y_itensor), 2 => 1),
+        )
+      @test f(x) ≈ g(x_itensor)
+      @test contract(f'(x)) ≈ g'(x_itensor)
 
-    f =
-      y -> inner(replaceprime(contract(x, y), 2 => 1), replaceprime(contract(x, y), 2 => 1))
-    g =
-      y -> inner(
-        replaceprime(contract(x_itensor, y), 2 => 1),
-        replaceprime(contract(x_itensor, y), 2 => 1),
-      )
-    @test f(y) ≈ g(y_itensor)
-    @test contract(f'(y)) ≈ g'(y_itensor)
+      f =
+        y ->
+          inner(replaceprime(contract(x, y), 2 => 1), replaceprime(contract(x, y), 2 => 1))
+      g =
+        y -> inner(
+          replaceprime(contract(x_itensor, y), 2 => 1),
+          replaceprime(contract(x_itensor, y), 2 => 1),
+        )
+      @test f(y) ≈ g(y_itensor)
+      @test contract(f'(y)) ≈ g'(y_itensor)
 
-    f = x -> inner(replaceprime(*(x, y), 2 => 1), replaceprime(*(x, y), 2 => 1))
-    g =
-      x ->
-        inner(replaceprime(*(x, y_itensor), 2 => 1), replaceprime(*(x, y_itensor), 2 => 1))
-    @test f(x) ≈ g(x_itensor)
-    @test contract(f'(x)) ≈ g'(x_itensor)
+      f = x -> inner(replaceprime(*(x, y), 2 => 1), replaceprime(*(x, y), 2 => 1))
+      g =
+        x -> inner(
+          replaceprime(*(x, y_itensor), 2 => 1), replaceprime(*(x, y_itensor), 2 => 1)
+        )
+      @test f(x) ≈ g(x_itensor)
+      @test contract(f'(x)) ≈ g'(x_itensor)
 
-    f = y -> inner(replaceprime(*(x, y), 2 => 1), replaceprime(*(x, y), 2 => 1))
-    g =
-      y ->
-        inner(replaceprime(*(x_itensor, y), 2 => 1), replaceprime(*(x_itensor, y), 2 => 1))
-    @test f(y) ≈ g(y_itensor)
-    @test contract(f'(y)) ≈ g'(y_itensor)
+      f = y -> inner(replaceprime(*(x, y), 2 => 1), replaceprime(*(x, y), 2 => 1))
+      g =
+        y -> inner(
+          replaceprime(*(x_itensor, y), 2 => 1), replaceprime(*(x_itensor, y), 2 => 1)
+        )
+      @test f(y) ≈ g(y_itensor)
+      @test contract(f'(y)) ≈ g'(y_itensor)
+    end
   end
   @testset "Calling apply multiple times (ITensors #924 regression test)" begin
     n = 1
