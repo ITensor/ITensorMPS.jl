@@ -38,6 +38,17 @@ function expand_cutoff_doctring()
     """
 end
 
+function expand_projection_cutoff_doctring()
+    return """
+    The projection_cutoff is used to control when to expand the
+    basis and defaults to half the precision of the scalar type
+    of the input state, i.e. ~1e-8 for `Float64`. Specifically,
+    the basis on a link is only expanded if the norm of the
+    density matrix projected into the null space is larger than
+    the projection_cutoff.
+    """
+end
+
 function expand_warning_doctring()
     return """
     !!! warning
@@ -56,7 +67,7 @@ function expand_citation_docstring()
 end
 
 """
-    expand(state::MPS, references::Vector{MPS}; alg="orthogonalize", cutoff)
+    expand(state::MPS, references::Vector{MPS}; alg="orthogonalize", cutoff, projection_cutoff)
 
 Given an MPS `state` and a collection of MPS `references`,
 returns an MPS which is equal to `state`
@@ -67,6 +78,8 @@ See [^global_expansion] for more details.
 
 $(expand_cutoff_doctring())
 
+$(expand_projection_cutoff_doctring())
+
 $(expand_warning_doctring())
 
 $(expand_citation_docstring())
@@ -76,6 +89,7 @@ function expand(
         state::MPS,
         references::Vector{MPS};
         cutoff = (√(eps(real(scalartype(state))))),
+        projection_cutoff = (√(eps(real(scalartype(state))))),
     )
     n = length(state)
     state = orthogonalize(state, n)
@@ -97,7 +111,7 @@ function expand(
         # Apply projectorⱼ
         ρⱼ_projected = apply(apply(projectorⱼ, ρⱼ), projectorⱼ)
         expanded_basisⱼ = basisⱼ
-        if norm(ρⱼ_projected) > 10^3 * eps(real(scalartype(state)))
+        if norm(ρⱼ_projected) > projection_cutoff
             # Diagonalize projected density matrix ρⱼ_projected
             # to compute reference_basisⱼ, which spans part of right basis
             # of references which is orthogonal to right basis of state
