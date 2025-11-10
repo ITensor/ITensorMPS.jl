@@ -1,6 +1,5 @@
 using ITensors, ITensorMPS
 using Printf
-using Random: rand
 
 #=
 
