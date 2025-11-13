@@ -913,6 +913,21 @@ end
         @test_throws ErrorException expect(psi0, "Sz")
     end
 
+    @testset "expect real wavefunction complex operator" for elt in (Float32, Float64)
+        N = 8
+        s = siteinds("S=1/2", N)
+        using StableRNGs: StableRNG
+        rng = StableRNG(123)
+        psi = random_mps(rng, elt, s; linkdims = 2)
+        eSy = zeros(complex(elt), N)
+        for j in 1:N
+            psi = orthogonalize(psi, j)
+            eSy[j] = (dag(psi[j]) * apply(op("Sy", s[j]), psi[j]))[]
+        end
+        res = expect(psi, "Sy")
+        @test res ≈ eSy atol = eps(elt)
+    end
+
     @testset "Expected value and Correlations" begin
         m = 2
 
@@ -935,6 +950,7 @@ end
                 ("Sz", "Sz"),
                 ("iSy", "iSy"),
                 ("Sx", "Sx"),
+                ("Sy", "Sy"),
                 ("Sz", "Sx"),
                 ("S+", "S+"),
                 ("S-", "S+"),

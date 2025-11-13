@@ -50,8 +50,9 @@ function main(; N = 10, cutoff = 1.0e-8, δτ = 0.1, beta = 2.0, NMETTS = 3000, 
     # Make y-rotation gates to use in METTS collapses
     Ry_gates = ops([("Ry", n, (θ = π / 2,)) for n in 1:N], s)
 
-    # Arbitrary initial state
-    psi = random_mps(s)
+    # Arbitrary initial Z-product state
+    init_state = rand(["Z+", "Z-"], N)
+    psi = MPS(s, init_state)
 
     # Make H for measuring the energy
     terms = OpSum()
@@ -108,6 +109,7 @@ function main(; N = 10, cutoff = 1.0e-8, δτ = 0.1, beta = 2.0, NMETTS = 3000, 
             samp = sample!(psi)
             new_state = [samp[j] == 1 ? "Z+" : "Z-" for j in 1:N]
         end
+        @printf("  Next Product State = %s\n", new_state)
         psi = MPS(s, new_state)
     end
 
