@@ -2434,20 +2434,21 @@ end
 # Printing functions
 #
 
+# Used to print `#undef` for unassigned MPS tensors.
+# Maybe there's a better way to do this?
+struct Undef end
+Base.show(io::IO, ::Undef) = print(io, "#undef")
+
 function Base.show(io::IO, M::AbstractMPS)
-    print(io, "$(typeof(M))")
-    (length(M) > 0) && print(io, "\n")
-    for i in eachindex(M)
-        if !isassigned(M, i)
-            println(io, "#undef")
-        else
-            A = M[i]
-            if order(A) != 0
-                println(io, "[$i] $(inds(A))")
-            else
-                println(io, "[$i] ITensor()")
-            end
-        end
+    print(io, "$(typeof(M))($(length(M)))")
+    return nothing
+end
+function Base.show(io::IO, ::MIME"text/plain", M::AbstractMPS)
+    println(io, "$(length(M))-element $(typeof(M)):")
+    inds_vec = map(eachindex(M)) do j
+        !isassigned(M, j) && return Undef()
+        return inds(M[j])
     end
+    Base.print_array(io, inds_vec)
     return
 end
