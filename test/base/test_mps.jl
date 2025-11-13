@@ -24,9 +24,13 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
     @test linkdims(psi) == fill(3, length(psi) - 1)
     @test isnothing(flux(psi))
 
-    str = split(sprint(show, psi), '\n')
-    @test endswith(str[1], "MPS")
-    @test length(str) == length(psi) + 2
+    @test sprint(show, psi) in ("MPS(10)", "ITensorMPS.MPS(10)")
+    strs = split(sprint(show, MIME"text/plain"(), psi), "\n")
+    @test length(strs) == length(psi) + 1
+    @test strs[1] in ("10-element MPS:", "10-element ITensorMPS.MPS:")
+    for str in strs[2:end]
+        @test startswith(str, " ((dim=")
+    end
 
     @test siteind(psi, 2) == sites[2]
     @test findfirstsiteind(psi, sites[2]) == 2

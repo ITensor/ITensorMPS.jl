@@ -39,9 +39,13 @@ end
     O = MPO(sites)
     @test length(O) == N
 
-    str = split(sprint(show, O), '\n')
-    @test endswith(str[1], "MPO")
-    @test length(str) == length(O) + 2
+    @test sprint(show, O) in ("MPO(6)", "ITensorMPS.MPO(6)")
+    strs = split(sprint(show, MIME"text/plain"(), O), "\n")
+    @test length(strs) == length(O) + 1
+    @test strs[1] in ("6-element MPO:", "6-element ITensorMPS.MPO:")
+    for str in strs[2:end]
+        @test startswith(str, " ((dim=")
+    end
 
     O[1] = ITensor(sites[1], prime(sites[1]))
     @test hasind(O[1], sites[1])
