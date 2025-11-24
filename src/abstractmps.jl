@@ -1968,6 +1968,7 @@ function (::Type{MPST})(
         leftinds = nothing,
         orthocenter::Integer = length(sites),
         tags = [defaultlinktags(i) for i in 1:(length(sites) - 1)],
+        post_factorize_callback = Returns(nothing),
         kwargs...,
     ) where {MPST <: AbstractMPS}
     N = length(sites)
@@ -1989,7 +1990,8 @@ function (::Type{MPST})(
         if !isnothing(l)
             Lis = unioninds(Lis, l)
         end
-        L, R = factorize(Ã, Lis; kwargs..., tags = tags[n], ortho = "left")
+        L, R, spec = factorize(Ã, Lis; kwargs..., tags = tags[n], ortho = "left")
+        post_factorize_callback(; truncation_error = spec.truncerr)
         l = commonind(L, R)
         ψ[n] = L
         Ã = R
