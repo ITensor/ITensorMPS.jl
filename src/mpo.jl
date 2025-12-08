@@ -631,21 +631,21 @@ function ITensors.contract(A::MPO, ψ::MPS; alg = nothing, method = alg, kwargs.
 end
 
 function zipup_docstring(isMPOMPO::Bool)::String
-  rhsTypeString = isMPOMPO ? "MPO" : "MPS"
-  rhsString = isMPOMPO ? "B" : "ψ"
-  return """    - "zipup": The MPO and $rhsTypeString tensors are contracted then truncated at each site without enforcing
-  the appropriate orthogonal gauge. Once this sweep is complete a call to `truncate!` occurs.
-  Because the initial truncation is not locally optimal it is recommended to use a loose
-  `cutoff` and `maxdim` and then pass the desired truncation parameters to the locally optimal
-  `truncate!` sweep via the additional keyword argument `truncate_kwargs`.
-  A set of parameters suggested in [^Paeckel2019] is
-  `contract(A, $rhsString; method="zipup", cutoff=cutoff / 10, maxdim=2 * maxdim, truncate_kwargs=(; cutoff, maxdim))`."""
+    rhsTypeString = isMPOMPO ? "MPO" : "MPS"
+    rhsString = isMPOMPO ? "B" : "ψ"
+    return """    - "zipup": The MPO and $rhsTypeString tensors are contracted then truncated at each site without enforcing
+    the appropriate orthogonal gauge. Once this sweep is complete a call to `truncate!` occurs.
+    Because the initial truncation is not locally optimal it is recommended to use a loose
+    `cutoff` and `maxdim` and then pass the desired truncation parameters to the locally optimal
+    `truncate!` sweep via the additional keyword argument `truncate_kwargs`.
+    A set of parameters suggested in [^Paeckel2019] is
+    `contract(A, $rhsString; method="zipup", cutoff=cutoff / 10, maxdim=2 * maxdim, truncate_kwargs=(; cutoff, maxdim))`."""
 end
 
 function Paeckel2019_citation_docstring()::String
-  return """
-  [^Paeckel2019]: Time-evolution methods for matrix-product states. Sebastian Paeckel et al. [arXiv:1901.05824](https://arxiv.org/abs/1901.05824)
-  """
+    return """
+    [^Paeckel2019]: Time-evolution methods for matrix-product states. Sebastian Paeckel et al. [arXiv:1901.05824](https://arxiv.org/abs/1901.05824)
+    """
 end
 
 contract_mpo_mps_doc = """
@@ -847,7 +847,7 @@ function ITensors.contract(
         cutoff = 1.0e-14,
         maxdim = maxlinkdim(A) * maxlinkdim(B),
         mindim = 1,
-        truncate_kwargs=(; cutoff, maxdim, mindim),
+        truncate_kwargs = (; cutoff, maxdim, mindim),
         kwargs...,
     )
     if hassameinds(siteinds, A, B)
