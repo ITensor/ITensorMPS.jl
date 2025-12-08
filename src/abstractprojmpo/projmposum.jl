@@ -5,28 +5,28 @@ abstract type AbstractSum end
 terms(sum::AbstractSum) = sum.terms
 
 function set_terms(sum::AbstractSum, terms)
-  return error("Please implement `set_terms` for the `AbstractSum` type `$(typeof(sum))`.")
+    return error("Please implement `set_terms` for the `AbstractSum` type `$(typeof(sum))`.")
 end
 
 copy(P::AbstractSum) = typeof(P)(copy.(terms(P)))
 
 function nsite(P::AbstractSum)
-  @assert allequal(nsite.(terms(P)))
-  return nsite(first(terms(P)))
+    @assert allequal(nsite.(terms(P)))
+    return nsite(first(terms(P)))
 end
 
 function set_nsite!(A::AbstractSum, nsite)
-  return set_terms(A, map(term -> set_nsite!(term, nsite), terms(A)))
+    return set_terms(A, map(term -> set_nsite!(term, nsite), terms(A)))
 end
 
 function length(A::AbstractSum)
-  @assert allequal(length.(terms(A)))
-  return length(first(terms(A)))
+    @assert allequal(length.(terms(A)))
+    return length(first(terms(A)))
 end
 
 function site_range(A::AbstractSum)
-  @assert allequal(Iterators.map(site_range, terms(A)))
-  return site_range(first(terms(A)))
+    @assert allequal(Iterators.map(site_range, terms(A)))
+    return site_range(first(terms(A)))
 end
 
 """
@@ -71,8 +71,8 @@ then the size is `(d,d)` where
 `d = dim(a)*dim(s1)*dim(s1)*dim(b)`
 """
 function size(A::AbstractSum)
-  @assert allequal(size.(terms(A)))
-  return size(first(terms(A)))
+    @assert allequal(size.(terms(A)))
+    return size(first(terms(A)))
 end
 
 """
@@ -88,8 +88,8 @@ the previous projected MPO tensors for this
 operation to succeed.
 """
 function position!(A::AbstractSum, psi::MPS, pos::Int)
-  new_terms = map(term -> position!(term, psi, pos), terms(A))
-  return set_terms(A, new_terms)
+    new_terms = map(term -> position!(term, psi, pos), terms(A))
+    return set_terms(A, new_terms)
 end
 
 """
@@ -106,7 +106,7 @@ the values `"left"` or `"right"` depending on the
 sweeping direction of the DMRG calculation.
 """
 function noiseterm(A::AbstractSum, phi::ITensor, dir::String)
-  return sum(t -> noiseterm(t, phi, dir), terms(A))
+    return sum(t -> noiseterm(t, phi, dir), terms(A))
 end
 
 """
@@ -116,12 +116,12 @@ Call `disk` on each term of an AbstractSum, to enable
 saving of cached data to hard disk.
 """
 function disk(sum::AbstractSum; disk_kwargs...)
-  return set_terms(sum, map(t -> disk(t; disk_kwargs...), terms(sum)))
+    return set_terms(sum, map(t -> disk(t; disk_kwargs...), terms(sum)))
 end
 
 function checkflux(sum::AbstractSum)
-  foreach(checkflux, terms(sum))
-  return nothing
+    foreach(checkflux, terms(sum))
+    return nothing
 end
 
 #
@@ -129,14 +129,14 @@ end
 #
 
 struct SequentialSum{T} <: AbstractSum
-  terms::Vector{T}
+    terms::Vector{T}
 end
 
-function SequentialSum{T}(mpos::Vector{MPO}) where {T<:AbstractProjMPO}
-  return SequentialSum([T(M) for M in mpos])
+function SequentialSum{T}(mpos::Vector{MPO}) where {T <: AbstractProjMPO}
+    return SequentialSum([T(M) for M in mpos])
 end
 
-SequentialSum{T}(Ms::MPO...) where {T<:AbstractProjMPO} = SequentialSum{T}([Ms...])
+SequentialSum{T}(Ms::MPO...) where {T <: AbstractProjMPO} = SequentialSum{T}([Ms...])
 
 set_terms(sum::SequentialSum, terms) = SequentialSum(terms)
 
