@@ -1,6 +1,6 @@
 using Adapt: adapt
 using KrylovKit: eigsolve
-using NDTensors: scalartype, timer
+using NDTensors: NDTensors, scalartype, timer
 using Printf: @printf
 using TupleTools: TupleTools
 
@@ -55,7 +55,7 @@ function dmrg(H::MPO, Ms::Vector{MPS}, psi0::MPS, sweeps::Sweeps; weight = true,
     return dmrg(PMM, psi0, sweeps; kwargs...)
 end
 
-using NDTensors.TypeParameterAccessors: unwrap_array_type
+using NDTensors.TypeParameterAccessors: set_eltype, unwrap_array_type
 """
     dmrg(H::MPO, psi0::MPS; kwargs...)
     dmrg(H::MPO, psi0::MPS, sweeps::Sweeps; kwargs...)
@@ -255,7 +255,7 @@ function dmrg(
                 ## Adapt is only called when using CUDA backend. CPU will work as implemented previously.
                 ## TODO this might be the only place we really need iscu if its not fixed.
                 phi = if NDTensors.iscu(phi) && NDTensors.iscu(vecs[1])
-                    adapt(ITensors.set_eltype(unwrap_array_type(phi), eltype(vecs[1])), vecs[1])
+                    adapt(set_eltype(unwrap_array_type(phi), eltype(vecs[1])), vecs[1])
                 else
                     vecs[1]
                 end
