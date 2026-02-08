@@ -31,7 +31,7 @@ end
 function time_step_and_nsteps(t, time_step, nsteps::Nothing)
     nsteps_float = t / time_step
     nsteps_rounded = round(nsteps_float)
-    if nsteps_float ≉ nsteps_rounded
+    if nsteps_float ≉  nsteps_rounded
         return error("`t / time_step = $t / $time_step = $(t / time_step)` must be an integer.")
     end
     if real(nsteps_rounded) < 0
@@ -82,7 +82,7 @@ function tdvp(
         (sweep_observer!) = (step_observer!),
         kwargs...,
     )
-    time_step, nsteps = time_step_and_nsteps(t, time_step, nsteps)
+    time_step, nsteps = time_step_and_nsteps(t - time_start, time_step, nsteps)
     return alternating_update(
         operator,
         init;
