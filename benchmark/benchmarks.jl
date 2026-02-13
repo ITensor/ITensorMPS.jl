@@ -1,5 +1,5 @@
-using ITensorMPS
 using BenchmarkTools
+using ITensorMPS
 
 SUITE = BenchmarkGroup()
 SUITE["rand"] = @benchmarkable rand(10)

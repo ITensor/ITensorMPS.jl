@@ -1,6 +1,6 @@
+using Documenter: Documenter, DocMeta, deploydocs, makedocs
 using ITensorMPS
 using ITensors
-using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
 DocMeta.setdocmeta!(ITensorMPS, :DocTestSetup, :(using ITensorMPS); recursive = true)
 DocMeta.setdocmeta!(ITensors, :DocTestSetup, :(using ITensors); recursive = true)

@@ -1,4 +1,5 @@
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 
 function main(; Nx = 6, Ny = 3, U = 4.0, t = 1.0)
     N = Nx * Ny

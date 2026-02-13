@@ -1,16 +1,7 @@
 using ChainRulesCore: ChainRulesCore, unthunk
 using Compat: Returns
-using ITensors:
-    addtags,
-    noprime,
-    prime,
-    removetags,
-    replaceinds,
-    replaceprime,
-    replacetags,
-    setprime,
-    settags
 using ITensorMPS: MPO, MPS
+using ITensors: addtags, noprime, prime, removetags, replaceinds, replaceprime, replacetags, setprime, settags
 
 for fname in (
         :prime, :setprime, :noprime, :replaceprime, :addtags, :removetags, :replacetags, :settags,

@@ -1,5 +1,5 @@
-using NDTensors: @Algorithm_str
 using ITensors: ITensors
+using NDTensors: @Algorithm_str
 using PackageCompiler: PackageCompiler
 
 function ITensors.compile(

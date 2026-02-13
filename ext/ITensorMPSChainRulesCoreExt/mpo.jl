@@ -1,6 +1,6 @@
 using ChainRulesCore: ChainRulesCore, NoTangent
-using ITensors: Algorithm, contract, hassameinds, inner, mapprime
 using ITensorMPS: MPO, MPS, firstsiteinds, siteinds
+using ITensors: Algorithm, contract, hassameinds, inner, mapprime
 using LinearAlgebra: tr
 
 function ChainRulesCore.rrule(

@@ -1,4 +1,5 @@
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 using KrylovKit
 using LinearAlgebra
 using MKL

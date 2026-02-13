@@ -1,8 +1,7 @@
 using Adapt: adapt
 using ChainRulesCore: ChainRulesCore, HasReverseMode, NoTangent, RuleConfig, rrule_via_ad
-using ITensors:
-    ITensors, ITensor, dag, hassameinds, inds, itensor, mapprime, replaceprime, swapprime
 using ITensorMPS: ITensorMPS, MPO, MPS, apply, inner, siteinds
+using ITensors: ITensors, ITensor, dag, hassameinds, inds, itensor, mapprime, replaceprime, swapprime
 using NDTensors: datatype
 
 function ChainRulesCore.rrule(

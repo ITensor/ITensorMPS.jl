@@ -1,6 +1,6 @@
 using Compat: @compat
-using ITensors: ITensor, array, inds, itensor
 using ITensorMPS: TimeDependentSum, to_vec
+using ITensors: ITensor, array, inds, itensor
 using KrylovKit: exponentiate
 using OrdinaryDiffEqTsit5: ODEProblem, Tsit5, solve
 

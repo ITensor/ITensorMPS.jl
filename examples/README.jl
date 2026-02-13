@@ -45,7 +45,8 @@
 # eigenvectors of Hamiltonian (energy) matrices which model
 # the behavior of quantum systems.
 
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 let
     ## Create 100 spin-one indices
     N = 100
