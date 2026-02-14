@@ -56,13 +56,20 @@ sites = siteinds("Qubit",N; conserve_parity=true)
 
 #### "Qubit" and "S=1/2" States
 
+Quantum states associated with "Qubit" sites can be made using the `state` function,
+for example
+```
+site = siteind("Qubit")
+psi = state(site, "0")
+```
+
 The available state names for "Qubit" sites are:
-- `"0"` (aliases: `"Z+"`, `"Zp"`, `"Up"`, `"↑"`) Qubit in the 0 state
-- `"1"` (aliases: `"Z-"`, `"Zm"`, `"Dn"`, `"↓"`) Qubit in the 1 state
+- `"0"` (aliases: `"Z+"`, `"Zp"`, `"Up"`, `"↑"`) Qubit in the $|0\rangle$ state (+1 eigenvector of $\sigma_z$)
+- `"1"` (aliases: `"Z-"`, `"Zm"`, `"Dn"`, `"↓"`) Qubit in the $|1\rangle$ state (-1 eigenvector of $\sigma_z$)
 - `"+"` (aliases: `"X+"`, `"Xp"`) Qubit in the $|+\rangle$ state (+1 eigenvector of $\sigma_x$)
-- `"+"` (aliases: `"X-"`, `"Xm"`) Qubit in the $|-\rangle$ state (-1 eigenvector of $\sigma_x$)
+- `"-"` (aliases: `"X-"`, `"Xm"`) Qubit in the $|-\rangle$ state (-1 eigenvector of $\sigma_x$)
 - `"i"` (aliases: `"Y+"`, `"Yp"`) Qubit in the $|i\rangle$ state (+1 eigenvector of $\sigma_y$)
-- `"-i"` (aliases: `"Y-"`, `"Ym"`) Qubit in the $|-i\rangle$ state (+1 eigenvector of $\sigma_y$)
+- `"-i"` (aliases: `"Y-"`, `"Ym"`) Qubit in the $|-i\rangle$ state (-1 eigenvector of $\sigma_y$)
 
 #### "Qubit" and "S=1/2" Operators
 
