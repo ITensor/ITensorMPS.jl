@@ -24,7 +24,15 @@ struct ApplyExpInfo
     converged::Int
 end
 
-function applyexp(H, tau::Number, x0; maxiter = 30, tol = 1.0e-12, outputlevel = 0, normcutoff = 1.0e-7)
+function applyexp(
+        H,
+        tau::Number,
+        x0;
+        maxiter = 30,
+        tol = 1.0e-12,
+        outputlevel = 0,
+        normcutoff = 1.0e-7
+    )
     # Initialize Lanczos vectors
     v1 = copy(x0)
     nrm = norm(v1)

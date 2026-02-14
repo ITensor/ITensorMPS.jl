@@ -18,7 +18,7 @@ function main(;
         strided_num_threads = 1,
         threaded_blocksparse = false,
         outputlevel = 1,
-        seed = 1234,
+        seed = 1234
     )
     Random.seed!(seed)
     ITensors.Strided.set_num_threads(strided_num_threads)

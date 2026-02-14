@@ -15,7 +15,7 @@ function ITensors.space(
         qnname_ky = "Ky",
         modulus_ky = nothing,
         # Deprecated
-        conserve_parity = nothing,
+        conserve_parity = nothing
     )
     if !isnothing(conserve_parity)
         conserve_nfparity = conserve_parity

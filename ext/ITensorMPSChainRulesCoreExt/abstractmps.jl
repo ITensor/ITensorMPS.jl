@@ -1,7 +1,8 @@
 using Adapt: adapt
 using ChainRulesCore: ChainRulesCore, HasReverseMode, NoTangent, RuleConfig, rrule_via_ad
 using ITensorMPS: ITensorMPS, MPO, MPS, apply, inner, siteinds
-using ITensors: ITensors, ITensor, dag, hassameinds, inds, itensor, mapprime, replaceprime, swapprime
+using ITensors:
+    ITensors, ITensor, dag, hassameinds, inds, itensor, mapprime, replaceprime, swapprime
 using NDTensors: datatype
 
 function ChainRulesCore.rrule(
@@ -34,7 +35,7 @@ function ChainRulesCore.rrule(
     ) where {T <: Union{MPS, MPO}}
     if !hassameinds(siteinds, x1, x2)
         error(
-            "Taking gradients of `inner(::MPS, ::MPS)` is not supported if the site indices of the input MPS don't match. If you input `inner(x, Ay)` where `Ay` is the result of something like `contract(A::MPO, y::MPS)`, try `inner(x', Ay)` or `inner(x, replaceprime(Ay, 1 => 0))`instead.",
+            "Taking gradients of `inner(::MPS, ::MPS)` is not supported if the site indices of the input MPS don't match. If you input `inner(x, Ay)` where `Ay` is the result of something like `contract(A::MPO, y::MPS)`, try `inner(x', Ay)` or `inner(x, replaceprime(Ay, 1 => 0))`instead."
         )
     end
     y = inner(x1, x2)
@@ -76,7 +77,7 @@ end
 function _is_mps_or_hermitian_mpo(x::MPO; kwargs...)
     s = siteinds(x)
     return all(eachindex(x)) do i
-        isapprox(x[i], swapprime(dag(x[i]), 0 => 1; inds = s[i]); kwargs...)
+        return isapprox(x[i], swapprime(dag(x[i]), 0 => 1; inds = s[i]); kwargs...)
     end
 end
 _is_mps_or_hermitian_mpo(x::MPS; kwargs...) = true
@@ -96,7 +97,8 @@ function ChainRulesCore.rrule(
     x1x2 = Vector{typeof(x2)}(undef, N)
     x1x2[1] = x2
     for n in 2:N
-        x1x2[n] = apply(x1[n - 1], x1x2[n - 1]; move_sites_back = true, apply_dag, kwargs...)
+        x1x2[n] =
+            apply(x1[n - 1], x1x2[n - 1]; move_sites_back = true, apply_dag, kwargs...)
     end
     y = x1x2[end]
 
@@ -129,7 +131,13 @@ function ChainRulesCore.rrule(
 
                         if ishermitian
                             ϕ̃ = swapprime(x1x2dag[n], 0 => 1)
-                            ϕ̃ = apply(x1[n], ϕ̃; move_sites_back = true, apply_dag = false, kwargs...)
+                            ϕ̃ = apply(
+                                x1[n],
+                                ϕ̃;
+                                move_sites_back = true,
+                                apply_dag = false,
+                                kwargs...
+                            )
                             ϕ̃ = mapprime(ϕ̃, 1 => 2, 0 => 1)
                             ϕ̃ = replaceprime(ϕ̃, 1 => 0; inds = gateinds')
 
@@ -139,7 +147,13 @@ function ChainRulesCore.rrule(
                             # prepare contribution from taking the derivative w.r.t. Q
                             # M = x1Q†, QM -> M†W̄ = Qx1†W̄
                             ϕ̃ = swapprime(x1x2dag[n], 0 => 1)
-                            ϕ̃ = apply(x1[n], ϕ̃; move_sites_back = true, apply_dag = false, kwargs...)
+                            ϕ̃ = apply(
+                                x1[n],
+                                ϕ̃;
+                                move_sites_back = true,
+                                apply_dag = false,
+                                kwargs...
+                            )
                             ϕ̃ = mapprime(ϕ̃, 1 => 2, 0 => 1)
                             ϕ̃ = replaceprime(ϕ̃, 1 => 0; inds = gateinds')
                             ξ̃ = mapprime(x1dag_ȳ[n + 1], 0 => 2)
@@ -147,7 +161,13 @@ function ChainRulesCore.rrule(
 
                             # prepare contribution from taking the derivative w.r.t. Q†
                             # M = Qx1, MQ† -> W̄†M = W̄†Qx1
-                            ϕ̃ = apply(x1[n], x1x2[n]; move_sites_back = true, apply_dag = false, kwargs...)
+                            ϕ̃ = apply(
+                                x1[n],
+                                x1x2[n];
+                                move_sites_back = true,
+                                apply_dag = false,
+                                kwargs...
+                            )
                             ϕ̃ = mapprime(ϕ̃, 1 => 2, 0 => 1)
                             ϕ̃ = replaceprime(ϕ̃, 1 => 0; inds = gateinds')
                             ξ̃ = dag(x1dag_ȳ[n + 1])'
@@ -176,7 +196,7 @@ function ChainRulesCore.rrule(
         ::typeof(map),
         f,
         x::Union{MPS, MPO};
-        set_limits::Bool = true,
+        set_limits::Bool = true
     )
     y_data, pullback_data = rrule_via_ad(config, map, f, ITensorMPS.data(x))
     function map_pullback(ȳ)

@@ -61,7 +61,7 @@ function DMRGObserver(; energy_tol = 0.0, minsweeps = 2, energy_type = Float64)
         energy_type[],
         Float64[],
         energy_tol,
-        minsweeps,
+        minsweeps
     )
 end
 
@@ -99,7 +99,7 @@ function DMRGObserver(
         sites::Vector{<:Index};
         energy_tol = 0.0,
         minsweeps = 2,
-        energy_type = Float64,
+        energy_type = Float64
     )
     measurements = Dict(o => DMRGMeasurement() for o in ops)
     return DMRGObserver{energy_type}(

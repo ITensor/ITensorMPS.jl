@@ -231,7 +231,10 @@ end
         psi = makeRandomMPS(sites)
 
         dist = sqrt(
-            abs(1 + (inner(phi, phi) - 2 * real(inner(phi', K, psi))) / inner(K, psi, K, psi))
+            abs(
+                1 +
+                    (inner(phi, phi) - 2 * real(inner(phi', K, psi))) / inner(K, psi, K, psi)
+            )
         )
         @test dist ≈ error_contract(phi, K, psi)
 
@@ -242,7 +245,12 @@ end
         @test error_contract(noprime(Kphi), K, phi) ≈ 0.0 atol = 1.0e-4
         @test error_contract(noprime(Kphi), phi, K) ≈ 0.0 atol = 1.0e-4
 
-        @test_throws DimensionMismatch contract(K, badpsi; method = "naive", cutoff = 1.0e-8)
+        @test_throws DimensionMismatch contract(
+            K,
+            badpsi;
+            method = "naive",
+            cutoff = 1.0e-8
+        )
         @test_throws DimensionMismatch error_contract(phi, K, badpsi)
     end
 
@@ -293,7 +301,8 @@ end
             orthogonalize!(psi, 1; maxdim = link_dim)
             orthogonalize!(K, 1; maxdim = link_dim)
             orthogonalize!(phi, 1; normalize = true, maxdim = link_dim)
-            psi_out = contract(deepcopy(K), deepcopy(psi); maxdim = 10 * link_dim, cutoff = 0.0)
+            psi_out =
+                contract(deepcopy(K), deepcopy(psi); maxdim = 10 * link_dim, cutoff = 0.0)
             @test inner(phi', psi_out) ≈ inner(phi', K, psi)
         end
     end
@@ -638,7 +647,7 @@ end
         @test maxlinkdim(Pψ) == χψ^2
         @test sqrt(
             inner(Pψ, Pψ) * normψ^4 + inner(ψ, ψ)^2 - inner(ψ', Pψ, ψ) * normψ^2 -
-                inner(ψ', Pψᴴ, ψ) * normψ^2,
+                inner(ψ', Pψᴴ, ψ) * normψ^2
         ) / abs(inner(ψ, ψ)) ≈ 0 atol = 1.0e-5 * N
 
         ψϕ = outer(ψ', ϕ; cutoff = 1.0e-8)
@@ -803,7 +812,8 @@ end
         @test linkdims(H²) == fill(1, length(s) - 1)
         @test H² ≈ H̃²
 
-        e, ψ = dmrg(H, random_mps(s, n -> isodd(n) ? "↑" : "↓"); nsweeps = 2, outputlevel = 0)
+        e, ψ =
+            dmrg(H, random_mps(s, n -> isodd(n) ? "↑" : "↓"); nsweeps = 2, outputlevel = 0)
         @test e ≈ 1
     end
 

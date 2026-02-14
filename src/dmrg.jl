@@ -48,7 +48,7 @@ function dmrg(H::MPO, Ms::Vector{MPS}, psi0::MPS, sweeps::Sweeps; weight = true,
     Ms .= permute.(Ms, Ref((linkind, siteinds, linkind)))
     if weight <= 0
         error(
-            "weight parameter should be > 0.0 in call to excited-state dmrg (value passed was weight=$weight)",
+            "weight parameter should be > 0.0 in call to excited-state dmrg (value passed was weight=$weight)"
         )
     end
     PMM = ProjMPO_MPS(H, Ms; weight)
@@ -92,6 +92,7 @@ the form `w|M1><M1| + w|M2><M2| + ...` where `Ms=[M1, M2, ...]` and
 optional `weight` keyword argument.
 
 !!! note
+
     `dmrg` will report the energy of the operator
     `H + w|M1><M1| + w|M2><M2| + ...`, not the operator `H`.
     If you want the expectation value of the MPS eigenstate
@@ -122,35 +123,33 @@ Keyword arguments:
 Optional keyword arguments:
 
   - `maxdim` - integer or array of integers specifying the maximum size
-     allowed for the bond dimension or rank of the MPS being optimized.
+    allowed for the bond dimension or rank of the MPS being optimized.
   - `cutoff` - float or array of floats specifying the truncation error cutoff
-     or threshold to use for truncating the bond dimension or rank of the MPS.
+    or threshold to use for truncating the bond dimension or rank of the MPS.
   - `eigsolve_krylovdim::Int = 3` - maximum dimension of Krylov space used to
-     locally solve the eigenvalue problem. Try setting to a higher value if
-     convergence is slow or the Hamiltonian is close to a critical point. [^krylovkit]
+    locally solve the eigenvalue problem. Try setting to a higher value if
+    convergence is slow or the Hamiltonian is close to a critical point. [^krylovkit]
   - `eigsolve_tol::Number = 1e-14` - Krylov eigensolver tolerance. [^krylovkit]
   - `eigsolve_maxiter::Int = 1` - number of times the Krylov subspace can be
-     rebuilt. [^krylovkit]
+    rebuilt. [^krylovkit]
   - `eigsolve_verbosity::Int = 0` - verbosity level of the Krylov solver.
-     Warning: enabling this will lead to a lot of outputs to the terminal. [^krylovkit]
+    Warning: enabling this will lead to a lot of outputs to the terminal. [^krylovkit]
   - `ishermitian=true` - boolean specifying if dmrg should assume the MPO (or more
-     general linear operator) represents a Hermitian matrix. [^krylovkit]
+    general linear operator) represents a Hermitian matrix. [^krylovkit]
   - `noise` - float or array of floats specifying strength of the "noise term"
-     to use to aid convergence.
+    to use to aid convergence.
   - `mindim` - integer or array of integers specifying the minimum size of the
-     bond dimension or rank, if possible.
+    bond dimension or rank, if possible.
   - `outputlevel::Int = 1` - larger outputlevel values make DMRG print more
-     information and 0 means no output.
+    information and 0 means no output.
   - `observer` - object implementing the [Observer](@ref observer) interface
-     which can perform measurements and stop DMRG early.
+    which can perform measurements and stop DMRG early.
   - `write_when_maxdim_exceeds::Int` - when the allowed maxdim exceeds this
-     value, begin saving tensors to disk to free RAM memory in large calculations
+    value, begin saving tensors to disk to free RAM memory in large calculations
   - `write_path::String = tempdir()` - path to use to save files to disk
-     (to save RAM) when maxdim exceeds the `write_when_maxdim_exceeds` option, if set
+    (to save RAM) when maxdim exceeds the `write_when_maxdim_exceeds` option, if set
 
-[^krylovkit]:
-
-    The `dmrg` function in `ITensorMPS.jl` currently uses the `eigsolve`
+[^krylovkit]: The `dmrg` function in `ITensorMPS.jl` currently uses the `eigsolve`
     function in `KrylovKit.jl` as the internal the eigensolver.
     See the `KrylovKit.jl` documention on the `eigsolve` function for more details:
     [KrylovKit.eigsolve](https://jutho.github.io/KrylovKit.jl/stable/man/eig/#KrylovKit.eigsolve).
@@ -171,11 +170,11 @@ function dmrg(
         eigsolve_maxiter = 1,
         eigsolve_verbosity = 0,
         eigsolve_which_eigenvalue = :SR,
-        ishermitian = true,
+        ishermitian = true
     )
     if length(psi0) == 1
         error(
-            "`dmrg` currently does not support system sizes of 1. You can diagonalize the MPO tensor directly with tools like `LinearAlgebra.eigen`, `KrylovKit.eigsolve`, etc.",
+            "`dmrg` currently does not support system sizes of 1. You can diagonalize the MPO tensor directly with tools like `LinearAlgebra.eigen`, `KrylovKit.eigsolve`, etc."
         )
     end
 
@@ -210,7 +209,7 @@ function dmrg(
                     maxdim(sweeps, sw) > write_when_maxdim_exceeds
                 if outputlevel >= 2
                     println(
-                        "\nWriting environment tensors do disk (write_when_maxdim_exceeds = $write_when_maxdim_exceeds and maxdim(sweeps, sw) = $(maxdim(sweeps, sw))).\nFiles located at path=$write_path\n",
+                        "\nWriting environment tensors do disk (write_when_maxdim_exceeds = $write_when_maxdim_exceeds and maxdim(sweeps, sw) = $(maxdim(sweeps, sw))).\nFiles located at path=$write_path\n"
                     )
                 end
                 PH = disk(PH; path = write_path)
@@ -245,7 +244,7 @@ function dmrg(
                         tol = eigsolve_tol,
                         krylovdim = eigsolve_krylovdim,
                         maxiter = eigsolve_maxiter,
-                        verbosity = eigsolve_verbosity,
+                        verbosity = eigsolve_verbosity
                     )
                 end
 
@@ -289,7 +288,7 @@ function dmrg(
                         ortho,
                         normalize = true,
                         which_decomp,
-                        svd_alg,
+                        svd_alg
                     )
                 end
                 maxtruncerr = max(maxtruncerr, spec.truncerr)
@@ -300,7 +299,14 @@ function dmrg(
                 end
 
                 if outputlevel >= 2
-                    @printf("Sweep %d, half %d, bond (%d,%d) energy=%s\n", sw, ha, b, b + 1, energy)
+                    @printf(
+                        "Sweep %d, half %d, bond (%d,%d) energy=%s\n",
+                        sw,
+                        ha,
+                        b,
+                        b + 1,
+                        energy
+                    )
                     @printf(
                         "  Truncated using cutoff=%.1E maxdim=%d mindim=%d\n",
                         cutoff(sweeps, sw),
@@ -308,7 +314,8 @@ function dmrg(
                         mindim(sweeps, sw)
                     )
                     @printf(
-                        "  Trunc. err=%.2E, bond dimension %d\n", spec.truncerr, dim(linkind(psi, b))
+                        "  Trunc. err=%.2E, bond dimension %d\n", spec.truncerr,
+                        dim(linkind(psi, b))
                     )
                     flush(stdout)
                 end
@@ -324,7 +331,7 @@ function dmrg(
                     half_sweep = ha,
                     spec,
                     outputlevel,
-                    sweep_is_done,
+                    sweep_is_done
                 )
             end
         end
@@ -350,7 +357,7 @@ function _dmrg_sweeps(;
         maxdim = default_maxdim(),
         mindim = default_mindim(),
         cutoff = default_cutoff(Float64),
-        noise = default_noise(),
+        noise = default_noise()
     )
     sweeps = Sweeps(nsweeps)
     setmaxdim!(sweeps, maxdim...)
@@ -369,7 +376,7 @@ function dmrg(
         mindim = default_mindim(),
         cutoff = default_cutoff(Float64),
         noise = default_noise(),
-        kwargs...,
+        kwargs...
     )
     return dmrg(
         x1, x2, psi0, _dmrg_sweeps(; nsweeps, maxdim, mindim, cutoff, noise); kwargs...
@@ -384,7 +391,7 @@ function dmrg(
         mindim = default_mindim(),
         cutoff = default_cutoff(Float64),
         noise = default_noise(),
-        kwargs...,
+        kwargs...
     )
     return dmrg(x1, psi0, _dmrg_sweeps(; nsweeps, maxdim, mindim, cutoff, noise); kwargs...)
 end

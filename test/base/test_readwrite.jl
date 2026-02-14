@@ -1,5 +1,8 @@
 @eval module $(gensym())
-using ITensorMPS, ITensors, HDF5, Test
+using HDF5
+using ITensorMPS
+using ITensors
+using Test
 
 include(joinpath(@__DIR__, "utils", "util.jl"))
 
@@ -12,7 +15,7 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
         mpo = makeRandomMPO(sites)
 
         h5open("data.h5", "w") do fo
-            write(fo, "mpo", mpo)
+            return write(fo, "mpo", mpo)
         end
 
         h5open("data.h5", "r") do fi
@@ -23,7 +26,7 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
         # MPS
         mps = makeRandomMPS(sites)
         h5open("data.h5", "w") do fo
-            write(fo, "mps", mps)
+            return write(fo, "mps", mps)
         end
 
         h5open("data.h5", "r") do fi

@@ -1,19 +1,6 @@
 using Adapt: adapt
-using ITensors:
-    ITensors,
-    Algorithm,
-    Index,
-    ITensor,
-    @Algorithm_str,
-    δ,
-    commonind,
-    dag,
-    denseblocks,
-    directsum,
-    hasqns,
-    prime,
-    scalartype,
-    uniqueinds
+using ITensors: ITensors, @Algorithm_str, Algorithm, ITensor, Index, commonind, dag,
+    denseblocks, directsum, hasqns, prime, scalartype, uniqueinds, δ
 using LinearAlgebra: normalize, svd, tr
 using NDTensors: unwrap_array_type
 
@@ -89,7 +76,7 @@ function expand(
         state::MPS,
         references::Vector{MPS};
         cutoff = (√(eps(real(scalartype(state))))),
-        projection_cutoff = (√(eps(real(scalartype(state))))),
+        projection_cutoff = (√(eps(real(scalartype(state)))))
     )
     n = length(state)
     state = orthogonalize(state, n)
@@ -102,7 +89,10 @@ function expand(
         rinds = uniqueinds(basisⱼ, λⱼ)
         # Make projectorⱼ
         idⱼ = prod(rinds) do r
-            return adapt(unwrap_array_type(basisⱼ), denseblocks(δ(scalartype(state), r', dag(r))))
+            return adapt(
+                unwrap_array_type(basisⱼ),
+                denseblocks(δ(scalartype(state), r', dag(r)))
+            )
         end
         projectorⱼ = idⱼ - prime(basisⱼ, rinds) * dag(basisⱼ)
         # Sum reference density matrices
@@ -163,7 +153,7 @@ function expand(
         operator::MPO;
         krylovdim = 2,
         cutoff = (√(eps(real(scalartype(state))))),
-        apply_kwargs = (; maxdim = maxlinkdim(state) + 1),
+        apply_kwargs = (; maxdim = maxlinkdim(state) + 1)
     )
     # TODO: Try replacing this logic with `Base.accumulate`.
     references = Vector{MPS}(undef, krylovdim)

@@ -42,7 +42,7 @@ function copy(P::DiskProjMPO)
         P.Lcache,
         P.lposcache,
         P.Rcache,
-        P.rposcache,
+        P.rposcache
     )
 end
 
@@ -61,7 +61,7 @@ function DiskProjMPO(H::MPO)
         OneITensor,
         nothing,
         OneITensor,
-        nothing,
+        nothing
     )
 end
 
@@ -75,7 +75,7 @@ function disk(pm::ProjMPO; kwargs...)
         lproj(pm),
         pm.lpos,
         rproj(pm),
-        pm.rpos,
+        pm.rpos
     )
 end
 disk(pm::DiskProjMPO; kwargs...) = pm

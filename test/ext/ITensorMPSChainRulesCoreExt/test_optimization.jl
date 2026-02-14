@@ -73,8 +73,16 @@ include(joinpath(@__DIR__, "utils", "circuit.jl"))
         E(ψ) = E(H, ψ)
         ∇E(ψ) = E'(ψ)
         fg(ψ) = (E(ψ), ∇E(ψ))
-        linesearch = HagerZhangLineSearch(; c₁ = 0.1, c₂ = 0.9, ϵ = 1.0e-6, θ = 1 / 2, γ = 2 / 3, ρ = 5.0)
-        algorithm = LBFGS(5; maxiter = 50, gradtol = 1.0e-4, linesearch = linesearch, verbosity = 0)
+        linesearch = HagerZhangLineSearch(;
+            c₁ = 0.1,
+            c₂ = 0.9,
+            ϵ = 1.0e-6,
+            θ = 1 / 2,
+            γ = 2 / 3,
+            ρ = 5.0
+        )
+        algorithm =
+            LBFGS(5; maxiter = 50, gradtol = 1.0e-4, linesearch = linesearch, verbosity = 0)
         ψ, fψ, gψ, numfg, normgradhistory = optimize(fg, ψ₀, algorithm)
         sweeps = Sweeps(5)
         setmaxdim!(sweeps, χ)
@@ -250,7 +258,8 @@ include(joinpath(@__DIR__, "utils", "circuit.jl"))
 
         loss_∇loss(x) = (loss(x), convert(Vector, loss'(x)))
         algorithm = LBFGS(; gradtol = gradtol, verbosity = 0)
-        θ⃗ₒₚₜ, lossₒₚₜ, ∇lossₒₚₜ, numfg, normgradhistory = optimize(loss_∇loss, θ⃗₀, algorithm)
+        θ⃗ₒₚₜ, lossₒₚₜ, ∇lossₒₚₜ, numfg, normgradhistory =
+            optimize(loss_∇loss, θ⃗₀, algorithm)
 
         sweeps = Sweeps(5)
         setmaxdim!(sweeps, 10)

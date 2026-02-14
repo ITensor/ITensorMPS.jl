@@ -155,7 +155,7 @@ isortho(m::AbstractMPS) = leftlim(m) + 1 == rightlim(m) - 1
 # Could also define as `only(ortho_lims)`
 function orthocenter(m::AbstractMPS)
     !isortho(m) && error(
-        "$(typeof(m)) has no well-defined orthogonality center, orthogonality center is on the range $(ortho_lims(m)).",
+        "$(typeof(m)) has no well-defined orthogonality center, orthogonality center is on the range $(ortho_lims(m))."
     )
     return leftlim(m) + 1
 end
@@ -180,8 +180,8 @@ should be preserved.
 s = siteinds("S=1/2", 4)
 
 # Make random MPS with bond dimension 2
-ψ₁ = random_mps(s, "↑"; linkdims=2)
-ψ₂ = random_mps(s, "↑"; linkdims=2)
+ψ₁ = random_mps(s, "↑"; linkdims = 2)
+ψ₂ = random_mps(s, "↑"; linkdims = 2)
 ψ₁ = orthogonalize(ψ₁, 1)
 ψ₂ = orthogonalize(ψ₂, 1)
 
@@ -192,8 +192,8 @@ s = siteinds("S=1/2", 4)
 @show ortho_lims(ψ₂)
 
 @preserve_ortho (ψ₁, ψ₂) begin
-  ψ₁ .= addtags.(ψ₁, "x₁"; tags = "Link")
-  ψ₂ .= addtags.(ψ₂, "x₂"; tags = "Link")
+    ψ₁ .= addtags.(ψ₁, "x₁"; tags = "Link")
+    ψ₂ .= addtags.(ψ₂, "x₂"; tags = "Link")
 end
 
 # ortho_lims(ψ₁) = 1:1
@@ -252,12 +252,13 @@ but modifying the data of the returned MPS/MPO will modify the input MPS/MPO.
 Use [`deepcopy`](@ref) for an alternative that copies the ITensors as well.
 
 # Examples
+
 ```julia
 julia> using ITensors, ITensorMPS
 
 julia> s = siteinds("S=1/2", 3);
 
-julia> M1 = random_mps(s; linkdims=3);
+julia> M1 = random_mps(s; linkdims = 3);
 
 julia> norm(M1)
 0.9999999999999999
@@ -300,12 +301,13 @@ Use [`copy`](@ref) for an alternative that performs a shallow copy that avoids
 copying the ITensor data.
 
 # Examples
+
 ```julia
 julia> using ITensors, ITensorMPS
 
 julia> s = siteinds("S=1/2", 3);
 
-julia> M1 = random_mps(s; linkdims=3);
+julia> M1 = random_mps(s; linkdims = 3);
 
 julia> norm(M1)
 1.0
@@ -473,7 +475,7 @@ function SiteTypes.siteinds(
         A::AbstractMPS,
         B::AbstractMPS,
         j::Integer;
-        kwargs...,
+        kwargs...
     )
     N = length(A)
     N == 1 && return f(A[j], B[j]; kwargs...)
@@ -489,7 +491,8 @@ end
 Get the site indices of MPO `A` that are unique to `A` (not shared with MPS/MPO `B`), as a `Vector{<:Index}`.
 """
 function SiteTypes.siteinds(
-        f::Union{typeof(uniqueinds), typeof(uniqueind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
+        f::Union{typeof(uniqueinds), typeof(uniqueind)}, A::AbstractMPS, B::AbstractMPS;
+        kwargs...
     )
     return [siteinds(f, A, B, j; kwargs...) for j in eachindex(A)]
 end
@@ -505,7 +508,7 @@ function SiteTypes.siteinds(
         A::AbstractMPS,
         B::AbstractMPS,
         j::Integer;
-        kwargs...,
+        kwargs...
     )
     return f(A[j], B[j]; kwargs...)
 end
@@ -517,7 +520,8 @@ end
 Get a vector of the site index (or indices) of MPO `A` that is shared with MPS/MPO `B`.
 """
 function SiteTypes.siteinds(
-        f::Union{typeof(commoninds), typeof(commonind)}, A::AbstractMPS, B::AbstractMPS; kwargs...
+        f::Union{typeof(commoninds), typeof(commonind)}, A::AbstractMPS, B::AbstractMPS;
+        kwargs...
     )
     return [siteinds(f, A, B, j) for j in eachindex(A)]
 end
@@ -540,6 +544,7 @@ To find all sites with common indices with `is`, use the
 `findsites` function.
 
 # Examples
+
 ```julia
 s = siteinds("S=1/2", 5)
 ψ = random_mps(s)
@@ -571,6 +576,7 @@ indices in common with the collection of site indices
 `is`.
 
 # Examples
+
 ```julia
 s = siteinds("S=1/2", 5)
 ψ = random_mps(s)
@@ -751,12 +757,12 @@ function check_hascommoninds(::typeof(siteinds), A::AbstractMPS, B::AbstractMPS)
         throw(
             DimensionMismatch(
                 "$(typeof(A)) and $(typeof(B)) have mismatched lengths $N and $(length(B))."
-            ),
+            )
         )
     end
     for n in 1:N
         !hascommoninds(siteinds(A, n), siteinds(B, n)) && error(
-            "$(typeof(A)) A and $(typeof(B)) B must share site indices. On site $n, A has site indices $(siteinds(A, n)) while B has site indices $(siteinds(B, n)).",
+            "$(typeof(A)) A and $(typeof(B)) B must share site indices. On site $n, A has site indices $(siteinds(A, n)) while B has site indices $(siteinds(B, n))."
         )
     end
     return nothing
@@ -829,7 +835,7 @@ function map(
         ffilter::typeof(siteinds),
         fsubset::Union{typeof(commoninds), typeof(uniqueinds)},
         M1::AbstractMPS,
-        M2::AbstractMPS,
+        M2::AbstractMPS
     )
     return map!(f, ffilter, fsubset, copy(M1), copy(M2))
 end
@@ -907,7 +913,7 @@ for (fname, fname!) in [
                 M1::AbstractMPS,
                 M2::AbstractMPS,
                 args...;
-                kwargs...,
+                kwargs...
             )
             return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
         end
@@ -918,7 +924,7 @@ for (fname, fname!) in [
                 M1::AbstractMPS,
                 M2::AbstractMPS,
                 args...;
-                kwargs...,
+                kwargs...
             )
             return map!(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
         end
@@ -936,7 +942,7 @@ for (fname, fname!) in [
                 M1::AbstractMPS,
                 M2::AbstractMPS,
                 args...;
-                kwargs...,
+                kwargs...
             )
             return map(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
         end
@@ -947,7 +953,7 @@ for (fname, fname!) in [
                 M1::AbstractMPS,
                 M2::AbstractMPS,
                 args...;
-                kwargs...,
+                kwargs...
             )
             return map!(i -> $fname(i, args...; kwargs...), ffilter, fsubset, M1, M2)
         end
@@ -1059,7 +1065,7 @@ function deprecate_make_inds_match!(
         M1dag::MPST,
         M2::MPST,
         loginner::Bool;
-        make_inds_match::Bool = true,
+        make_inds_match::Bool = true
     ) where {MPST <: AbstractMPS}
     siteindsM1dag = siteinds(all, M1dag)
     siteindsM2 = siteinds(all, M2)
@@ -1274,7 +1280,7 @@ function isapprox(
         atol::Real = 0,
         rtol::Real = Base.rtoldefault(
             LinearAlgebra.promote_leaf_eltypes(x), LinearAlgebra.promote_leaf_eltypes(y), atol
-        ),
+        )
     )
     d = norm(x - y)
     if isfinite(d)
@@ -1326,7 +1332,7 @@ case, we just return the original MPS or MPO. You can check for this case as fol
 s = siteinds("S=1/2", 4)
 ψ = 0 * random_mps(s)
 lognorm_ψ = []
-normalize!(ψ; (lognorm!)=lognorm_ψ)
+normalize!(ψ; (lognorm!) = lognorm_ψ)
 lognorm_ψ[1] == -Inf # There was an infinite norm
 ```
 
@@ -1358,8 +1364,8 @@ but done more efficiently as:
 `sqrt(abs(inner(A, A) + inner(B, B) - 2 * real(inner(A, B))))`.
 
 Note that if the MPS/MPO are not normalized, the normalizations may diverge and
-  this may not be accurate. For those cases, likely it is best to use `norm(A - B)`
-  directly (or `lognorm(A - B)` if you expect the result may be very large).
+this may not be accurate. For those cases, likely it is best to use `norm(A - B)`
+directly (or `lognorm(A - B)` if you expect the result may be very large).
 """
 function dist(A::AbstractMPS, B::AbstractMPS)
     return sqrt(abs(inner(A, A) + inner(B, B) - 2 * real(inner(A, B))))
@@ -1429,7 +1435,7 @@ function +(
             tags = tags(linkind(ψ⃗[1], n - 1)),
             cutoff = cutoff,
             maxdim = add_maxlinkdims[n - 1],
-            kwargs...,
+            kwargs...
         )
         lₙ₋₁ = commonind(Dₙ, Vₙ)
 
@@ -1474,7 +1480,7 @@ function +(::Algorithm"directsum", ψ⃗::MPST...) where {MPST <: AbstractMPS}
         l⃗j = map(ψᵢ -> linkind(ψᵢ, j), ψ⃗)
         ϕj, (ljm, lj) = directsum(
             (ψ⃗[i][j] => (l⃗jm[i], l⃗j[i]) for i in 1:length(ψ⃗))...;
-            tags = [tags(first(l⃗jm)), tags(first(l⃗j))],
+            tags = [tags(first(l⃗jm)), tags(first(l⃗j))]
         )
         ϕj = replaceind(ϕj, ljm => dag(ljm_prev))
         ljm_prev = lj
@@ -1501,15 +1507,15 @@ cutoff for their particular application.
 
 # Keywords
 
-- `cutoff::Real`: singular value truncation cutoff
-- `maxdim::Int`: maximum MPS/MPO bond dimension
-- `alg = "densitymatrix"`: `"densitymatrix"` or `"directsum"`. `"densitymatrix"` adds the MPS/MPO
-   by adding up and diagoanlizing local density matrices site by site in a single
-   sweep through the system, truncating the density matrix with `cutoff` and `maxdim`.
-   `"directsum"` performs a direct sum of each tensors on each site of the input
-   MPS/MPO being summed. It doesn't perform any truncation, and therefore ignores
-   `cutoff` and `maxdim`. The bond dimension of the output is the sum of the bond
-   dimensions of the inputs. You can truncate the resulting MPS/MPO with the `truncate!` function.
+  - `cutoff::Real`: singular value truncation cutoff
+  - `maxdim::Int`: maximum MPS/MPO bond dimension
+  - `alg = "densitymatrix"`: `"densitymatrix"` or `"directsum"`. `"densitymatrix"` adds the MPS/MPO
+    by adding up and diagoanlizing local density matrices site by site in a single
+    sweep through the system, truncating the density matrix with `cutoff` and `maxdim`.
+    `"directsum"` performs a direct sum of each tensors on each site of the input
+    MPS/MPO being summed. It doesn't perform any truncation, and therefore ignores
+    `cutoff` and `maxdim`. The bond dimension of the output is the sum of the bond
+    dimensions of the inputs. You can truncate the resulting MPS/MPO with the `truncate!` function.
 
 # Examples
 
@@ -1519,9 +1525,9 @@ N = 10
 s = siteinds("S=1/2", N; conserve_qns = true)
 
 state = n -> isodd(n) ? "↑" : "↓"
-ψ₁ = random_mps(s, state; linkdims=2)
-ψ₂ = random_mps(s, state; linkdims=2)
-ψ₃ = random_mps(s, state; linkdims=2)
+ψ₁ = random_mps(s, state; linkdims = 2)
+ψ₂ = random_mps(s, state; linkdims = 2)
+ψ₃ = random_mps(s, state; linkdims = 2)
 
 ψ = +(ψ₁, ψ₂; cutoff = 1e-8)
 
@@ -1574,8 +1580,8 @@ truncation.
 
 # Keywords
 
-- `cutoff::Real`: singular value truncation cutoff
-- `maxdim::Int`: maximum MPS/MPO bond dimension
+  - `cutoff::Real`: singular value truncation cutoff
+  - `maxdim::Int`: maximum MPS/MPO bond dimension
 """
 function sum(ψ⃗::Vector{T}; kwargs...) where {T <: AbstractMPS}
     iszero(length(ψ⃗)) && return T()
@@ -1604,7 +1610,9 @@ function orthogonalize!(M::AbstractMPS, j::Int; maxdim = nothing, normalize = no
     # TODO: Delete `maxdim` and `normalize` keyword arguments.
     @debug_check begin
         if !(1 <= j <= length(M))
-            error("Input j=$j to `orthogonalize!` out of range (valid range = 1:$(length(M)))")
+            error(
+                "Input j=$j to `orthogonalize!` out of range (valid range = 1:$(length(M)))"
+            )
         end
     end
     while leftlim(M) < (j - 1)
@@ -1671,18 +1679,19 @@ using the truncation parameters (cutoff,maxdim, etc.)
 provided as keyword arguments.
 
 Keyword arguments:
-* `site_range`=1:N - only truncate the MPS bonds between these sites
-* `callback=Returns(nothing)` - callback function that allows the user to save the per-bond truncation error. The API of `callback` expects to take two kwargs called `link` and `truncation_error` where `link` is of type `Pair{Int64, Int64}` and `truncation_error` is `Float64`. Consider the following example that illustrates one possible use case.
+
+  - `site_range`=1:N - only truncate the MPS bonds between these sites
+  - `callback=Returns(nothing)` - callback function that allows the user to save the per-bond truncation error. The API of `callback` expects to take two kwargs called `link` and `truncation_error` where `link` is of type `Pair{Int64, Int64}` and `truncation_error` is `Float64`. Consider the following example that illustrates one possible use case.
 
 ```julia
 nbonds = 9
 truncation_errors = zeros(nbonds)
 function callback(; link, truncation_error)
-  bond_no = last(link)
-  truncation_errors[bond_no] = truncation_error
-  return nothing
+    bond_no = last(link)
+    truncation_errors[bond_no] = truncation_error
+    return nothing
 end
-truncate!(ψ; maxdim=5, cutoff=1E-7, callback)
+truncate!(ψ; maxdim = 5, cutoff = 1E-7, callback)
 ```
 """
 function truncate!(M::AbstractMPS; alg = "frobenius", kwargs...)
@@ -1694,7 +1703,7 @@ function truncate!(
         M::AbstractMPS;
         site_range = 1:length(M),
         callback = Returns(nothing),
-        kwargs...,
+        kwargs...
     )
     # Left-orthogonalize all tensors to make
     # truncations controlled
@@ -1826,6 +1835,7 @@ Replace the sites in the range `r` with tensors made
 from decomposing `A` into an MPS or MPO.
 
 The MPS or MPO must be orthogonalized such that
+
 ```
 firstsite ≤ ITensorMPS.orthocenter(ψ) ≤ lastsite
 ```
@@ -1841,7 +1851,7 @@ function setindex!(
         r::UnitRange{Int};
         orthocenter::Integer = last(r),
         perm = nothing,
-        kwargs...,
+        kwargs...
     ) where {MPST <: AbstractMPS}
     # Replace the sites of ITensor ψ
     # with the tensor A, splitting up A
@@ -1919,7 +1929,7 @@ function setindex!(
         leftinds = lind,
         orthocenter = orthocenter - first(r) + 1,
         tags = linktags,
-        kwargs...,
+        kwargs...
     )
     #@assert prod(ψA) ≈ A
 
@@ -1951,16 +1961,16 @@ by site according to the site indices `sites`.
 
 # Keywords
 
-- `leftinds = nothing`: optional left dangling indices. Indices that are not
-   in `sites` and `leftinds` will be dangling off of the right side of the MPS/MPO.
-- `orthocenter::Integer = length(sites)`: the desired final orthogonality
-   center of the output MPS/MPO.
-- `tags = [defaultlinktags(i) for i in 1:(length(sites) - 1)]`:
-   the tags to use for the link indices. The length of `tags` must be
-   `length(sites) - 1`. The default is to use the default link tags for each
-   site.
-- `cutoff`: the desired truncation error at each link.
-- `maxdim`: the maximum link dimension.
+  - `leftinds = nothing`: optional left dangling indices. Indices that are not
+    in `sites` and `leftinds` will be dangling off of the right side of the MPS/MPO.
+  - `orthocenter::Integer = length(sites)`: the desired final orthogonality
+    center of the output MPS/MPO.
+  - `tags = [defaultlinktags(i) for i in 1:(length(sites) - 1)]`:
+    the tags to use for the link indices. The length of `tags` must be
+    `length(sites) - 1`. The default is to use the default link tags for each
+    site.
+  - `cutoff`: the desired truncation error at each link.
+  - `maxdim`: the maximum link dimension.
 """
 function (::Type{MPST})(
         A::ITensor,
@@ -1968,7 +1978,7 @@ function (::Type{MPST})(
         leftinds = nothing,
         orthocenter::Integer = length(sites),
         tags = [defaultlinktags(i) for i in 1:(length(sites) - 1)],
-        kwargs...,
+        kwargs...
     ) where {MPST <: AbstractMPS}
     N = length(sites)
     for s in sites
@@ -2133,12 +2143,12 @@ to false.
 
 # Keywords
 
-- `cutoff::Real`: singular value truncation cutoff.
-- `maxdim::Int`: maximum MPS/MPO dimension.
-- `apply_dag::Bool = false`: apply the gate and the dagger of the gate (only
-   relevant for MPO evolution).
-- `move_sites_back::Bool = true`: after the ITensors are applied to the MPS or
-   MPO, move the sites of the MPS or MPO back to their original locations.
+  - `cutoff::Real`: singular value truncation cutoff.
+  - `maxdim::Int`: maximum MPS/MPO dimension.
+  - `apply_dag::Bool = false`: apply the gate and the dagger of the gate (only
+    relevant for MPO evolution).
+  - `move_sites_back::Bool = true`: after the ITensors are applied to the MPS or
+    MPO, move the sites of the MPS or MPO back to their original locations.
 """
 function product(
         o::ITensor,
@@ -2146,7 +2156,7 @@ function product(
         ns = findsites(ψ, o);
         move_sites_back::Bool = true,
         apply_dag::Bool = false,
-        kwargs...,
+        kwargs...
     )
     N = length(ns)
     ns = sort(ns)
@@ -2184,12 +2194,12 @@ matrices from pairs of prime or unprimed indices.
 
 # Keywords
 
-- `cutoff::Real`: singular value truncation cutoff.
-- `maxdim::Int`: maximum MPS/MPO dimension.
-- `apply_dag::Bool = false`: apply the gate and the dagger of the gate
-  (only relevant for MPO evolution).
-- `move_sites_back::Bool = true`: after the ITensor is applied to the MPS or
-   MPO, move the sites of the MPS or MPO back to their original locations.
+  - `cutoff::Real`: singular value truncation cutoff.
+  - `maxdim::Int`: maximum MPS/MPO dimension.
+  - `apply_dag::Bool = false`: apply the gate and the dagger of the gate
+    (only relevant for MPO evolution).
+  - `move_sites_back::Bool = true`: after the ITensor is applied to the MPS or
+    MPO, move the sites of the MPS or MPO back to their original locations.
 
 # Examples
 
@@ -2199,10 +2209,10 @@ Apply one-site gates to an MPS:
 N = 3
 
 ITensors.op(::OpName"σx", ::SiteType"S=1/2", s::Index) =
-  2*op("Sx", s)
+    2*op("Sx", s)
 
 ITensors.op(::OpName"σz", ::SiteType"S=1/2", s::Index) =
-  2*op("Sz", s)
+    2*op("Sz", s)
 
 # Make the operator list.
 os = [("σx", n) for n in 1:N]
@@ -2233,11 +2243,11 @@ Apply nonlocal two-site gates and one-site gates to an MPS:
 ```julia
 # 2-site gate
 function ITensors.op(::OpName"CX", ::SiteType"S=1/2", s1::Index, s2::Index)
-  mat = [1 0 0 0
-         0 1 0 0
-         0 0 0 1
-         0 0 1 0]
-  return itensor(mat, s2', s1', s2, s1)
+    mat = [1 0 0 0
+        0 1 0 0
+        0 0 0 1
+        0 0 1 0]
+    return itensor(mat, s2', s1', s2, s1)
 end
 
 os = [("CX", 1, 3), ("σz", 3)]
@@ -2258,16 +2268,17 @@ Perform TEBD-like time evolution:
 ```julia
 # Define the nearest neighbor term `S⋅S` for the Heisenberg model
 function ITensors.op(::OpName"expS⋅S", ::SiteType"S=1/2",
-                     s1::Index, s2::Index; τ::Number)
-  O = 0.5 * op("S+", s1) * op("S-", s2) +
-      0.5 * op("S-", s1) * op("S+", s2) +
-            op("Sz", s1) * op("Sz", s2)
-  return exp(τ * O)
+    s1::Index, s2::Index; τ::Number)
+    O =
+        0.5 * op("S+", s1) * op("S-", s2) +
+        0.5 * op("S-", s1) * op("S+", s2) +
+        op("Sz", s1) * op("Sz", s2)
+    return exp(τ * O)
 end
 
 τ = -0.1im
 os = [("expS⋅S", (1, 2), (τ = τ,)),
-      ("expS⋅S", (2, 3), (τ = τ,))]
+    ("expS⋅S", (2, 3), (τ = τ,))]
 ψ0 = MPS(s, n -> n == 1 ? "↓" : "↑")
 expτH = ops(os, s)
 ψτ = apply(expτH, ψ0)
@@ -2278,7 +2289,7 @@ function product(
         ψ::AbstractMPS;
         move_sites_back_between_gates::Bool = true,
         move_sites_back::Bool = true,
-        kwargs...,
+        kwargs...
     )
     Aψ = ψ
     for A in As
@@ -2402,7 +2413,10 @@ end
 #
 
 BroadcastStyle(MPST::Type{<:AbstractMPS}) = Style{MPST}()
-function BroadcastStyle(::Style{MPST}, ::DefaultArrayStyle{N}) where {N, MPST <: AbstractMPS}
+function BroadcastStyle(
+        ::Style{MPST},
+        ::DefaultArrayStyle{N}
+    ) where {N, MPST <: AbstractMPS}
     return Style{MPST}()
 end
 
@@ -2416,7 +2430,10 @@ function copyto!(ψ::AbstractMPS, b::Broadcasted)
     return ψ
 end
 
-function Base.similar(bc::Broadcasted{Style{MPST}}, ElType::Type) where {MPST <: AbstractMPS}
+function Base.similar(
+        bc::Broadcasted{Style{MPST}},
+        ElType::Type
+    ) where {MPST <: AbstractMPS}
     return similar(Array{ElType}, axes(bc))
 end
 

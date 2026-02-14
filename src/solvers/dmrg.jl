@@ -11,11 +11,12 @@ function eigsolve_updater(
         krylovdim = 3,
         maxiter = 1,
         verbosity = 0,
-        eager = false,
+        eager = false
     )
     howmany = 1
     eigvals, eigvecs, info = eigsolve(
-        operator, init, howmany, which_eigval; ishermitian, tol, krylovdim, maxiter, verbosity
+        operator, init, howmany, which_eigval; ishermitian, tol, krylovdim, maxiter,
+        verbosity
     )
     return eigvecs[1], (; info, eigval = eigvals[1])
 end

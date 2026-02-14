@@ -17,7 +17,7 @@ makedocs(;
         canonical = "https://itensor.github.io/ITensorMPS.jl",
         edit_link = "main",
         assets = ["assets/favicon.ico", "assets/extras.css"],
-        prettyurls = false,
+        prettyurls = false
     ),
     pages = [
         "Home" => "index.md",
@@ -49,7 +49,11 @@ makedocs(;
             ["DMRG FAQs" => "faq/DMRG.md", "Quantum Number (QN) FAQs" => "faq/QN.md"],
         "HDF5 File Formats" => "HDF5FileFormats.md",
     ],
-    warnonly = true,
+    warnonly = true
 )
 
-deploydocs(; repo = "github.com/ITensor/ITensorMPS.jl", devbranch = "main", push_preview = true)
+deploydocs(;
+    repo = "github.com/ITensor/ITensorMPS.jl",
+    devbranch = "main",
+    push_preview = true
+)

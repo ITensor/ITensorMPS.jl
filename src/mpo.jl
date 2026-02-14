@@ -1,8 +1,8 @@
 using Adapt: adapt
-using LinearAlgebra: dot
-using Random: Random
 using ITensors.Ops: OpSum
 using ITensors.SiteTypes: SiteTypes, siteind, siteinds
+using LinearAlgebra: dot
+using Random: Random
 
 """
     MPO
@@ -99,7 +99,7 @@ MPO(sites::Vector{<:Index}, ops) = MPO(Float64, sites, ops)
 
 function MPO(sites::Vector{<:Index}, os::OpSum)
     return error(
-        "To construct an MPO from an OpSum `opsum` and a set of indices `sites`, you must use MPO(opsum, sites)",
+        "To construct an MPO from an OpSum `opsum` and a set of indices `sites`, you must use MPO(opsum, sites)"
     )
 end
 
@@ -115,10 +115,14 @@ end
 
 MPO(sites::Vector{<:Index}, op::String) = MPO(Float64, sites, op)
 
-function MPO(::Type{ElT}, sites::Vector{<:Index}, op::Matrix{<:Number}) where {ElT <: Number}
+function MPO(
+        ::Type{ElT},
+        sites::Vector{<:Index},
+        op::Matrix{<:Number}
+    ) where {ElT <: Number}
     # return MPO(ElT, sites, fill(op, length(sites)))
     return error(
-        "Not defined on purpose because of potential ambiguity with `MPO(A::Array, sites::Vector)`. Pass the on-site matrices as functions like `MPO(sites, n -> [1 0; 0 1])` instead.",
+        "Not defined on purpose because of potential ambiguity with `MPO(A::Array, sites::Vector)`. Pass the on-site matrices as functions like `MPO(sites, n -> [1 0; 0 1])` instead."
     )
 end
 
@@ -219,9 +223,9 @@ the same as those accepted by `contract(::MPO, ::MPO; kw...)`.
 # Keywords
 
   - `normalize::Bool=true`: whether or not to normalize the input MPS before
-     forming the projector. If `normalize==false` and the input MPS is not
-     already normalized, this function will not output a proper project, and
-     simply outputs `outer(x, x) = |x⟩⟨x|`, i.e. the projector scaled by `norm(x)^2`.
+    forming the projector. If `normalize==false` and the input MPS is not
+    already normalized, this function will not output a proper project, and
+    simply outputs `outer(x, x) = |x⟩⟨x|`, i.e. the projector scaled by `norm(x)^2`.
   - truncation keyword arguments accepted by `contract(::MPO, ::MPO; kw...)`.
 
 See also [`outer`](@ref), [`contract`](@ref).
@@ -356,7 +360,7 @@ function deprecate_make_inds_match!(
 
                     inds(ψ[$n]) = $(inds(x[n]))
 
-                Make sure the site indices of your MPO/MPS match. You may need to prime one of the MPS, such as `dot(ϕ', H, ψ)`.""",
+                Make sure the site indices of your MPO/MPS match. You may need to prime one of the MPS, such as `dot(ϕ', H, ψ)`."""
             )
         end
         if !hassameinds(siteinds, ydag, (A, x)) && make_inds_match
@@ -475,16 +479,17 @@ function LinearAlgebra.dot(
         throw(
             DimensionMismatch(
                 "inner: mismatched lengths $N and $(length(x)) or $(length(y)) or $(length(A))"
-            ),
+            )
         )
     end
     check_hascommoninds(siteinds, A, x)
     check_hascommoninds(siteinds, B, y)
     for j in eachindex(B)
         !hascommoninds(
-            uniqueinds(siteinds(A, j), siteinds(x, j)), uniqueinds(siteinds(B, j), siteinds(y, j))
+            uniqueinds(siteinds(A, j), siteinds(x, j)),
+            uniqueinds(siteinds(B, j), siteinds(y, j))
         ) && error(
-            "$(typeof(x)) Ax and $(typeof(y)) By must share site indices. On site $j, Ax has site indices $(uniqueinds(siteinds(A, j), (siteinds(x, j)))) while By has site indices $(uniqueinds(siteinds(B, j), siteinds(y, j))).",
+            "$(typeof(x)) Ax and $(typeof(y)) By must share site indices. On site $j, Ax has site indices $(uniqueinds(siteinds(A, j), (siteinds(x, j)))) while By has site indices $(uniqueinds(siteinds(B, j), siteinds(y, j)))."
         )
     end
     ydag = dag(y)
@@ -576,7 +581,9 @@ function error_contract(y::MPS, A::MPO, x::MPS; kwargs...)
     N = length(A)
     if length(y) != N || length(x) != N
         throw(
-            DimensionMismatch("inner: mismatched lengths $N and $(length(x)) or $(length(y))")
+            DimensionMismatch(
+                "inner: mismatched lengths $N and $(length(x)) or $(length(y))"
+            )
         )
     end
     iyy = dot(y, y; kwargs...)
@@ -697,7 +704,7 @@ function ITensors.contract(
         maxdim = maxlinkdim(A) * maxlinkdim(ψ),
         mindim = 1,
         normalize = false,
-        kwargs...,
+        kwargs...
     )::MPS
     n = length(A)
     n != length(ψ) &&
@@ -760,7 +767,17 @@ function ITensors.contract(
         ts = isnothing(l) ? "" : tags(l)
         Lis = IndexSet(s..., l_renorm)
         Ris = IndexSet(s̃..., r_renorm)
-        F = eigen(ρ, Lis, Ris; ishermitian = true, tags = ts, cutoff, maxdim, mindim, kwargs...)
+        F = eigen(
+            ρ,
+            Lis,
+            Ris;
+            ishermitian = true,
+            tags = ts,
+            cutoff,
+            maxdim,
+            mindim,
+            kwargs...
+        )
         D, U, Ut = F.D, F.V, F.Vt
         l_renorm, r_renorm = F.l, F.r
         ψ_out[j] = Ut
@@ -827,11 +844,11 @@ function ITensors.contract(
         cutoff = 1.0e-14,
         maxdim = maxlinkdim(A) * maxlinkdim(B),
         mindim = 1,
-        kwargs...,
+        kwargs...
     )
     if hassameinds(siteinds, A, B)
         error(
-            "In `contract(A::MPO, B::MPO)`, MPOs A and B have the same site indices. The indices of the MPOs in the contraction are taken literally, and therefore they should only share one site index per site so the contraction results in an MPO. You may want to use `replaceprime(contract(A', B), 2 => 1)` or `apply(A, B)` which automatically adjusts the prime levels assuming the input MPOs have pairs of primed and unprimed indices.",
+            "In `contract(A::MPO, B::MPO)`, MPOs A and B have the same site indices. The indices of the MPOs in the contraction are taken literally, and therefore they should only share one site index per site so the contraction results in an MPO. You may want to use `replaceprime(contract(A', B), 2 => 1)` or `apply(A, B)` which automatically adjusts the prime levels assuming the input MPOs have pairs of primed and unprimed indices."
         )
     end
     N = length(A)
@@ -858,7 +875,7 @@ function ITensors.contract(
             cutoff,
             maxdim,
             mindim,
-            kwargs...,
+            kwargs...
         )
         lCᵢ = dag(commoninds(C[i], R))
     end
@@ -873,7 +890,7 @@ function ITensors.contract(
         cutoff,
         maxdim,
         mindim,
-        kwargs...,
+        kwargs...
     )
     truncate!(C; kwargs...)
     return C

@@ -5,7 +5,7 @@ using PackageCompiler: PackageCompiler
 function ITensors.compile(
         ::Algorithm"PackageCompiler";
         dir::AbstractString = ITensors.default_compile_dir(),
-        filename::AbstractString = ITensors.default_compile_filename(),
+        filename::AbstractString = ITensors.default_compile_filename()
     )
     if !isdir(dir)
         println("""The directory "$dir" doesn't exist yet, creating it now.""")
@@ -14,12 +14,12 @@ function ITensors.compile(
     end
     path = joinpath(dir, filename)
     println(
-        """Creating the system image "$path" containing the compiled version of ITensorMPS. This may take a few minutes.""",
+        """Creating the system image "$path" containing the compiled version of ITensorMPS. This may take a few minutes."""
     )
     PackageCompiler.create_sysimage(
         :ITensorMPS;
         sysimage_path = path,
-        precompile_execution_file = joinpath(@__DIR__, "precompile_itensormps.jl"),
+        precompile_execution_file = joinpath(@__DIR__, "precompile_itensormps.jl")
     )
     println(ITensors.compile_note(; dir, filename))
     return path
