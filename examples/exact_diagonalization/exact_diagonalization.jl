@@ -1,4 +1,5 @@
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 using KrylovKit
 using LinearAlgebra
 using MKL
@@ -55,7 +56,8 @@ function main(n; blas_num_threads = Sys.CPU_THREADS, fuse = true, binary = true)
     end
 
     vals, vecs, info = @time eigsolve(
-        H_full, ψ0_full, 1, :SR; ishermitian = true, tol = 1.0e-6, krylovdim = 30, eager = true
+        H_full, ψ0_full, 1, :SR; ishermitian = true, tol = 1.0e-6, krylovdim = 30,
+        eager = true
     )
 
     return @show edmrg, vals[1]

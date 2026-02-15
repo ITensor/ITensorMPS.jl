@@ -1,4 +1,5 @@
-using ITensors, Test
+using ITensors
+using Test
 
 @test LatticeBond(1, 2) == LatticeBond(1, 2, 0.0, 0.0, 0.0, 0.0, "")
 @testset "Square lattice" begin

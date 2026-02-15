@@ -21,12 +21,14 @@ function main()
     return_state(; state) = state
     measure_sz(; state) = expect(state, "Sz"; sites = length(state) ÷ 2)
     obs = observer(
-        "steps" => step, "times" => current_time, "states" => return_state, "sz" => measure_sz
+        "steps" => step, "times" => current_time, "states" => return_state,
+        "sz" => measure_sz
     )
 
     init = MPS(s, n -> isodd(n) ? "Up" : "Dn")
     state = tdvp(
-        H, -1.0im, init; time_step = -0.1im, cutoff = 1.0e-12, (step_observer!) = obs, outputlevel = 1
+        H, -1.0im, init; time_step = -0.1im, cutoff = 1.0e-12, (step_observer!) = obs,
+        outputlevel = 1
     )
 
     println("\nResults")

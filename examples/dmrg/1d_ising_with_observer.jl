@@ -1,10 +1,11 @@
 # In this example we show how to pass a DMRGObserver to
 # the dmrg function which allows tracking energy convergence and
 # convergence of local operators.
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 
 """
-  Get MPO of transverse field Ising model Hamiltonian with field strength h
+Get MPO of transverse field Ising model Hamiltonian with field strength h
 """
 function tfimMPO(sites, h::Float64)
     # Input operator terms which define a Hamiltonian
@@ -31,11 +32,11 @@ let
     cutoff = [1.0e-10]
 
     #=
-  create observer which will measure Sᶻ at each
-  site during the dmrg sweeps and track energies after each sweep.
-  in addition it will stop the computation if energy converges within
-  1E-7 tolerance
-  =#
+    create observer which will measure Sᶻ at each
+    site during the dmrg sweeps and track energies after each sweep.
+    in addition it will stop the computation if energy converges within
+    1E-7 tolerance
+    =#
     let
         Sz_observer = DMRGObserver(["Sz"], sites; energy_tol = 1.0e-7)
 

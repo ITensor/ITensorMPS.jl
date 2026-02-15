@@ -1,6 +1,7 @@
 function process_sweeps(s::Sweeps)
     return (;
-        nsweeps = s.nsweep, maxdim = s.maxdim, mindim = s.mindim, cutoff = s.cutoff, noise = s.noise,
+        nsweeps = s.nsweep, maxdim = s.maxdim, mindim = s.mindim, cutoff = s.cutoff,
+        noise = s.noise,
     )
 end
 

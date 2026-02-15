@@ -1,6 +1,6 @@
 @eval module $(gensym())
-using ITensors: ITensors, dag, delta, denseblocks
 using ITensorMPS: MPO, OpSum, apply, contract, inner, random_mps, siteinds, truncate!
+using ITensors: ITensors, dag, delta, denseblocks
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset
 @testset "Contract MPO (eltype=$elt, conserve_qns=$conserve_qns)" for elt in (
@@ -59,7 +59,8 @@ using Test: @test, @test_throws, @testset
         @test ITensors.scalartype(Hpsi) == elt
         scale(::Type{Float32}) = 10^2
         scale(::Type{Float64}) = 10^6
-        @test inner(psi, Hpsi) ≈ inner(psi', H, psi) rtol = √eps(real(elt)) * scale(real(elt))
+        @test inner(psi, Hpsi) ≈ inner(psi', H, psi) rtol =
+            √eps(real(elt)) * scale(real(elt))
     end
 end
 end
