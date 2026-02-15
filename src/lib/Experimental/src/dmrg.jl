@@ -1,13 +1,9 @@
-using ..ITensorMPS:
-    MPS,
-    alternating_update,
-    compose_observers,
-    default_observer,
-    eigsolve_updater,
-    values_observer
+using ..ITensorMPS: MPS, alternating_update, compose_observers, default_observer,
+    eigsolve_updater, values_observer
 
 function dmrg(
-        operator, init::MPS; updater = eigsolve_updater, (observer!) = default_observer(), kwargs...
+        operator, init::MPS; updater = eigsolve_updater, (observer!) = default_observer(),
+        kwargs...
     )
     info_ref! = Ref{Any}()
     info_observer! = values_observer(; info = (info_ref!))

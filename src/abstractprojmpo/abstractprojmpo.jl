@@ -77,8 +77,8 @@ function product(P::AbstractProjMPO, v::ITensor)::ITensor
                 "(1) You are trying to multiply the ProjMPO with the $(nsite(P))-site wave-function at the wrong position.\n",
                 "(2) `orthogonalize!` was called, changing the MPS without updating the ProjMPO.\n\n",
                 "P*v inds: $(inds(Pv)) \n\n",
-                "v inds: $(inds(v))",
-            ),
+                "v inds: $(inds(v))"
+            )
         )
     end
     return noprime(Pv)

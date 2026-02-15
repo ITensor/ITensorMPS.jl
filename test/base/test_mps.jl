@@ -75,12 +75,14 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
             psi = MPS(sites, state)
             for j in 1:length(psi)
                 sign = isodd(j) ? +1.0 : -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
             psi = MPS(sites, state)
             for j in 1:length(psi)
                 sign = isodd(j) ? +1.0 : -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
             @test_throws DimensionMismatch MPS(sites, fill("", length(psi) - 1))
             @test_throws DimensionMismatch MPS(sites, fill("", length(psi) - 1))
@@ -91,12 +93,14 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
             psi = MPS(sites, "Dn")
             for j in 1:length(psi)
                 sign = -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
             psi = MPS(sites, "Dn")
             for j in 1:length(psi)
                 sign = -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
 
             psi = MPS(sites, "X+")
@@ -110,12 +114,14 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
             psi = MPS(sites, 2)
             for j in 1:length(psi)
                 sign = -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
             psi = MPS(sites, 2)
             for j in 1:length(psi)
                 sign = -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
         end
 
@@ -128,12 +134,14 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
             psi = MPS(sites, state)
             for j in 1:length(psi)
                 sign = isodd(j) ? +1.0 : -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
             psi = MPS(sites, state)
             for j in 1:length(psi)
                 sign = isodd(j) ? +1.0 : -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
         end
 
@@ -147,12 +155,14 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
             psi = MPS(ivals)
             for j in 1:length(psi)
                 sign = isodd(j) ? +1.0 : -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
             psi = MPS(ivals)
             for j in 1:length(psi)
                 sign = isodd(j) ? +1.0 : -1.0
-                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈ sign / 2
+                @test (psi[j] * op(sites, "Sz", j) * dag(prime(psi[j], "Site")))[] ≈
+                    sign / 2
             end
 
             @testset "ComplexF64 eltype" begin
@@ -646,7 +656,14 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
         # check that replacebond! runs with svd kwargs
         psi = random_mps(sites)
         phi = psi[1] * psi[2]
-        replacebond!(psi, 1, phi; ortho = "left", which_decomp = "svd", use_relative_cutoff = true)
+        replacebond!(
+            psi,
+            1,
+            phi;
+            ortho = "left",
+            which_decomp = "svd",
+            use_relative_cutoff = true
+        )
         phi = psi[5] * psi[6]
         replacebond!(
             psi,
@@ -655,7 +672,7 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
             ortho = "right",
             which_decomp = "svd",
             use_absolute_cutoff = true,
-            min_blockdim = 2,
+            min_blockdim = 2
         )
     end
 end
@@ -943,8 +960,12 @@ end
         @test correlation_matrix(psi, [1 / 2 0; 0 -1 / 2], [1 / 2 0; 0 -1 / 2]) ≈
             correlation_matrix(psi, "Sz", "Sz")
         @test expect(psi, [1 / 2 0; 0 -1 / 2]) ≈ expect(psi, "Sz")
-        @test all(expect(psi, [1 / 2 0; 0 -1 / 2], [1 / 2 0; 0 -1 / 2]) .≈ expect(psi, "Sz", "Sz"))
-        @test expect(psi, [[1 / 2 0; 0 -1 / 2], [1 / 2 0; 0 -1 / 2]]) ≈ expect(psi, ["Sz", "Sz"])
+        @test all(
+            expect(psi, [1 / 2 0; 0 -1 / 2], [1 / 2 0; 0 -1 / 2]) .≈
+                expect(psi, "Sz", "Sz")
+        )
+        @test expect(psi, [[1 / 2 0; 0 -1 / 2], [1 / 2 0; 0 -1 / 2]]) ≈
+            expect(psi, ["Sz", "Sz"])
 
         s = siteinds("S=1/2", length(s); conserve_qns = false)
         psi = random_mps(s, n -> isodd(n) ? "Up" : "Dn"; linkdims = m)
@@ -962,7 +983,7 @@ end
                 ("Sx", "S+"),
                 ("iSy", "iSy"),
                 ("Sx", "iSy"),
-            ],
+            ]
         )
 
         test_correlation_matrix(psi, [("Sz", "Sz")]; ishermitian = false)
@@ -1019,7 +1040,7 @@ end
                 ("Adn", "Adagdn"),
                 ("Sz", "Sz"),
                 ("S+", "S-"),
-            ],
+            ]
         )
         # can't test ,("Cdn","Cdn") yet, because OpSum to MPO thinks this is antisymmetric
 
@@ -1570,8 +1591,10 @@ end
         @test prod(product(X[1], ψ)) ≈ prod(MPS(s, n -> n == 1 ? "1" : "0"))
         @test prod(product(X[1], product(X[2], ψ))) ≈
             prod(MPS(s, n -> n == 1 || n == 2 ? "1" : "0"))
-        @test prod(product(X[1] * X[2], ψ)) ≈ prod(MPS(s, n -> n == 1 || n == 2 ? "1" : "0"))
-        @test prod(product([X[2], X[1]], ψ)) ≈ prod(MPS(s, n -> n == 1 || n == 2 ? "1" : "0"))
+        @test prod(product(X[1] * X[2], ψ)) ≈
+            prod(MPS(s, n -> n == 1 || n == 2 ? "1" : "0"))
+        @test prod(product([X[2], X[1]], ψ)) ≈
+            prod(MPS(s, n -> n == 1 || n == 2 ? "1" : "0"))
         @test prod(product(CX[1, 2], ψ)) ≈ prod(MPS(s, "0"))
         @test prod(product(CX[1, 2], product(X[1], ψ))) ≈
             prod(MPS(s, n -> n == 1 || n == 2 ? "1" : "0"))
@@ -1619,7 +1642,8 @@ end
             !allunique(ns) && continue
             # Don't move sites back
             CCCNOTijkl_ψ = product(
-                [X[i], X[j], X[k], CCCNOT[ns...]], ψ; move_sites_back = false, cutoff = 1.0e-15
+                [X[i], X[j], X[k], CCCNOT[ns...]], ψ; move_sites_back = false,
+                cutoff = 1.0e-15
             )
             @test maxlinkdim(CCCNOTijkl_ψ) == 1
             @test prod(CCCNOTijkl_ψ) ≈ prod(MPS(s, n -> n ∈ ns ? "1" : "0"))
@@ -1776,7 +1800,14 @@ end
 
             s0 = siteinds(M0)
 
-            M = apply(gates, M0; apply_dag = true, cutoff = 1.0e-15, maxdim = 500, svd_alg = "qr_iteration")
+            M = apply(
+                gates,
+                M0;
+                apply_dag = true,
+                cutoff = 1.0e-15,
+                maxdim = 500,
+                svd_alg = "qr_iteration"
+            )
 
             s = siteinds(M)
             for n in 1:N

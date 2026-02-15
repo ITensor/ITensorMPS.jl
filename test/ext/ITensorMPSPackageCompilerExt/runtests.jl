@@ -2,7 +2,7 @@
 using ITensorMPS: ITensorMPS
 using ITensors: ITensors
 using PackageCompiler: PackageCompiler
-using Test: @testset, @test
+using Test: @test, @testset
 @testset "ITensorMPSPackageCompilerExt" begin
     # Testing `ITensors.compile` would take too long so we just check
     # that `ITensorsPackageCompilerExt` overloads `ITensors.compile`.

@@ -1,6 +1,6 @@
-using NDTensors: using_auto_fermion
-using ITensors.Ops: Ops, Op, OpSum, Scaled, Sum, coefficient
+using ITensors.Ops: Op, OpSum, Ops, Scaled, Sum, coefficient
 using ITensors.SiteTypes: has_fermion_string, op
+using NDTensors: using_auto_fermion
 
 # TODO: Deprecate.
 const AutoMPO = OpSum
@@ -45,16 +45,17 @@ which avoids reallocating the OpSum
 after each addition.
 
 # Examples
+
 ```julia
 opsum = OpSum()
 
-add!(opsum,"Sz",2,"Sz",3)
+add!(opsum, "Sz", 2, "Sz", 3)
 
-opsum += ("Sz",3,"Sz",4)
+opsum += ("Sz", 3, "Sz", 4)
 
-opsum += (0.5,"S+",4,"S-",5)
+opsum += (0.5, "S+", 4, "S-", 5)
 
-opsum .+= (0.5,"S+",5,"S-",6)
+opsum .+= (0.5, "S+", 5, "S-", 6)
 ```
 """
 function add!(os::OpSum, o::Scaled{C, Prod{Op}}) where {C}
@@ -169,7 +170,7 @@ function sorteachterm(os::OpSum, sites)
     for (j, t) in enumerate(os)
         if maximum(ITensors.sites(t)) > length(sites)
             error(
-                "The OpSum contains a term $t that extends beyond the number of sites $(length(sites)).",
+                "The OpSum contains a term $t that extends beyond the number of sites $(length(sites))."
             )
         end
 
@@ -177,7 +178,12 @@ function sorteachterm(os::OpSum, sites)
         # save the permutation used, "perm", for analysis below
         Nt = length(t)
         perm = Vector{Int}(undef, Nt)
-        sortperm!(perm, terms(t); alg = InsertionSort, lt = (o1, o2) -> (site(o1) < site(o2)))
+        sortperm!(
+            perm,
+            terms(t);
+            alg = InsertionSort,
+            lt = (o1, o2) -> (site(o1) < site(o2))
+        )
         # Apply permutation:
         t = coefficient(t) * Prod(terms(t)[perm])
 
@@ -277,14 +283,14 @@ DMRG.
 
 ```julia
 os = OpSum()
-os += "Sz",1,"Sz",2
-os += "Sz",2,"Sz",3
-os += "Sz",3,"Sz",4
+os += "Sz", 1, "Sz", 2
+os += "Sz", 2, "Sz", 3
+os += "Sz", 3, "Sz", 4
 
-sites = siteinds("S=1/2",4)
-H = MPO(os,sites)
-H = MPO(Float32,os,sites)
-H = MPO(os,sites; splitblocks=false)
+sites = siteinds("S=1/2", 4)
+H = MPO(os, sites)
+H = MPO(Float32, os, sites)
+H = MPO(os, sites; splitblocks = false)
 ```
 """
 function MPO(os::OpSum, sites::Vector{<:Index}; splitblocks = true, kwargs...)::MPO

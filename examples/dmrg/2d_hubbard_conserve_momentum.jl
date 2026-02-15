@@ -1,4 +1,5 @@
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 using LinearAlgebra
 using Random
 using Strided
@@ -8,24 +9,59 @@ include(joinpath(@__DIR__, "..", "src", "hubbard.jl"))
 
 """
 Usage:
-```julia
-energy, H, psi = main(; Nx=8, Ny=4, U=4.0, t=1.0, nsweeps=10, maxdim=3000, threaded_blocksparse=false);
-energy, H, psi = main(; Nx=8, Ny=4, U=4.0, t=1.0, nsweeps=10, maxdim=3000, threaded_blocksparse=true);
-energy, H, psi = main(; Nx=8, Ny=4, U=4.0, t=1.0, nsweeps=10, maxdim=3000, random_init=false, threaded_blocksparse=false);
-energy, H, psi = main(; Nx=8, Ny=4, U=4.0, t=1.0, nsweeps=10, maxdim=3000, random_init=false, threaded_blocksparse=true);
 
+```julia
+energy, H, psi = main(;
+    Nx = 8,
+    Ny = 4,
+    U = 4.0,
+    t = 1.0,
+    nsweeps = 10,
+    maxdim = 3000,
+    threaded_blocksparse = false
+);
+energy, H, psi = main(;
+    Nx = 8,
+    Ny = 4,
+    U = 4.0,
+    t = 1.0,
+    nsweeps = 10,
+    maxdim = 3000,
+    threaded_blocksparse = true
+);
+energy, H, psi = main(;
+    Nx = 8,
+    Ny = 4,
+    U = 4.0,
+    t = 1.0,
+    nsweeps = 10,
+    maxdim = 3000,
+    random_init = false,
+    threaded_blocksparse = false
+);
+energy, H, psi = main(;
+    Nx = 8,
+    Ny = 4,
+    U = 4.0,    # Helps make results reproducible when comparing
+    t = 1.0,    # sequential vs. threaded.
+    nsweeps = 10,
+    maxdim = 3000,
+    random_init = false,
+    threaded_blocksparse = true
+);
+# Disable other threading
 using HDF5
 h5open("2d_hubbard_conserve_momentum.h5", "w") do fid
-  fid["energy"] = energy
-  fid["H"] = H
-  fid["psi"] = psi
+    fid["energy"] = energy
+    fid["H"] = H
+    return fid["psi"] = psi
 end;
 
 energy, H, psi = h5open("2d_hubbard_conserve_momentum.h5") do fid
-  energy = read(fid, "energy")
-  H = read(fid, "H", MPO)
-  psi = read(fid, "psi", MPS)
-  return energy, H, psi
+    energy = read(fid, "energy")
+    H = read(fid, "H", MPO)
+    psi = read(fid, "psi", MPS)
+    return energy, H, psi
 end;
 ```
 """
@@ -39,7 +75,7 @@ function main(;
         threaded_blocksparse = false,
         nsweeps = 10,
         random_init = true,
-        seed = 1234,
+        seed = 1234
     )
     # Helps make results reproducible when comparing
     # sequential vs. threaded.

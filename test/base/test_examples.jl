@@ -7,7 +7,12 @@ using Test: @test_nowarn, @testset
         @test_nowarn begin
             @capture_out begin
                 include(
-                    joinpath(pkgdir(ITensorMPS), "examples", "dmrg", "1d_ising_with_observer.jl")
+                    joinpath(
+                        pkgdir(ITensorMPS),
+                        "examples",
+                        "dmrg",
+                        "1d_ising_with_observer.jl"
+                    )
                 )
             end
         end
@@ -20,8 +25,8 @@ using Test: @test_nowarn, @testset
                         pkgdir(ITensorMPS),
                         "ext",
                         "ITensorMPSPackageCompilerExt",
-                        "precompile_itensormps.jl",
-                    ),
+                        "precompile_itensormps.jl"
+                    )
                 )
             end
         end

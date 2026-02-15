@@ -30,7 +30,11 @@ using Test
     @test A ≈ B
 
     # Custom algorithm
-    function ITensors.truncate!(::ITensors.Algorithm"my_new_algorithm", A::MPO; cutoff = 1.0e-15)
+    function ITensors.truncate!(
+            ::ITensors.Algorithm"my_new_algorithm",
+            A::MPO;
+            cutoff = 1.0e-15
+        )
         return "my_new_algorithm was called with cutoff $cutoff"
     end
     cutoff = 1.0e-5

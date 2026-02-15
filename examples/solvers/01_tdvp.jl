@@ -28,7 +28,7 @@ function main()
         cutoff = 1.0e-10,
         normalize = true,
         reverse_step = false,
-        outputlevel = 1,
+        outputlevel = 1
     )
     @show inner(ϕ', H, ϕ) / inner(ϕ, ϕ)
 

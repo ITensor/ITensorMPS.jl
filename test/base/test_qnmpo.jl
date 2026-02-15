@@ -1,4 +1,5 @@
-using ITensors, Test
+using ITensors
+using Test
 
 function op_mpo(sites, which_op, j)
     left_ops = "Id"
@@ -113,7 +114,10 @@ end
 
     @testset "error_contract" begin
         dist = sqrt(
-            abs(1 + (inner(phi, phi) - 2 * real(inner(phi', K, psi))) / inner(K, psi, K, psi))
+            abs(
+                1 +
+                    (inner(phi, phi) - 2 * real(inner(phi', K, psi))) / inner(K, psi, K, psi)
+            )
         )
         @test dist ≈ error_contract(phi, K, psi)
     end
@@ -275,10 +279,18 @@ end
         maxdim!(sweeps, 10)
         if N == 1
             @test_throws ErrorException dmrg(
-                H, ψ, sweeps; eigsolve_maxiter = 10, eigsolve_krylovdim = 10, outputlevel = 0
+                H, ψ, sweeps; eigsolve_maxiter = 10, eigsolve_krylovdim = 10,
+                outputlevel = 0
             )
         else
-            e, ψgs = dmrg(H, ψ, sweeps; eigsolve_maxiter = 10, eigsolve_krylovdim = 10, outputlevel = 0)
+            e, ψgs = dmrg(
+                H,
+                ψ,
+                sweeps;
+                eigsolve_maxiter = 10,
+                eigsolve_krylovdim = 10,
+                outputlevel = 0
+            )
             @test prod(H) * prod(ψgs) ≈ e * prod(ψgs)'
             D, V = eigen(prod(H); ishermitian = true)
             if hasqns(ψ)

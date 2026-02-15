@@ -72,7 +72,14 @@ function hubbard_2d_ky(; Nx::Int, Ny::Int, t = 1.0, U = 0.0)
     return opsum
 end
 
-function hubbard(; Nx::Int, Ny::Int = 1, t = 1.0, U = 0.0, yperiodic::Bool = true, ky::Bool = false)
+function hubbard(;
+        Nx::Int,
+        Ny::Int = 1,
+        t = 1.0,
+        U = 0.0,
+        yperiodic::Bool = true,
+        ky::Bool = false
+    )
     return opsum = if Ny == 1
         hubbard_1d(; N = Nx, t, U)
     elseif ky

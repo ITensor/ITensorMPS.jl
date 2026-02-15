@@ -1,5 +1,5 @@
-using ITensors: @disable_warn_order
 using ITensorMPS: MPO, MPS, contract, inner, random_mps, siteinds, tdvp
+using ITensors: @disable_warn_order
 using LinearAlgebra: norm
 using Random: Random
 
@@ -8,19 +8,22 @@ include("03_updaters.jl")
 
 """
 Run the example on CPU:
+
 ```julia
 main()
 ```
 
 Run the example on CPU with single precision:
+
 ```julia
-main(; eltype=Float32)
+main(; eltype = Float32)
 ```
 
 Run the example on GPU:
+
 ```julia
 using CUDA: cu
-main(; eltype=Float32, device=cu)
+main(; eltype = Float32, device = cu)
 ```
 """
 function main(; eltype = Float64, device = identity)
@@ -90,7 +93,9 @@ function main(; eltype = Float64, device = identity)
     # Initialize as complex since that is what OrdinaryDiffEq.jl/DifferentialEquations.jl
     # expects.
     ψ₀ = device(
-        complex.(random_mps(eltype, s, j -> isodd(j) ? "↑" : "↓"; linkdims = start_linkdim))
+        complex.(
+            random_mps(eltype, s, j -> isodd(j) ? "↑" : "↓"; linkdims = start_linkdim)
+        )
     )
 
     @show norm(ψ₀)
@@ -111,7 +116,7 @@ function main(; eltype = Float64, device = identity)
         maxdim,
         cutoff,
         nsite,
-        outputlevel,
+        outputlevel
     )
 
     println()
@@ -133,7 +138,7 @@ function main(; eltype = Float64, device = identity)
         time_step,
         cutoff,
         nsite,
-        outputlevel,
+        outputlevel
     )
 
     println()
@@ -152,7 +157,7 @@ function main(; eltype = Float64, device = identity)
             contract(ψ₀);
             internal_kwargs = (; time_step = time_stop, outputlevel),
             reltol = tol,
-            abstol = tol,
+            abstol = tol
         )
     end
 

@@ -1,6 +1,7 @@
-using ITensors, ITensorMPS
-using Zygote
+using ITensorMPS
+using ITensors
 using OptimKit
+using Zygote
 
 function ising(n; h)
     ℋ = Sum{Op}()
