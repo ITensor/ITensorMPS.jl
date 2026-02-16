@@ -1,5 +1,30 @@
 # SiteTypes Included with ITensor
 
+## General Usage: `siteind`, `state`, and `op`
+
+ITensor provides various "site types" to represent different physical degrees of freedom. Each site type defines a specific set of basis states and operators.
+The basic syntax for creating site indices, states, and operators is consistent across all site types.
+You can use the `siteind` (or `siteinds` for multiple sites) function to create indices, and then use the `state` and `op` functions to create ITensors.
+```julia
+# Examples of creating site indices for different types
+s_half  = siteind("S=1/2")
+s_qubit = siteind("Qubit")
+s_one   = siteind("S=1")
+
+# Creating an array of 10 Qubit sites
+sites = siteinds("Qubit", 10)
+
+# Using the state function to create state ITensors
+psi_up = state(s_half, "Up")
+psi_0  = state(s_qubit, "0")
+psi_z1 = state(s_one, "Z0")
+
+# Creating operators
+Sz = op("Sz", s_half)
+H  = op("H",  s_qubit)
+```
+The available state names and operators depend on the specific site type. Please refer to the sections below for the lists of names and keyword arguments (such as quantum number conservation) available for each type.
+
 ## "S=1/2" SiteType
 
 Site indices with the "S=1/2" site type represent ``S=1/2`` spins with the states
@@ -55,13 +80,6 @@ sites = siteinds("Qubit",N; conserve_parity=true)
 ```
 
 #### "Qubit" and "S=1/2" States
-
-Quantum states associated with "Qubit" sites can be made using the `state` function,
-for example
-```
-site = siteind("Qubit")
-psi = state(site, "0")
-```
 
 The available state names for "Qubit" sites are:
 - `"0"` (aliases: `"Z+"`, `"Zp"`, `"Up"`, `"↑"`) Qubit in the $|0\rangle$ state (+1 eigenvector of $\sigma_z$)
