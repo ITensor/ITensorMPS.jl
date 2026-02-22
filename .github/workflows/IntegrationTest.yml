@@ -1,0 +1,39 @@
+name: "IntegrationTest"
+on:
+  push:
+    branches:
+      - "main"
+    tags: "*"
+    paths:
+      - "Project.toml"
+  pull_request:
+    types:
+      - "opened"
+      - "synchronize"
+      - "reopened"
+      - "ready_for_review"
+      - "converted_to_draft"
+    paths:
+      - "Project.toml"
+jobs:
+  integration-test:
+    name: "IntegrationTest"
+    strategy:
+      matrix:
+        pkg:
+          - "__none__"
+    uses: "ITensor/ITensorActions/.github/workflows/IntegrationTest.yml@main"
+    with:
+      localregistry: "https://github.com/ITensor/ITensorRegistry.git"
+      pkg: "${{ matrix.pkg }}"
+  integration-gate:
+    name: "IntegrationTest"
+    needs: "integration-test"
+    if: "${{ always() }}"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Fail if any downstream integration test failed"
+        run: |
+          echo "integration-test.result = ${{ needs.integration-test.result }}"
+          test "${{ needs.integration-test.result }}" = "success"
+          
