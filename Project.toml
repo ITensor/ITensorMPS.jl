@@ -1,7 +1,10 @@
 name = "ITensorMPS"
 uuid = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
-version = "0.3.40"
+version = "0.3.41"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>", "Miles Stoudenmire <mstoudenmire@flatironinstitute.org>"]
+
+[workspace]
+projects = ["benchmark", "dev", "docs", "examples", "test"]
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -49,9 +52,3 @@ Test = "1.10"
 TupleTools = "1.5"
 ZygoteRules = "0.2.2"
 julia = "1.10"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
