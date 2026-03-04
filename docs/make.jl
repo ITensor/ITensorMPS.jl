@@ -1,11 +1,12 @@
 using Documenter: Documenter, DocMeta, deploydocs, makedocs
+using ITensorFormatter: ITensorFormatter
 using ITensorMPS
 using ITensors
 
 DocMeta.setdocmeta!(ITensorMPS, :DocTestSetup, :(using ITensorMPS); recursive = true)
 DocMeta.setdocmeta!(ITensors, :DocTestSetup, :(using ITensors); recursive = true)
 
-include("make_index.jl")
+ITensorFormatter.make_index!(pkgdir(ITensorMPS))
 
 makedocs(;
     # Allows using ITensors.jl docstrings in ITensorMPS.jl documentation:
