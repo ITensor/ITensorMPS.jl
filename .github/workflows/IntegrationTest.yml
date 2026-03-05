@@ -23,6 +23,7 @@ jobs:
         pkg:
           - "__none__"
     uses: "ITensor/ITensorActions/.github/workflows/IntegrationTest.yml@main"
+    secrets: "inherit"
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
       pkg: "${{ matrix.pkg }}"
