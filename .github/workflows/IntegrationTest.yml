@@ -23,13 +23,14 @@ jobs:
         pkg:
           - "__none__"
     uses: "ITensor/ITensorActions/.github/workflows/IntegrationTest.yml@main"
+    secrets: "inherit"
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
       pkg: "${{ matrix.pkg }}"
   integration-gate:
     name: "IntegrationTest"
     needs: "integration-test"
-    if: "${{ always() }}"
+    if: "${{ always() && needs.integration-test.result != 'skipped' }}"
     runs-on: "ubuntu-latest"
     steps:
       - name: "Fail if any downstream integration test failed"
