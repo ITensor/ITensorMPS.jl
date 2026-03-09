@@ -173,8 +173,12 @@ function ITensors.op!(Op::ITensor, ::OpName"S+", ::SiteType"ElecK", s::Index)
     return Op[s' => 2, s => 3] = 1.0
 end
 
-ITensors.op!(Op::ITensor, ::OpName"S⁺", st::SiteType"ElecK", s::Index) = op!(Op, OpName("S+"), st, s)
-ITensors.op!(Op::ITensor, ::OpName"Sp", st::SiteType"ElecK", s::Index) = op!(Op, OpName("S+"), st, s)
+function ITensors.op!(Op::ITensor, ::OpName"S⁺", st::SiteType"ElecK", s::Index)
+    return op!(Op, OpName("S+"), st, s)
+end
+function ITensors.op!(Op::ITensor, ::OpName"Sp", st::SiteType"ElecK", s::Index)
+    return op!(Op, OpName("S+"), st, s)
+end
 function ITensors.op!(Op::ITensor, ::OpName"Splus", st::SiteType"ElecK", s::Index)
     return op!(Op, OpName("S+"), st, s)
 end
