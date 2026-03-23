@@ -254,22 +254,23 @@ end
         @test_throws DimensionMismatch error_contract(phi, K, badpsi)
     end
 
-    @testset "contract(::MPO, ::MPS)" for method in ["densitymatrix", "naive", "zipup"]
+    @testset "contract(::MPO, ::MPS; alg=$alg)" for alg in
+        ["densitymatrix", "naive", "zipup"]
         phi = random_mps(sites)
         K = random_mpo(sites)
         @test maxlinkdim(K) == 1
         psi = random_mps(sites)
-        psi_out = contract(K, psi; method, maxdim = 1)
+        psi_out = contract(K, psi; alg, maxdim = 1)
         @test inner(phi', psi_out) ≈ inner(phi', K, psi)
-        psi_out = contract(psi, K; method, maxdim = 1)
+        psi_out = contract(psi, K; alg, maxdim = 1)
         @test inner(phi', psi_out) ≈ inner(phi', K, psi)
         psi_out = psi * K
         @test inner(phi', psi_out) ≈ inner(phi', K, psi)
-        @test_throws MethodError contract(K, psi; method = "fakemethod")
+        @test_throws MethodError contract(K, psi; alg = "fakemethod")
 
         badsites = [Index(2, "Site") for n in 1:(N + 1)]
         badpsi = random_mps(badsites)
-        @test_throws DimensionMismatch contract(K, badpsi; method)
+        @test_throws DimensionMismatch contract(K, badpsi; alg)
 
         # make bigger random MPO...
         for link_dim in 2:5
@@ -301,7 +302,9 @@ end
             orthogonalize!(psi, 1; maxdim = link_dim)
             orthogonalize!(K, 1; maxdim = link_dim)
             orthogonalize!(phi, 1; normalize = true, maxdim = link_dim)
-            psi_out = contract(deepcopy(K), deepcopy(psi); method, maxdim = 10 * link_dim, cutoff = 0.0)
+            psi_out = contract(
+                deepcopy(K), deepcopy(psi); alg, maxdim = 10 * link_dim, cutoff = 0.0
+            )
             @test inner(phi', psi_out) ≈ inner(phi', K, psi)
         end
     end
@@ -368,7 +371,7 @@ end
         @test maxlinkdim(H) ≤ maxlinkdim(H₁) + maxlinkdim(H₂)
     end
 
-    @testset "contract(::MPO, ::MPO)" for alg in ["naive", "zipup"]
+    @testset "contract(::MPO, ::MPO; alg=$alg)" for alg in ["naive", "zipup"]
         psi = random_mps(sites)
         K = random_mpo(sites)
         L = random_mpo(sites)
