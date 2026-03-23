@@ -1,6 +1,6 @@
 @eval module $(gensym())
-using Test: @testset
 using ITensorMPS: ITensorMPS
+using Test: @testset
 test_path = @__DIR__
 test_files = filter(readdir(test_path)) do file
     return startswith("test_")(file) && endswith(".jl")(file)

@@ -1,6 +1,10 @@
 @eval module $(gensym())
-using ITensorMPS, ITensors, Test, Random, JLD2
+using ITensorMPS
+using ITensors
+using JLD2
 using NDTensors: scalartype
+using Random
+using Test
 
 include(joinpath(@__DIR__, "utils", "util.jl"))
 
@@ -9,7 +13,8 @@ function components_to_opsum(comps, n; reverse::Bool = true)
     for (factor, operators, sites) in comps
         # reverse ordering for compatibility
         sites = reverse ? (n + 1) .- sites : sites
-        sites_and_ops = [[Matrix(operator), site] for (operator, site) in zip(operators, sites)]
+        sites_and_ops =
+            [[Matrix(operator), site] for (operator, site) in zip(operators, sites)]
         sites_and_ops = [vcat(sites_and_ops...)...]
         opsum += factor, sites_and_ops...
     end
@@ -85,7 +90,7 @@ function NNheisenbergMPO(sites, J1::Float64, J2::Float64)::MPO
                     QN("Sz", +2) => 1,
                     QN() => 2,
                 ],
-                "Link,H,l=$(n - 1)",
+                "Link,H,l=$(n - 1)"
             )
         end
     else
@@ -519,7 +524,8 @@ end
         H = MPO(os, sites)
         T = H[1] * H[2]
         O =
-            im * op(sites[1], "Sx") * op(sites[2], "Id") + op(sites[1], "Sy") * op(sites[2], "Id")
+            im * op(sites[1], "Sx") * op(sites[2], "Id") +
+            op(sites[1], "Sy") * op(sites[2], "Id")
         @test norm(T - 0.5 * O) < 1.0e-8
     end
 

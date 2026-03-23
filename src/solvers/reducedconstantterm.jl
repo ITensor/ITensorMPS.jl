@@ -2,8 +2,9 @@ using ITensors: ITensors, ITensor, dag, dim, prime
 
 """
 Holds the following data where basis
-is the MPS being optimized and state is the 
+is the MPS being optimized and state is the
 MPS held constant by the ProjMPS.
+
 ```
      o--o--o--o--o--o--o--o--o--o--o <state|
      |  |  |  |  |  |  |  |  |  |  |
@@ -44,7 +45,7 @@ function Base.copy(reduced_state::ReducedConstantTerm)
         reduced_state.rpos,
         reduced_state.nsite,
         copy(reduced_state.state),
-        copy(reduced_state.environments),
+        copy(reduced_state.environments)
     )
 end
 
@@ -108,7 +109,7 @@ function ITensors.contract(reduced_state::ReducedConstantTerm, v::ITensor)
     reduced_state_tensors = Union{ITensor, OneITensor}[lproj(reduced_state)]
     append!(
         reduced_state_tensors,
-        [prime(t, "Link") for t in reduced_state.state[site_range(reduced_state)]],
+        [prime(t, "Link") for t in reduced_state.state[site_range(reduced_state)]]
     )
     push!(reduced_state_tensors, rproj(reduced_state))
 
@@ -132,7 +133,7 @@ function ITensors.contract(reduced_state::ReducedConstantTerm)
     reduced_state_tensors = Union{ITensor, OneITensor}[lproj(reduced_state)]
     append!(
         reduced_state_tensors,
-        [dag(prime(t, "Link")) for t in reduced_state.state[site_range(reduced_state)]],
+        [dag(prime(t, "Link")) for t in reduced_state.state[site_range(reduced_state)]]
     )
     push!(reduced_state_tensors, rproj(reduced_state))
 

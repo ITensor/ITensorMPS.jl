@@ -8,7 +8,7 @@ function sweep_update(
         state::MPS;
         current_time = nothing,
         time_step = nothing,
-        kwargs...,
+        kwargs...
     )
     order_orderings = orderings(order)
     order_sub_time_steps = sub_time_steps(order)
@@ -28,7 +28,7 @@ function sweep_update(
             state;
             current_time,
             time_step = sub_time_step,
-            kwargs...,
+            kwargs...
         )
         if !isnothing(time_step)
             current_time += sub_time_step
@@ -77,13 +77,13 @@ function sub_sweep_update(
         maxdim = default_maxdim(),
         mindim = default_mindim(),
         cutoff = default_cutoff(ITensors.scalartype(state)),
-        noise = default_noise(),
+        noise = default_noise()
     )
     reduced_operator = copy(reduced_operator)
     state = copy(state)
     if length(state) == 1
         error(
-            "`tdvp`, `dmrg`, `linsolve`, etc. currently does not support system sizes of 1. You can diagonalize the MPO tensor directly with tools like `LinearAlgebra.eigen`, `KrylovKit.exponentiate`, etc.",
+            "`tdvp`, `dmrg`, `linsolve`, etc. currently does not support system sizes of 1. You can diagonalize the MPO tensor directly with tools like `LinearAlgebra.eigen`, `KrylovKit.exponentiate`, etc."
         )
     end
     N = length(state)
@@ -123,13 +123,19 @@ function sub_sweep_update(
             cutoff,
             maxdim,
             mindim,
-            maxtruncerr,
+            maxtruncerr
         )
         if outputlevel >= 2
             if nsite == 1
                 @printf("Sweep %d, direction %s, bond (%d,) \n", sweep, direction, b)
             elseif nsite == 2
-                @printf("Sweep %d, direction %s, bond (%d,%d) \n", sweep, direction, b, b + 1)
+                @printf(
+                    "Sweep %d, direction %s, bond (%d,%d) \n",
+                    sweep,
+                    direction,
+                    b,
+                    b + 1
+                )
             end
             print("  Truncated using")
             @printf(" cutoff=%.1E", cutoff)
@@ -139,7 +145,8 @@ function sub_sweep_update(
             println()
             if spec != nothing
                 @printf(
-                    "  Trunc. err=%.2E, bond dimension %d\n", spec.truncerr, dim(linkind(state, b))
+                    "  Trunc. err=%.2E, bond dimension %d\n", spec.truncerr,
+                    dim(linkind(state, b))
                 )
             end
             flush(stdout)
@@ -155,7 +162,7 @@ function sub_sweep_update(
             outputlevel,
             half_sweep_is_done = is_half_sweep_done(direction, b, N; ncenter = nsite),
             current_time,
-            info,
+            info
         )
     end
     # Just to be sure:
@@ -182,7 +189,7 @@ function region_update!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     )
     return region_update!(
         Val(nsite),
@@ -203,7 +210,7 @@ function region_update!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     )
 end
 
@@ -226,7 +233,7 @@ function region_update!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     )
     N = length(state)
     nsite = 1
@@ -271,7 +278,7 @@ function region_update!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     )
     N = length(state)
     nsite = 1
@@ -338,7 +345,7 @@ function region_update!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     )
     N = length(state)
     nsite = 2
@@ -371,7 +378,7 @@ function region_update!(
         ortho = ortho,
         normalize,
         which_decomp,
-        svd_alg,
+        svd_alg
     )
     maxtruncerr = max(maxtruncerr, spec.truncerr)
     return current_time, maxtruncerr, spec, info
@@ -396,7 +403,7 @@ function region_update!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     )
     N = length(state)
     nsite = 2
@@ -427,7 +434,7 @@ function region_update!(
         ortho = ortho,
         normalize,
         which_decomp,
-        svd_alg,
+        svd_alg
     )
     maxtruncerr = max(maxtruncerr, spec.truncerr)
     if !is_half_sweep_done(direction, b, N; ncenter = nsite)
@@ -468,9 +475,9 @@ function region_!(
         cutoff,
         maxdim,
         mindim,
-        maxtruncerr,
+        maxtruncerr
     ) where {nsite, reverse_step}
     return error(
-        "`tdvp`, `dmrg`, `linsolve`, etc. with `nsite=$nsite` and `reverse_step=$reverse_step` not implemented.",
+        "`tdvp`, `dmrg`, `linsolve`, etc. with `nsite=$nsite` and `reverse_step=$reverse_step` not implemented."
     )
 end

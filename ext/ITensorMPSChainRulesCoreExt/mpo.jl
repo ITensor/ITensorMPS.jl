@@ -1,6 +1,6 @@
 using ChainRulesCore: ChainRulesCore, NoTangent
-using ITensors: Algorithm, contract, hassameinds, inner, mapprime
 using ITensorMPS: MPO, MPS, firstsiteinds, siteinds
+using ITensors: Algorithm, contract, hassameinds, inner, mapprime
 using LinearAlgebra: tr
 
 function ChainRulesCore.rrule(
@@ -64,7 +64,7 @@ end
 function ChainRulesCore.rrule(::typeof(inner), x1::MPS, x2::MPO, x3::MPS; kwargs...)
     if !hassameinds(siteinds, x1, (x2, x3)) || !hassameinds(siteinds, x3, (x2, x1))
         error(
-            "Taking gradients of `inner(x::MPS, A::MPO, y::MPS)` is not supported if the site indices of the input MPS and MPO don't match. Try using if you input `inner(x, A, y), try `inner(x', A, y)` instead.",
+            "Taking gradients of `inner(x::MPS, A::MPO, y::MPS)` is not supported if the site indices of the input MPS and MPO don't match. Try using if you input `inner(x, A, y), try `inner(x', A, y)` instead."
         )
     end
 

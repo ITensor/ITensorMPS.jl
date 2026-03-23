@@ -1,7 +1,7 @@
 @eval module $(gensym())
-using ITensors: ITensor, contract, op, replaceprime
-using ITensors.Ops: Op, OpSum, Prod, Scaled, Sum, expand
 using ITensorMPS: ITensorMPS, MPO, siteinds
+using ITensors.Ops: Op, OpSum, Prod, Scaled, Sum, expand
+using ITensors: ITensor, contract, op, replaceprime
 using LinearAlgebra: I, norm
 using Test: @test, @testset
 

@@ -1,6 +1,6 @@
 @eval module $(gensym())
-using ITensors: ITensors
 using ITensorMPS: Experimental, MPO, OpSum, dmrg, inner, random_mps, siteinds
+using ITensors: ITensors
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset
 @testset "DMRG (eltype=$elt, nsite=$nsite, conserve_qns=$conserve_qns)" for elt in (
@@ -25,7 +25,8 @@ using Test: @test, @test_throws, @testset
     maxdim = [10, 20, 40, 100]
     @test_throws ErrorException Experimental.dmrg(H, psi; maxdim, cutoff, nsite)
     e, psi = Experimental.dmrg(
-        H, psi; nsweeps, maxdim, cutoff, nsite, updater_kwargs = (; krylovdim = 3, maxiter = 1)
+        H, psi; nsweeps, maxdim, cutoff, nsite,
+        updater_kwargs = (; krylovdim = 3, maxiter = 1)
     )
     @test inner(psi', H, psi) ≈ e
     e2, psi2 = dmrg(H, psi; nsweeps, maxdim, cutoff, outputlevel = 0)

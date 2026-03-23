@@ -1,4 +1,5 @@
-using ITensors, ITensorMPS
+using ITensorMPS
+using ITensors
 
 N = 4
 nmps = 3

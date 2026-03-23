@@ -1,7 +1,7 @@
 module ITensorMPSObserversExt
-using Observers: Observers
-using Observers.DataFrames: AbstractDataFrame
 using ITensorMPS: ITensorMPS
+using Observers.DataFrames: AbstractDataFrame
+using Observers: Observers
 
 function ITensorMPS.update_observer!(observer::AbstractDataFrame; kwargs...)
     return Observers.update!(observer; kwargs...)

@@ -1,11 +1,12 @@
+using Documenter: Documenter, DocMeta, deploydocs, makedocs
+using ITensorFormatter: ITensorFormatter
 using ITensorMPS
 using ITensors
-using Documenter: Documenter, DocMeta, deploydocs, makedocs
 
 DocMeta.setdocmeta!(ITensorMPS, :DocTestSetup, :(using ITensorMPS); recursive = true)
 DocMeta.setdocmeta!(ITensors, :DocTestSetup, :(using ITensors); recursive = true)
 
-include("make_index.jl")
+ITensorFormatter.make_index!(pkgdir(ITensorMPS))
 
 makedocs(;
     # Allows using ITensors.jl docstrings in ITensorMPS.jl documentation:
@@ -17,7 +18,7 @@ makedocs(;
         canonical = "https://itensor.github.io/ITensorMPS.jl",
         edit_link = "main",
         assets = ["assets/favicon.ico", "assets/extras.css"],
-        prettyurls = false,
+        prettyurls = false
     ),
     pages = [
         "Home" => "index.md",
@@ -49,7 +50,11 @@ makedocs(;
             ["DMRG FAQs" => "faq/DMRG.md", "Quantum Number (QN) FAQs" => "faq/QN.md"],
         "HDF5 File Formats" => "HDF5FileFormats.md",
     ],
-    warnonly = true,
+    warnonly = true
 )
 
-deploydocs(; repo = "github.com/ITensor/ITensorMPS.jl", devbranch = "main", push_preview = true)
+deploydocs(;
+    repo = "github.com/ITensor/ITensorMPS.jl",
+    devbranch = "main",
+    push_preview = true
+)

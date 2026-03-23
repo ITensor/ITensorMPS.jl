@@ -1,5 +1,5 @@
-using ITensors
 using ChainRulesCore: ZeroTangent
+using ITensors
 
 # Write a custom `rrule` for this.
 function inner_circuit(ϕ::ITensor, U::Vector{ITensor}, ψ::ITensor)

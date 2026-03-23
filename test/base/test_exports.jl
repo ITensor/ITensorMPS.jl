@@ -17,7 +17,15 @@ using Test: @test, @test_broken, @testset
     end
     @testset "Not exported" begin
         for name in
-            [:AbstractProjMPO, :ProjMPS, :makeL!, :makeR!, :set_terms, :sortmergeterms, :terms]
+            [
+                :AbstractProjMPO,
+                :ProjMPS,
+                :makeL!,
+                :makeR!,
+                :set_terms,
+                :sortmergeterms,
+                :terms,
+            ]
             @test isdefined(ITensorMPS, name)
             @test !Base.isexported(ITensorMPS, name)
         end

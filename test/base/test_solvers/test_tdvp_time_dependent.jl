@@ -1,16 +1,7 @@
 @eval module $(gensym())
+using ITensorMPS: ITensorMPS, MPO, MPS, ProjMPO, ProjMPOSum, TimeDependentSum, position!,
+    random_mps, siteinds, tdvp
 using ITensors: ITensors, Index, QN, contract, scalartype
-using ITensorMPS:
-    ITensorMPS,
-    MPO,
-    MPS,
-    ProjMPO,
-    ProjMPOSum,
-    TimeDependentSum,
-    position!,
-    random_mps,
-    siteinds,
-    tdvp
 using LinearAlgebra: norm
 using StableRNGs: StableRNG
 using Test: @test, @test_skip, @testset
@@ -77,7 +68,7 @@ include(joinpath(pkgdir(ITensorMPS), "examples", "solvers", "03_updaters.jl"))
             time_step,
             maxdim,
             cutoff,
-            nsite,
+            nsite
         )
         ψₜ_krylov = tdvp(
             -im * TimeDependentSum(f⃗, H⃗₀),
@@ -88,14 +79,14 @@ include(joinpath(pkgdir(ITensorMPS), "examples", "solvers", "03_updaters.jl"))
             time_step,
             maxdim,
             cutoff,
-            nsite,
+            nsite
         )
         ψₜ_full, _ = ode_updater(
             -im * TimeDependentSum(f⃗, contract.(H⃗₀)),
             contract(ψ₀);
             internal_kwargs = (; time_step = time_stop),
             reltol = tol,
-            abstol = tol,
+            abstol = tol
         )
 
         @test scalartype(ψ₀) == complex(elt)

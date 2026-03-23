@@ -22,8 +22,20 @@ mutable struct Sweeps
     mindim::Vector{Int}
     noise::Vector{Float64}
 
-    function Sweeps(nsw::Int; maxdim = typemax(Int), cutoff = 1.0e-16, mindim = 1, noise = 0.0)
-        sw = new(nsw, fill(typemax(Int), nsw), fill(1.0e-16, nsw), fill(1, nsw), fill(0.0, nsw))
+    function Sweeps(
+            nsw::Int;
+            maxdim = typemax(Int),
+            cutoff = 1.0e-16,
+            mindim = 1,
+            noise = 0.0
+        )
+        sw = new(
+            nsw,
+            fill(typemax(Int), nsw),
+            fill(1.0e-16, nsw),
+            fill(1, nsw),
+            fill(0.0, nsw)
+        )
         setmaxdim!(sw, maxdim...)
         setmindim!(sw, mindim...)
         setcutoff!(sw, cutoff...)
@@ -51,15 +63,15 @@ are determined from the size of the input matrix.
 
 ```julia
 julia > Sweeps(
-  [
-    "maxdim" "mindim" "cutoff" "noise"
-    50 10 1e-12 1E-7
-    100 20 1e-12 1E-8
-    200 20 1e-12 1E-10
-    400 20 1e-12 0
-    800 20 1e-12 1E-11
-    800 20 1e-12 0
-  ],
+    [
+        "maxdim" "mindim" "cutoff" "noise"
+        50 10 1e-12 1E-7
+        100 20 1e-12 1E-8
+        200 20 1e-12 1E-10
+        400 20 1e-12 0
+        800 20 1e-12 1E-11
+        800 20 1e-12 0
+    ]
 )
 Sweeps
 1cutoff = 1.0E-12, maxdim = 50, mindim = 10, noise = 1.0E-07

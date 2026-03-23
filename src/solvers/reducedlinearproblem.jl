@@ -24,7 +24,9 @@ end
 
 function Base.copy(reduced_problem::ReducedLinearProblem)
     return ReducedLinearProblem(
-        copy(reduced_problem.reduced_operator), copy(reduced_problem.reduced_constant_terms)
+        copy(reduced_problem.reduced_operator), copy(
+            reduced_problem.reduced_constant_terms
+        )
     )
 end
 

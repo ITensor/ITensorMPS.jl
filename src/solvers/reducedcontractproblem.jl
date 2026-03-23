@@ -54,7 +54,7 @@ function Base.copy(reduced_operator::ReducedContractProblem)
         reduced_operator.nsite,
         copy(reduced_operator.input_state),
         copy(reduced_operator.operator),
-        copy(reduced_operator.environments),
+        copy(reduced_operator.environments)
     )
 end
 

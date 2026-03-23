@@ -198,11 +198,13 @@ using Test
             @test abs(energy - correct_energy) < 1.0e-4
 
             # Test using SVD within DMRG too:
-            energy, psi = dmrg([Ht, HV], psi0, sweeps; outputlevel = 0, which_decomp = "svd")
+            energy, psi =
+                dmrg([Ht, HV], psi0, sweeps; outputlevel = 0, which_decomp = "svd")
             @test abs(energy - correct_energy) < 1.0e-4
 
             # Test using only eigen decomp:
-            energy, psi = dmrg([Ht, HV], psi0, sweeps; outputlevel = 0, which_decomp = "eigen")
+            energy, psi =
+                dmrg([Ht, HV], psi0, sweeps; outputlevel = 0, which_decomp = "eigen")
             @test abs(energy - correct_energy) < 1.0e-4
         end
 
@@ -240,7 +242,8 @@ using Test
 
             C = correlation_matrix(psi, "Cdag", "C")
             C_energy =
-                sum(j -> -2t1 * C[j, j + 1], 1:(N - 1)) + sum(j -> -2t2 * C[j, j + 2], 1:(N - 2))
+                sum(j -> -2t1 * C[j, j + 1], 1:(N - 1)) +
+                sum(j -> -2t2 * C[j, j + 2], 1:(N - 2))
 
             @test energy_inner ≈ energy
             @test C_energy ≈ energy

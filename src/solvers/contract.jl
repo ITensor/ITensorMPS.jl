@@ -1,4 +1,4 @@
-using ITensors: ITensors, Index, ITensor, @Algorithm_str, commoninds, contract, hasind, sim
+using ITensors: ITensors, @Algorithm_str, ITensor, Index, commoninds, contract, hasind, sim
 
 function contract_operator_state_updater(operator, init; internal_kwargs)
     # TODO: Use `contract(operator)`.
@@ -22,7 +22,7 @@ function ITensors.contract(
         operator::MPO,
         input_state::MPS;
         init = default_contract_init(operator, input_state),
-        kwargs...,
+        kwargs...
     )
     # Fix siteinds of `init` if needed.
     # This is needed to work around an issue that `apply`

@@ -30,7 +30,15 @@ function main()
 
     initstate = rand(["↑", "↓"], n)
     ψ = MPS(s, initstate)
-    e, ϕ = dmrg_x(H, ψ; nsweeps = 10, maxdim = 20, cutoff = 1.0e-10, normalize = true, outputlevel = 1)
+    e, ϕ = dmrg_x(
+        H,
+        ψ;
+        nsweeps = 10,
+        maxdim = 20,
+        cutoff = 1.0e-10,
+        normalize = true,
+        outputlevel = 1
+    )
 
     @show inner(ψ', H, ψ) / inner(ψ, ψ)
     @show inner(H, ψ, H, ψ) - inner(ψ', H, ψ)^2

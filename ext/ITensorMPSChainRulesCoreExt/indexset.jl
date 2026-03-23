@@ -1,22 +1,20 @@
 using ChainRulesCore: ChainRulesCore, unthunk
 using Compat: Returns
-using ITensors:
-    addtags,
-    noprime,
-    prime,
-    removetags,
-    replaceinds,
-    replaceprime,
-    replacetags,
-    setprime,
-    settags
 using ITensorMPS: MPO, MPS
+using ITensors: addtags, noprime, prime, removetags, replaceinds, replaceprime, replacetags,
+    setprime, settags
 
 for fname in (
-        :prime, :setprime, :noprime, :replaceprime, :addtags, :removetags, :replacetags, :settags,
+        :prime, :setprime, :noprime, :replaceprime, :addtags, :removetags, :replacetags,
+        :settags,
     )
     @eval begin
-        function ChainRulesCore.rrule(f::typeof($fname), x::Union{MPS, MPO}, a...; kwargs...)
+        function ChainRulesCore.rrule(
+                f::typeof($fname),
+                x::Union{MPS, MPO},
+                a...;
+                kwargs...
+            )
             y = f(x, a...; kwargs...)
             function f_pullback(ȳ)
                 x̄ = copy(unthunk(ȳ))

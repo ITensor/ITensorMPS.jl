@@ -40,7 +40,7 @@ function alternating_update(
         maxdim = default_maxdim(),
         mindim = default_mindim(),
         cutoff = default_cutoff(ITensors.scalartype(init)),
-        noise = default_noise(),
+        noise = default_noise()
     )
     reduced_operator = ITensorMPS.reduced_operator(operator)
     if isnothing(nsweeps)
@@ -57,10 +57,11 @@ function alternating_update(
     current_time = time_start
     info = nothing
     for sweep in 1:nsweeps
-        if !isnothing(write_when_maxdim_exceeds) && maxdim[sweep] > write_when_maxdim_exceeds
+        if !isnothing(write_when_maxdim_exceeds) &&
+                maxdim[sweep] > write_when_maxdim_exceeds
             if outputlevel >= 2
                 println(
-                    "write_when_maxdim_exceeds = $write_when_maxdim_exceeds and maxdim(sweeps, sw) = $(maxdim(sweeps, sweep)), writing environment tensors to disk",
+                    "write_when_maxdim_exceeds = $write_when_maxdim_exceeds and maxdim(sweeps, sw) = $(maxdim(sweeps, sweep)), writing environment tensors to disk"
                 )
             end
             reduced_operator = disk(reduced_operator)
@@ -83,7 +84,7 @@ function alternating_update(
                 maxdim = maxdim[sweep],
                 mindim = mindim[sweep],
                 cutoff = cutoff[sweep],
-                noise = noise[sweep],
+                noise = noise[sweep]
             )
         end
         if !isnothing(time_step)
@@ -104,7 +105,8 @@ function alternating_update(
             flush(stdout)
         end
         isdone = checkdone(;
-            state, sweep, outputlevel, observer = (observer!), sweep_observer = (sweep_observer!)
+            state, sweep, outputlevel, observer = (observer!),
+            sweep_observer = (sweep_observer!)
         )
         isdone && break
     end

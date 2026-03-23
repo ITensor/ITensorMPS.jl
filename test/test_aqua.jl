@@ -1,5 +1,5 @@
-using ITensorMPS: ITensorMPS
 using Aqua: Aqua
+using ITensorMPS: ITensorMPS
 using Test: @testset
 
 @testset "Code quality (Aqua.jl)" begin

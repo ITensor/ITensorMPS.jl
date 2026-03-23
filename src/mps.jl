@@ -1,8 +1,8 @@
 using Adapt: adapt
-using NDTensors: using_auto_fermion
-using NDTensors.TypeParameterAccessors: unspecify_type_parameters
-using Random: Random
 using ITensors.SiteTypes: SiteTypes, siteind, siteinds, state
+using NDTensors.TypeParameterAccessors: unspecify_type_parameters
+using NDTensors: using_auto_fermion
+using Random: Random
 
 """
     MPS
@@ -166,7 +166,7 @@ function randomCircuitMPS(
         eltype::Type{<:Number},
         sites::Vector{<:Index},
         linkdims::Vector{<:Integer};
-        kwargs...,
+        kwargs...
     )
     N = length(sites)
     M = MPS(N)
@@ -245,7 +245,7 @@ function random_mps(
         rng::AbstractRNG,
         ::Type{ElT},
         sites::Vector{<:Index};
-        linkdims::Union{Integer, Vector{<:Integer}} = 1,
+        linkdims::Union{Integer, Vector{<:Integer}} = 1
     ) where {ElT <: Number}
     _linkdims = _fill_linkdims(linkdims, sites)
     if any(hasqns, sites)
@@ -273,7 +273,8 @@ function random_mps(sites::Vector{<:Index}; linkdims::Union{Integer, Vector{<:In
 end
 
 function random_mps(
-        rng::AbstractRNG, sites::Vector{<:Index}; linkdims::Union{Integer, Vector{<:Integer}} = 1
+        rng::AbstractRNG, sites::Vector{<:Index};
+        linkdims::Union{Integer, Vector{<:Integer}} = 1
     )
     return random_mps(rng, Float64, sites; linkdims)
 end
@@ -288,7 +289,7 @@ function random_mps(
         rng::AbstractRNG,
         sites::Vector{<:Index},
         state;
-        linkdims::Union{Integer, Vector{<:Integer}} = 1,
+        linkdims::Union{Integer, Vector{<:Integer}} = 1
     )
     return random_mps(rng, Float64, sites, state; linkdims)
 end
@@ -297,7 +298,7 @@ function random_mps(
         eltype::Type{<:Number},
         sites::Vector{<:Index},
         state;
-        linkdims::Union{Integer, Vector{<:Integer}} = 1,
+        linkdims::Union{Integer, Vector{<:Integer}} = 1
     )
     return random_mps(Random.default_rng(), eltype, sites, state; linkdims)
 end
@@ -307,7 +308,7 @@ function random_mps(
         eltype::Type{<:Number},
         sites::Vector{<:Index},
         state;
-        linkdims::Union{Integer, Vector{<:Integer}} = 1,
+        linkdims::Union{Integer, Vector{<:Integer}} = 1
     )::MPS
     M = MPS(eltype, sites, state)
     if any(>(1), linkdims)
@@ -549,7 +550,7 @@ function replacebond!(
         svd_alg = nothing,
         use_absolute_cutoff = nothing,
         use_relative_cutoff = nothing,
-        min_blockdim = nothing,
+        min_blockdim = nothing
     )
     normalize = NDTensors.replace_nothing(normalize, false)
     swapsites = NDTensors.replace_nothing(swapsites, false)
@@ -574,7 +575,7 @@ function replacebond!(
         tags = tags(linkind(M, b)),
         use_absolute_cutoff,
         use_relative_cutoff,
-        min_blockdim,
+        min_blockdim
     )
     M[b] = L
     M[b + 1] = R
@@ -714,9 +715,9 @@ using efficient MPS techniques. Returns the matrix C.
 # Optional Keyword Arguments
 
   - `sites = 1:length(psi)`: compute correlations only
-     for sites in the given range
+    for sites in the given range
   - `ishermitian = false` : if `false`, force independent calculations of the
-     matrix elements above and below the diagonal, while if `true` assume they are complex conjugates.
+    matrix elements above and below the diagonal, while if `true` assume they are complex conjugates.
 
 For a correlation matrix of size NxN and an MPS of typical
 bond dimension m, the scaling of this algorithm is N^2*m^3.
@@ -728,13 +729,13 @@ N = 30
 m = 4
 
 s = siteinds("S=1/2", N)
-psi = random_mps(s; linkdims=m)
+psi = random_mps(s; linkdims = m)
 Czz = correlation_matrix(psi, "Sz", "Sz")
 Czz = correlation_matrix(psi, [1/2 0; 0 -1/2], [1/2 0; 0 -1/2]) # same as above
 
-s = siteinds("Electron", N; conserve_qns=true)
-psi = random_mps(s, n -> isodd(n) ? "Up" : "Dn"; linkdims=m)
-Cuu = correlation_matrix(psi, "Cdagup", "Cup"; sites=2:8)
+s = siteinds("Electron", N; conserve_qns = true)
+psi = random_mps(s, n -> isodd(n) ? "Up" : "Dn"; linkdims = m)
+Cuu = correlation_matrix(psi, "Cdagup", "Cup"; sites = 2:8)
 ```
 """
 function correlation_matrix(
@@ -980,15 +981,15 @@ of expectation values.
 N = 10
 
 s = siteinds("S=1/2", N)
-psi = random_mps(s; linkdims=8)
+psi = random_mps(s; linkdims = 8)
 Z = expect(psi, "Sz") # compute for all sites
-Z = expect(psi, "Sz"; sites=2:4) # compute for sites 2,3,4
-Z3 = expect(psi, "Sz"; sites=3)  # compute for site 3 only (output will be a scalar)
+Z = expect(psi, "Sz"; sites = 2:4) # compute for sites 2,3,4
+Z3 = expect(psi, "Sz"; sites = 3)  # compute for site 3 only (output will be a scalar)
 XZ = expect(psi, ["Sx", "Sz"]) # compute Sx and Sz for all sites
 Z = expect(psi, [1/2 0; 0 -1/2]) # same as expect(psi,"Sz")
 
 s = siteinds("Electron", N)
-psi = random_mps(s; linkdims=8)
+psi = random_mps(s; linkdims = 8)
 dens = expect(psi, "Ntot")
 updens, dndens = expect(psi, "Nup", "Ndn") # pass more than one operator
 ```

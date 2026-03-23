@@ -101,7 +101,8 @@ end
         return exponentiate(PH, internal_kwargs.time_step, state0; kwargs...)
     end
     updater_kwargs = (;
-        ishermitian = true, tol = 1.0e-12, krylovdim = 30, maxiter = 100, verbosity = 0, eager = true,
+        ishermitian = true, tol = 1.0e-12, krylovdim = 30, maxiter = 100, verbosity = 0,
+        eager = true,
     )
     t = -0.1im
     ψ1 = tdvp(H, t, ψ0; updater, updater_kwargs, cutoff, nsite = 1)
@@ -150,7 +151,7 @@ end
             state;
             cutoff,
             normalize = false,
-            updater_kwargs = (; tol = 1.0e-12, maxiter = 500, krylovdim = 25),
+            updater_kwargs = (; tol = 1.0e-12, maxiter = 500, krylovdim = 25)
         )
         push!(Sz_tdvp, real(expect(state, "Sz"; sites = c:c)[1]))
         state2 = tdvp(
@@ -159,7 +160,7 @@ end
             state2;
             cutoff,
             normalize = false,
-            updater_kwargs = (; tol = 1.0e-12, maxiter = 500, krylovdim = 25),
+            updater_kwargs = (; tol = 1.0e-12, maxiter = 500, krylovdim = 25)
         )
         push!(Sz_tdvp2, real(expect(state2, "Sz"; sites = c:c)[1]))
         push!(Sz_exact, real(scalar(dag(prime(statex, s[c])) * Szc * statex)))
@@ -206,7 +207,8 @@ end
         state = apply(gates, state; cutoff)
         nsite = (step <= 3 ? 2 : 1)
         phi = tdvp(
-            H, -tau * im, phi; cutoff, nsite, normalize = true, updater_kwargs = (; krylovdim = 15)
+            H, -tau * im, phi; cutoff, nsite, normalize = true,
+            updater_kwargs = (; krylovdim = 15)
         )
         Sz1[step] = expect(state, "Sz"; sites = c:c)[1]
         Sz2[step] = expect(phi, "Sz"; sites = c:c)[1]
@@ -230,7 +232,8 @@ end
 
     phi = MPS(s, n -> isodd(n) ? "Up" : "Dn")
     phi = tdvp(
-        H, -im * ttotal, phi; time_step = -im * tau, cutoff, normalize = false, (observer!) = obs
+        H, -im * ttotal, phi; time_step = -im * tau, cutoff, normalize = false,
+        (observer!) = obs
     )
     Sz2 = obs.Sz
     En2 = obs.En
@@ -264,7 +267,7 @@ end
             nsite,
             reverse_step,
             normalize = true,
-            updater_kwargs = (; krylovdim = 15),
+            updater_kwargs = (; krylovdim = 15)
         )
         state2 = tdvp(
             H,
@@ -274,7 +277,7 @@ end
             nsite,
             reverse_step,
             normalize = true,
-            updater_kwargs = (; krylovdim = 15),
+            updater_kwargs = (; krylovdim = 15)
         )
     end
     @test state ≈ state2 rtol = 1.0e-6
@@ -326,7 +329,7 @@ end
         cutoff,
         normalize = false,
         (observer!) = obs,
-        (step_observer!) = step_obs,
+        (step_observer!) = step_obs
     )
     Sz = filter(!isnothing, obs.Sz)
     En = filter(!isnothing, obs.En)

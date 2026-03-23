@@ -1,5 +1,7 @@
-using ITensors, Test, Random
-using ITensorMPS: dmrg, nsite, set_nsite!, siteinds, site_range
+using ITensorMPS: dmrg, nsite, set_nsite!, site_range, siteinds
+using ITensors
+using Random
+using Test
 
 @testset "Basic DMRG" begin
     @testset "Spin-one Heisenberg" begin
@@ -149,7 +151,8 @@ using ITensorMPS: dmrg, nsite, set_nsite!, siteinds, site_range
         psi = random_mps(sites, state; linkdims = 4)
 
         energy, psi = dmrg(
-            [HA, HB], psi; nsweeps = 3, maxdim = [10, 20, 30], write_when_maxdim_exceeds = 10
+            [HA, HB], psi; nsweeps = 3, maxdim = [10, 20, 30],
+            write_when_maxdim_exceeds = 10
         )
         @test energy < -12.0
     end
@@ -235,7 +238,8 @@ using ITensorMPS: dmrg, nsite, set_nsite!, siteinds, site_range
         h = 1.0
         H = MPO(ising(N; h = h), sites)
         energy, psi = dmrg(
-            H, psi0; nsweeps = 5, maxdim = [10, 20], cutoff = 1.0e-12, noise = 1.0e-10, outputlevel = 0
+            H, psi0; nsweeps = 5, maxdim = [10, 20], cutoff = 1.0e-12, noise = 1.0e-10,
+            outputlevel = 0
         )
 
         energy_exact = 1.0 - 1.0 / sin(π / (4 * N + 2))

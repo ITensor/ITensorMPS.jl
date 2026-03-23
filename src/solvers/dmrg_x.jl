@@ -1,4 +1,4 @@
-using ITensors: array, contract, dag, uniqueind, onehot
+using ITensors: array, contract, dag, onehot, uniqueind
 using LinearAlgebra: eigen
 
 function eigen_updater(operator, state; internal_kwargs)
@@ -13,7 +13,8 @@ function eigen_updater(operator, state; internal_kwargs)
 end
 
 function dmrg_x(
-        operator, state::MPS; updater = eigen_updater, (observer!) = default_observer(), kwargs...
+        operator, state::MPS; updater = eigen_updater, (observer!) = default_observer(),
+        kwargs...
     )
     info_ref = Ref{Any}()
     info_observer = values_observer(; info = info_ref)

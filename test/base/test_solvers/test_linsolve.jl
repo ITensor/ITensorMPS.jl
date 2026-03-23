@@ -1,12 +1,12 @@
 @eval module $(gensym())
-using ITensors: scalartype
-using ITensorMPS: MPO, OpSum, apply, random_mps, siteinds
 using ITensorMPS.Experimental: dmrg
+using ITensorMPS: MPO, OpSum, apply, random_mps, siteinds
+using ITensors: scalartype
 using KrylovKit: linsolve
 using LinearAlgebra: norm
+using Random: Random
 using StableRNGs: StableRNG
 using Test: @test, @test_throws, @testset
-using Random: Random
 @testset "linsolve (eltype=$elt, conserve_qns=$conserve_qns)" for elt in (
             Float32, Float64, Complex{Float32}, Complex{Float64},
         ),
