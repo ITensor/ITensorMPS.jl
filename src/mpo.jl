@@ -637,6 +637,23 @@ function ITensors.contract(A::MPO, ψ::MPS; alg = nothing, method = alg, kwargs.
     return contract(Algorithm(alg), A, ψ; kwargs...)
 end
 
+function _zipup_docstring(rhs_type::String)
+    rhs_name = rhs_type == "MPO" ? "B" : "ψ"
+    return """    - `"zipup"`: The MPO and $rhs_type tensors are contracted then truncated at each site
+    without enforcing the appropriate orthogonal gauge. Once this sweep is complete a call
+    to `truncate!` occurs. Because the initial truncation is not locally optimal it is
+    recommended to use a loose `cutoff` and `maxdim` and then pass the desired truncation
+    parameters to the locally optimal `truncate!` sweep via the additional keyword argument
+    `truncate_kwargs`. A set of parameters suggested in [^Paeckel2019] is
+    `contract(A, $rhs_name; alg="zipup", cutoff=cutoff / 10, maxdim=2 * maxdim, truncate_kwargs=(; cutoff, maxdim))`."""
+end
+
+function _paeckel2019_citation_docstring()
+    return """
+    [^Paeckel2019]: Time-evolution methods for matrix-product states. Sebastian Paeckel et al. [arXiv:1901.05824](https://arxiv.org/abs/1901.05824)
+    """
+end
+
 contract_mpo_mps_doc = """
     contract(ψ::MPS, A::MPO; kwargs...) -> MPS
     *(::MPS, ::MPO; kwargs...) -> MPS
@@ -659,8 +676,7 @@ convenience function `apply`:
 apply(A, x; kwargs...) = replaceprime(contract(A, x; kwargs...), 2 => 1)`.
 ```
 
-Choose the method with the `method` keyword, for example
-`"densitymatrix"` and `"naive"`.
+Choose the algorithm with the `alg` keyword argument (or the deprecated `method` alias).
 
 # Keywords
 - `cutoff::Float64=1e-13`: the cutoff value for truncating the density matrix
@@ -669,14 +685,18 @@ Choose the method with the `method` keyword, for example
 - `maxdim::Int=maxlinkdim(A) * maxlinkdim(ψ))`: the maximal bond dimension of the results MPS.
 - `mindim::Int=1`: the minimal bond dimension of the resulting MPS.
 - `normalize::Bool=false`: whether or not to normalize the resulting MPS.
-- `method::String="densitymatrix"`: the algorithm to use for the contraction.
-   Currently the options are "densitymatrix", where the network formed by the
-   MPO and MPS is squared and contracted down to a density matrix which is
-   diagonalized iteratively at each site, and "naive", where the MPO and MPS
-   tensor are contracted exactly at each site and then a truncation of the
-   resulting MPS is performed.
+- `alg::String="densitymatrix"`: the algorithm to use for the contraction. Options:
+    - `"densitymatrix"`: The network formed by the MPO and MPS is squared and contracted down
+      to a density matrix which is diagonalized iteratively at each site.
+    - `"naive"`: The MPO and MPS tensors are contracted exactly at each site and then a
+      truncation of the resulting MPS is performed.
+$(_zipup_docstring("MPS"))
+- `truncate_kwargs::NamedTuple`: (for `alg="zipup"` only) truncation parameters passed to
+   the final `truncate!` sweep. Defaults to `(; cutoff, maxdim, mindim)`.
 
 See also [`apply`](@ref).
+
+$(_paeckel2019_citation_docstring())
 """
 
 @doc """
@@ -840,28 +860,34 @@ end
 function ITensors.contract(
         ::Algorithm"zipup",
         A::MPO,
-        B::MPO;
+        B::AbstractMPS;
         cutoff = 1.0e-14,
         maxdim = maxlinkdim(A) * maxlinkdim(B),
         mindim = 1,
+        truncate_kwargs = (; cutoff, maxdim, mindim),
         kwargs...
     )
     if hassameinds(siteinds, A, B)
         error(
-            "In `contract(A::MPO, B::MPO)`, MPOs A and B have the same site indices. The indices of the MPOs in the contraction are taken literally, and therefore they should only share one site index per site so the contraction results in an MPO. You may want to use `replaceprime(contract(A', B), 2 => 1)` or `apply(A, B)` which automatically adjusts the prime levels assuming the input MPOs have pairs of primed and unprimed indices."
+            "In `contract(A::MPO, B::AbstractMPS)`, A and B have the same site indices. " *
+                "The indices in the contraction are taken literally, and therefore they should " *
+                "only share one site index per site so the contraction results in an MPO or MPS. " *
+                "You may want to use `replaceprime(contract(A', B), 2 => 1)` or `apply(A, B)` " *
+                "which automatically adjusts the prime levels assuming the inputs have pairs of " *
+                "primed and unprimed indices."
         )
     end
     N = length(A)
     N != length(B) &&
-        throw(DimensionMismatch("lengths of MPOs A ($N) and B ($(length(B))) do not match"))
+        throw(DimensionMismatch("lengths of A ($N) and B ($(length(B))) do not match"))
     # Special case for a single site
-    N == 1 && return MPO([A[1] * B[1]])
+    N == 1 && return typeof(B)([A[1] * B[1]])
     A = orthogonalize(A, 1)
     B = orthogonalize(B, 1)
     A = sim(linkinds, A)
     sA = siteinds(uniqueinds, A, B)
     sB = siteinds(uniqueinds, B, A)
-    C = MPO(N)
+    C = typeof(B)(N)
     lCᵢ = Index[]
     R = ITensor(true)
     for i in 1:(N - 2)
@@ -892,7 +918,7 @@ function ITensors.contract(
         mindim,
         kwargs...
     )
-    truncate!(C; kwargs...)
+    truncate!(C; truncate_kwargs...)
     return C
 end
 
@@ -963,16 +989,23 @@ C = apply(A, B; alg="naive", truncate=false)
    in general you should set a `cutoff` value.
 - `maxdim::Int=maxlinkdim(A) * maxlinkdim(B))`: the maximal bond dimension of the results MPS.
 - `mindim::Int=1`: the minimal bond dimension of the resulting MPS.
-- `alg="zipup"`: Either `"zipup"` or `"naive"`. `"zipup"` contracts pairs of
-   site tensors and truncates with SVDs in a sweep across the sites, while `"naive"`
-   first contracts pairs of tensor exactly and then truncates at the end if `truncate=true`.
-- `truncate=true`: Enable or disable truncation. If `truncate=false`, ignore
-   other truncation parameters like `cutoff` and `maxdim`. This is most relevant
-   for the `"naive"` version, if you just want to contract the tensors pairwise
-   exactly. This can be useful if you are contracting MPOs that have diverging
-   norms, such as MPOs originating from sums of local operators.
+- `alg::String="zipup"`: the algorithm to use for the contraction. Options:
+    - `"zipup"`: Contracts pairs of site tensors and truncates with SVDs in a sweep across the
+      sites, then performs a final `truncate!` sweep.
+    - `"naive"`: Contracts pairs of tensors exactly and then truncates at the end if
+      `truncate=true`.
+$(_zipup_docstring("MPO"))
+- `truncate_kwargs::NamedTuple`: (for `alg="zipup"` only) truncation parameters passed to
+   the final `truncate!` sweep. Defaults to `(; cutoff, maxdim, mindim)`.
+- `truncate=true`: (for `alg="naive"` only) Enable or disable truncation. If
+   `truncate=false`, ignore other truncation parameters like `cutoff` and `maxdim`. This is
+   most relevant if you just want to contract the tensors pairwise exactly. This can be useful
+   if you are contracting MPOs that have diverging norms, such as MPOs originating from sums
+   of local operators.
 
 See also [`apply`](@ref) for details about the arguments available.
+
+$(_paeckel2019_citation_docstring())
 """
 
 @doc """
