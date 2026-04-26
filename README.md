@@ -21,6 +21,12 @@ ITensorMPS.jl is supported by the Flatiron Institute, a division of the Simons F
 
 ## News
 
+### ITensorMPS.jl v0.4 release notes
+
+#### Breaking changes
+
+`TimeDependentSum` and `to_vec` have been removed. Most users should not be affected, as these were experimental/internal helpers used together with external ODE solvers.
+
 ### ITensorMPS.jl v0.3 release notes
 
 All MPS/MPO code from [ITensors.jl](https://github.com/ITensor/ITensors.jl) and [ITensorTDVP.jl](https://github.com/ITensor/ITensorTDVP.jl) has been moved into this repository and this repository now relies on ITensors.jl v0.7 and above. All of the MPS/MPO functionality that was previously in ITensors.jl and ITensorTDVP.jl will be developed here from now on. For users of this repository, this change should not break any code, though please let us know if you have any issues.
