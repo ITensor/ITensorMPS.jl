@@ -5,4 +5,4 @@ ITensorMPS = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
 path = ".."
 
 [compat]
-ITensorMPS = "0.3"
+ITensorMPS = "0.4"

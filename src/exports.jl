@@ -45,12 +45,10 @@ export
     triangular_lattice,
 
     # solvers
-    TimeDependentSum,
     dmrg_x,
     expand,
     linsolve,
     tdvp,
-    to_vec,
 
     # dmrg.jl
     dmrg,
