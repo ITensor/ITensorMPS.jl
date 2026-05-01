@@ -19,6 +19,4 @@ jobs:
     with:
       localregistry: "https://github.com/ITensor/ITensorRegistry.git"
       pkgs: |-
-        [
-              "__none__"
-            ]
+        []
