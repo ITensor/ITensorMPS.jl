@@ -1004,6 +1004,14 @@ end
 
         @test norm(PM[range] - expect(psi, "S+ * S-"; sites = range)) < 1.0e-8
 
+        non_contiguous = [1, 3, 8]
+        C = correlation_matrix(psi, "Sz", "Sx"; ishermitian = false)
+        Cs =
+            correlation_matrix(psi, "Sz", "Sx"; sites = non_contiguous, ishermitian = false)
+        for (ni, i) in enumerate(non_contiguous), (nj, j) in enumerate(non_contiguous)
+            @test Cs[ni, nj] ≈ C[i, j]
+        end
+
         # With start_site, end_site arguments:
         s = siteinds("S=1/2", 8)
         psi = random_mps(ComplexF64, s; linkdims = m)
