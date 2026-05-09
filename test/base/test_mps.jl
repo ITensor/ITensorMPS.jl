@@ -1004,6 +1004,9 @@ end
 
         @test norm(PM[range] - expect(psi, "S+ * S-"; sites = range)) < 1.0e-8
 
+        # Regression test for https://github.com/ITensor/ITensorMPS.jl/pull/221:
+        # non-contiguous sites with `ishermitian=false` exercise the lower-triangle
+        # contraction path through skipped MPS tensors.
         non_contiguous = [1, 3, 8]
         C = correlation_matrix(psi, "Sz", "Sx"; ishermitian = false)
         Cs =
