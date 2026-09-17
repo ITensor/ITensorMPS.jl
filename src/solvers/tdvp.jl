@@ -84,7 +84,7 @@ function tdvp(
         (sweep_observer!) = (step_observer!),
         kwargs...
     )
-    time_step, nsteps = time_step_and_nsteps(t, time_step, nsteps)
+    time_step, nsteps = time_step_and_nsteps(t - time_start, time_step, nsteps)
     return alternating_update(
         operator,
         init;
