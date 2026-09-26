@@ -35,6 +35,25 @@ include(joinpath(@__DIR__, "utils", "util.jl"))
         end
     end
 
+    @testset "No leaked HDF5 handles" begin
+        nopen(file) = HDF5.API.h5f_get_obj_count(file, HDF5.API.H5F_OBJ_ALL)
+        sites = siteinds("S=1/2", 20)
+        mps = makeRandomMPS(sites)
+        mpo = makeRandomMPO(sites)
+        GC.gc()
+        h5open("data.h5", "w") do fo
+            write(fo, "mps", mps)
+            write(fo, "mpo", mpo)
+            # `h5f_get_obj_count` includes the file handle itself.
+            @test nopen(fo) == 1
+        end
+        h5open("data.h5", "r") do fi
+            read(fi, "mps", MPS)
+            read(fi, "mpo", MPO)
+            @test nopen(fi) == 1
+        end
+    end
+
     #
     # Clean up the test hdf5 file
     #
