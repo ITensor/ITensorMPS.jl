@@ -31,7 +31,7 @@ rev = "mf/hdf5-close-handles"
 url = "https://github.com/ITensor/ITensors.jl"
 
 [sources.NDTensors]
-rev = "mf/hdf5-close-handles"
+rev = "mf/ndtensors-hdf5-close-handles"
 subdir = "NDTensors"
 url = "https://github.com/ITensor/ITensors.jl"
 
