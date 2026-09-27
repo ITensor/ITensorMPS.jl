@@ -7,37 +7,54 @@ using Test
 include(joinpath(@__DIR__, "utils", "util.jl"))
 
 @testset "HDF5 Read and Write" begin
-    @testset "MPO/MPS" begin
-        N = 6
-        sites = siteinds("S=1/2", N)
+    mktempdir() do dir
+        fn = joinpath(dir, "data.h5")
+        @testset "MPO/MPS" begin
+            N = 6
+            sites = siteinds("S=1/2", N)
 
-        # MPO
-        mpo = makeRandomMPO(sites)
+            # MPO
+            mpo = makeRandomMPO(sites)
 
-        h5open("data.h5", "w") do fo
-            return write(fo, "mpo", mpo)
+            h5open(fn, "w") do fo
+                return write(fo, "mpo", mpo)
+            end
+
+            h5open(fn, "r") do fi
+                rmpo = read(fi, "mpo", MPO)
+                @test prod([norm(rmpo[i] - mpo[i]) / norm(mpo[i]) < 1.0e-10 for i in 1:N])
+            end
+
+            # MPS
+            mps = makeRandomMPS(sites)
+            h5open(fn, "w") do fo
+                return write(fo, "mps", mps)
+            end
+
+            h5open(fn, "r") do fi
+                rmps = read(fi, "mps", MPS)
+                @test prod([norm(rmps[i] - mps[i]) / norm(mps[i]) < 1.0e-10 for i in 1:N])
+            end
         end
 
-        h5open("data.h5", "r") do fi
-            rmpo = read(fi, "mpo", MPO)
-            @test prod([norm(rmpo[i] - mpo[i]) / norm(mpo[i]) < 1.0e-10 for i in 1:N])
-        end
-
-        # MPS
-        mps = makeRandomMPS(sites)
-        h5open("data.h5", "w") do fo
-            return write(fo, "mps", mps)
-        end
-
-        h5open("data.h5", "r") do fi
-            rmps = read(fi, "mps", MPS)
-            @test prod([norm(rmps[i] - mps[i]) / norm(mps[i]) < 1.0e-10 for i in 1:N])
+        @testset "No leaked HDF5 handles" begin
+            nopen(file) = HDF5.API.h5f_get_obj_count(file, HDF5.API.H5F_OBJ_ALL)
+            sites = siteinds("S=1/2", 20)
+            mps = makeRandomMPS(sites)
+            mpo = makeRandomMPO(sites)
+            GC.gc()
+            h5open(fn, "w") do fo
+                write(fo, "mps", mps)
+                write(fo, "mpo", mpo)
+                # `h5f_get_obj_count` includes the file handle itself.
+                @test nopen(fo) == 1
+            end
+            h5open(fn, "r") do fi
+                read(fi, "mps", MPS)
+                read(fi, "mpo", MPO)
+                @test nopen(fi) == 1
+            end
         end
     end
-
-    #
-    # Clean up the test hdf5 file
-    #
-    rm("data.h5"; force = true)
 end
 end

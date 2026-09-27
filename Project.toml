@@ -1,6 +1,6 @@
 name = "ITensorMPS"
 uuid = "0d1a4710-d33b-49a5-8f18-73bdf49b47e2"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Matthew Fishman <mfishman@flatironinstitute.org>", "Miles Stoudenmire <mstoudenmire@flatironinstitute.org>"]
 
 [workspace]
@@ -38,11 +38,11 @@ Adapt = "4.1"
 ChainRulesCore = "1.10"
 Compat = "4.16"
 HDF5 = "0.14, 0.15, 0.16, 0.17"
-ITensors = "0.8, 0.9"
+ITensors = "0.9.32"
 IsApprox = "2"
 KrylovKit = "0.8.1, 0.9, 0.10"
 LinearAlgebra = "1.10"
-NDTensors = "0.4"
+NDTensors = "0.4.32"
 Observers = "0.2"
 PackageCompiler = "1, 2"
 Printf = "1.10"
