@@ -3,7 +3,7 @@ using ITensorMPS: MPS
 using ITensors: ITensor
 
 function HDF5.write(parent::Union{HDF5.File, HDF5.Group}, name::AbstractString, M::MPS)
-    closing(create_group(parent, name)) do g
+    closeafter(create_group(parent, name)) do g
         attributes(g)["type"] = "MPS"
         attributes(g)["version"] = 1
         N = length(M)
@@ -18,7 +18,7 @@ function HDF5.write(parent::Union{HDF5.File, HDF5.Group}, name::AbstractString, 
 end
 
 function HDF5.read(parent::Union{HDF5.File, HDF5.Group}, name::AbstractString, ::Type{MPS})
-    return closing(open_group(parent, name)) do g
+    return closeafter(open_group(parent, name)) do g
         if read_attribute(g, "type") != "MPS"
             error("HDF5 group or file does not contain MPS data")
         end
