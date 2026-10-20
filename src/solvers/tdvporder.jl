@@ -16,7 +16,7 @@ end
 sub_time_steps(::TDVPOrder{2}) = [1 / 2, 1 / 2]
 
 function orderings(::TDVPOrder{4, direction}) where {direction}
-    return [direction, Base.ReverseOrdering(direction)]
+    return repeat([direction, Base.ReverseOrdering(direction)], 3)
 end
 function sub_time_steps(::TDVPOrder{4})
     s = 1 / (2 - 2^(1 / 3))
