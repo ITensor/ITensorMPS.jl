@@ -137,6 +137,8 @@ export
     measure!,
     measurements,
     truncerrors,
+    # checkpointedprojmpo.jl
+    CheckpointedProjMPO,
     # projmpo.jl
     disk,
     ProjMPO,

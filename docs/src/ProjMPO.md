@@ -21,3 +21,9 @@ length(::ProjMPO)
 eltype(::ProjMPO)
 size(::ProjMPO)
 ```
+
+## Low-memory variant
+
+```@docs
+CheckpointedProjMPO
+```

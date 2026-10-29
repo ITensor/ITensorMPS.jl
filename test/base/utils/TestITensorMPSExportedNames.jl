@@ -10,6 +10,7 @@ const ITENSORMPS_EXPORTED_NAMES = [
     :AbstractObserver,
     :Apply,
     :AutoMPO,
+    :CheckpointedProjMPO,
     :DMRGMeasurement,
     :DMRGObserver,
     :ITensorMPS,
